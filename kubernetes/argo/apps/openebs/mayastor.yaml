@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mayastor
+  namespace: argo-system
+spec:
+  project: default
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/openebs
+      targetRevision: main
+      ref: repo
+    - repoURL: https://openebs.github.io/mayastor-extensions/
+      chart: mayastor
+      targetRevision: 2.8.0
+      helm:
+        valueFiles:
+          - $repo/kubernetes/apps/openebs/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openebs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

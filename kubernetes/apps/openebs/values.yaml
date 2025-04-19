@@ -1,0 +1,71 @@
+# Mayastor values for Talos Linux - optimized configuration
+crds:
+  enabled: true
+  csi:
+    volumeSnapshots:
+      enabled: true
+
+base:
+
+  # Disable init containers that may not work properly on Talos
+  initContainers:
+    enabled: false
+  initHaNodeContainers:
+    enabled: false
+  initCoreContainers:
+    enabled: false
+  initRestContainer:
+    enabled: false
+  metrics:
+    enabled: true
+  jaeger:
+    enabled: false
+# IO Engine configuration for Talos
+io_engine:
+  nodeSelector:
+    openebs.io/engine: mayastor
+    kubernetes.io/arch: amd64
+
+# CSI configuration
+csi:
+  node:
+    logLevel: info
+    kubeletDir: /var/lib/kubelet
+    nvme:
+      tcpFallback: true
+    initContainers:
+      enabled: false
+  controller:
+    logLevel: info
+    preventVolumeModeConversion: true
+    enableDangerousRetainGC: false
+
+# ETCD configuration
+etcd:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 2Gi
+
+# Disable Loki stack for minimal deployment
+loki-stack:
+  enabled: false
+eventing:
+  enabled: false
+
+# Disable call home
+obs:
+  callhome:
+    enabled: false
+storageClass:
+  enabled: true
+  nameSuffix: triple-replica
+  default: true
+  allowVolumeExpansion: true
+  parameters:
+    protocol: nvmf
+    repl: 3
+# Disable local PV provisioner as we're using Mayastor for storage
+localpv-provisioner:
+  enabled: false
