@@ -1,0 +1,97 @@
+controllers:
+  echo:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/mendhak/http-https-echo
+          tag: 34
+        env:
+          HTTP_PORT: 8080
+          LOG_WITHOUT_NEWLINE: true
+          LOG_IGNORE_PATH: /healthz
+          PROMETHEUS_ENABLED: true
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 64Mi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+service:
+  app:
+    controller: echo
+    ports:
+      http:
+        port: 8080
+serviceMonitor:
+  app:
+    serviceName: echo
+    endpoints:
+      - port: http
+        scheme: http
+        path: /metrics
+        interval: 1m
+        scrapeTimeout: 10s
+ingress:
+  app:
+    className: external
+    annotations:
+      external-dns.alpha.kubernetes.io/target: external.wakkalabs.com
+    hosts:
+      - host: '{{ .Release.Name }}.wakkalabs.com'
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB4cGFvcUNzRFpVRUtwb1Vs
+        U2U3eU84eDZwbTZIdDJDVTg5aUo2cUczWVRRCkhPM1M0VEp3SFRtNFF5OWswc0FO
+        TzA4UUVYbkpTZXRMYmlEZWM0WEJITDQKLS0tIGRNQ1NNcHV1NzZJd2x0eFlPVTlL
+        TVFwMTFIdmtGVlVaNWtOS3Y4ejdoclEK/0F+ecoO+CydFbhqcvVyplmYMNNil6Gf
+        7l1DMKhamONyC+19ZNiUaORaOqpBqiZMVHA0kjcKeQOr8jJl/SvCpg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-19T11:00:36Z"
+  mac: ENC[AES256_GCM,data:eZwzOhcqYU6Pe89F6dHNmc0LZieAAzbPmNbUsxOoJKUqpFslEKRr3FpRjfiz1GJPfmr4Hacn2v1wYYDWkqyAkIShKWNAIci2nxVkUiA7pM+oBVIdfy2fQvSP3xWiArlfTL4+KQNs4GF+rDu8/B5QGRXjzYSVe2dMBsf6RPL+aJs=,iv:8JEeyLGIwJI6s0Dfa13VGleY/WRS63OLgWvLl7RxH1A=,tag:K7ckr8pqWU7dOB5TkIYMMQ==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.10.1

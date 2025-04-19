@@ -1,0 +1,28 @@
+fullnameOverride: k8s-gateway
+domain: wakkalabs.com
+ttl: 1
+service:
+  type: LoadBalancer
+  port: 53
+  annotations:
+    io.cilium/lb-ipam-ips: 192.168.101.3
+  externalTrafficPolicy: Cluster
+watchedResources:
+  - Ingress
+  - Service
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqMithNEF2RTh3VXdGaVZm
+        S1laQyt0MitXcDJZWUhKODVhZmt0aURWOVIwCjVNYmxBQ0gwbDc5TTNyUjdjekNx
+        MXJFM1RpMHFCV3ZpYlJWd2pCRlpGM2MKLS0tIDlkTUxPZVo4dWlCcW1SaW1zbUIw
+        LzJWRjl1U0ZyUng1b3c5SGIzV2ZVdXMKJrfi6NakJJf0bbeKGvWpwwri3IWU8bhm
+        49t5J5+SyaAhQo8GBC10MyGSz3pTtrpc6Zp0/sW4E1F2NOf5ofYtpw==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-19T11:00:36Z"
+  mac: ENC[AES256_GCM,data:+/aftDT8TK+mTyRsfR+vRgtVySwAsiY0A5jpG3axxORbmHrNmNx3ZVw41vidD25spG6SL11tQSVdGzXHCXJkNRLWX1Q3N1+n1/JiiiepK+WA1F+fCDxD9elNjLt3ym9lER7FW2iwK+auBPwxmCsXaG0wM2EKL0sk+wp2LBXi+ls=,iv:FZPx0yToXytCFy+r0APa0Y4uLTvaSS11G2bzw2D4ZB0=,tag:GXJubw4wTAc1VZGAevBTGg==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.10.1

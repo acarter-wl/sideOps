@@ -1,0 +1,68 @@
+fullnameOverride: ingress-nginx-external
+controller:
+  service:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: external.wakkalabs.com
+      lbipam.cilium.io/ips: 192.168.101.4
+    externalTrafficPolicy: Cluster
+  ingressClassResource:
+    name: external
+    default: false
+    controllerValue: k8s.io/external
+  admissionWebhooks:
+    objectSelector:
+      matchExpressions:
+        - key: ingress-class
+          operator: In
+          values:
+            - external
+  config:
+    allow-snippet-annotations: true
+    annotations-risk-level: Critical
+    client-body-buffer-size: 100M
+    client-body-timeout: 120
+    client-header-timeout: 120
+    enable-brotli: "true"
+    enable-ocsp: "true"
+    enable-real-ip: "true"
+    force-ssl-redirect: "true"
+    hide-headers: Server,X-Powered-By
+    hsts-max-age: 31449600
+    keep-alive-requests: 10000
+    keep-alive: 120
+    log-format-escape-json: "true"
+    log-format-upstream: |
+      {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status": $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}
+    proxy-body-size: 0
+    proxy-buffer-size: 16k
+    ssl-protocols: TLSv1.3 TLSv1.2
+    use-forwarded-headers: "true"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespaceSelector:
+        any: true
+  extraArgs:
+    default-ssl-certificate: network/wakkalabs-com-production-tls
+  resources:
+    requests:
+      cpu: 100m
+    limits:
+      memory: 500Mi
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBhck1CVk5Hek5jWFpUZlVV
+        ckcwdEdxWDJ3bnpuQW5mK3BZamxFS24xYkNrCjA0UHBDOEgxNFUxWjhsaUtPclhy
+        T1lUQ0FyZXJ6Mmo3NGtmQWdOYWF2cUkKLS0tIDYvZmtQZEJCdzhZczJERElwRHZ3
+        eTQ1VHhQY1BCUEZxSjNaaE9nOHk2ajAKFtG0p/qgtVJM7RxtObXMUanyK4/3FOnD
+        755LqHeUM1wf8LzZuS9J3CvfwLmstI/YETB1IQs6/LcmXbXWYrTIgg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-19T11:00:36Z"
+  mac: ENC[AES256_GCM,data:qFvnd7Q0xfO8hdXkq03BJreFDSemQJVdkwaY25rPsS0+AteAS3+gDoOrzrnOZgiBlOdxRZLsi/Zy+eZNo81EDP+wKCIYkVR4RU8djUhK0rMgOFD0Q8qFDtxwm6YDNsORx50aPd+bz9+aNmCZZQM0k/qD1de1Qw/T0Blu4uUeFYs=,iv:qP+SbroxHynXfvK6BUUqFsiL6GLijzVYo6Q2ID/GDtM=,tag:aZZ/WXLR1gslg2BqVFeUHg==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.10.1
