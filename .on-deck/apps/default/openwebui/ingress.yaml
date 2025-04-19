@@ -1,0 +1,31 @@
+---
+# Ingress for Open WebUI (If using Ingress for external access)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-webui
+  namespace: default
+  annotations:
+    # Add your ingress controller specific annotations here
+    # For example, for nginx:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # kubernetes.io/tls-acme: "true"
+spec:
+  ingressClassName: internal
+  rules:
+    - host: chat.wakkalabs.com # Replace with your actual domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: open-webui
+                port:
+                  number: 8080
+  # TLS configuration
+  tls:
+    - hosts:
+        - chat.wakkalabs.com
+      secretName: openwebui-tls

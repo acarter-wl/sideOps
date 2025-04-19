@@ -1,0 +1,6 @@
+machine:
+  disks:
+    - device: /dev/sdb
+      partitions:
+        - mountpoint: /var/openebs/local
+          size: 0

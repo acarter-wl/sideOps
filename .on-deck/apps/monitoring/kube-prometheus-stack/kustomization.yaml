@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+resources:
+  - prom-rbac.yaml
+  - ./config
+  - ./servicemonitors
+  - prometheus_alerts.yaml
+
+configMapGenerator:
+  - name: argo-cd-dashboards
+    files:
+      - dashboards/argo-cd-application-overview.json
+      - dashboards/argo-cd-notifications-overview.json
+      - dashboards/argo-cd-operational-overview.json
+    options:
+      labels:
+        grafana_dashboard: "1"

@@ -1,0 +1,278 @@
+namespaceOverride: monitoring
+nameOverride: kube-prometheus-stack
+fullnameOverride: kube-prometheus-stack
+
+global:
+  rbac:
+    create: true
+
+crds:
+  enabled: true
+  upgradeJob:
+    enabled: false
+
+# ================================
+# ETCD Scraping for Talos
+# ======================
+kubeEtcd:
+  enabled: true
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+  serviceMonitor:
+    scheme: https
+    insecureSkipVerify: false
+    serverName: localhost
+    caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
+    certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
+    keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
+
+prometheusSpec:
+  secrets:
+    - etcd-certs
+  additionalVolumeMounts:
+    - name: etcd-certs
+      mountPath: /etc/prometheus/secrets/etcd-certs
+      readOnly: true
+  additionalVolumes:
+    - name: etcd-certs
+      secret:
+        secretName: etcd-certs
+
+# ================================
+# Core Kubernetes Components
+# ================================
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    scheme: https
+    insecureSkipVerify: false
+
+kubelet:
+  enabled: true
+  namespace: kube-system
+  serviceMonitor:
+    enabled: true
+    honorLabels: true
+
+kubeControllerManager:
+  enabled: true
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+  serviceMonitor:
+    enabled: true
+
+kubeScheduler:
+  enabled: true
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+  service:
+    selector:
+      component: kube-scheduler
+  serviceMonitor:
+    enabled: true
+
+coreDns:
+  enabled: true
+  service:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+
+kubeStateMetrics:
+  enabled: true
+  prometheusScrape: true
+  prometheus:
+    monitor:
+      enabled: true
+
+nodeExporter:
+  enabled: true
+  operatingSystems:
+    linux:
+      enabled: true
+    windows:
+      enabled: false
+
+# ================================
+# Prometheus Configuration
+# ================================
+prometheus:
+  enabled: true
+  scrapeInterval: 30s
+  evaluationInterval: 30s
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1000m
+    limits:
+      memory: 4Gi
+      cpu: 2000m
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        release: kube-prometheus-stack
+    retentionDuration: "90d"
+    retentionSize: "90GB"
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: mayastor-3
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 100Gi
+    replicas: 1
+    additionalVolumes:
+      - name: etcd-client-cert
+        secret:
+          secretName: etcd-client-cert
+    additionalVolumeMounts:
+      - name: etcd-client-cert
+        mountPath: /etc/prometheus/secrets/etcd-client-cert
+
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - prometheus.wakkalabs.com
+    path: /
+    tls:
+      - secretName: prometheus-wakkalabs-tls
+        hosts:
+          - prometheus.wakkalabs.com
+
+# ================================
+# Alertmanager Configuration
+# ================================
+alertmanager:
+  replicas: 2
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: [ 'job', 'alertname', 'namespace' ]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+        - match:
+            alertname: Watchdog
+          receiver: 'null'
+        - match:
+            severity: critical
+          receiver: 'discord-critical'
+          continue: true
+        - match:
+            severity: warning
+          receiver: 'discord-warnings'
+    receivers:
+      - name: 'null'
+      - name: 'discord-critical'
+        webhook_configs:
+          - url: 'https://discord.com/api/webhooks/1355431526891786240/5KSnlY0KPdx7dRsSL0yJDaZYNzVktheQz1PXNoX9-eCIlZP2MFZcM67PtFRTRa4ZwJ_a'
+            send_resolved: true
+      - name: 'discord-warnings'
+        webhook_configs:
+          - url: 'https://discord.com/api/webhooks/1355379117692027012/y6Sxl2G-D4hqr8TQVL8rT1HRb1n_h2e8x7nQoNbSDZz_8cGYII2ZVeziLxujkFjkm89X'
+            send_resolved: true
+    templates:
+      - '/etc/alertmanager/config/*.tmpl'
+
+  defaultRules:
+    create: true
+    rules:
+      alertmanager: true
+      etcd: true
+      kubeApiserver: true
+      kubePrometheusNodeAlerting: true
+      kubePrometheusNodeRecording: true
+      kubernetesSystem: true
+      kubernetesResources: true
+      kubernetesStorage: true
+      prometheusOperator: true
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - alertmanager.wakkalabs.com
+    path: /
+    tls:
+      - secretName: alertmanager-wakkalabs-tls
+        hosts:
+          - alertmanager.wakkalabs.com
+
+# ================================
+# Grafana Configuration
+# ================================
+grafana:
+  enabled: true
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: "America/Chicago"
+  defaultDashboardsEditable: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /tmp/dashboards
+      searchNamespace: ALL
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - grafana.wakkalabs.com
+    path: /
+    tls:
+      - secretName: grafana-wakkalabs-tls
+        hosts:
+          - grafana.wakkalabs.com
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes:
+      - ReadWriteMany
+    size: 100Gi
+    storageClassName: mayastor-3
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          type: loki
+          uid: Loki
+          access: proxy
+          editable: true
+          url: http://loki.monitoring.svc.cluster.local:3100
+          jsonData: {}
+
+# ================================
+# Promtail Configuration
+# ================================
+promtail:
+  enabled: false # Disable Promtail since we're using Fluent Bit

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: open-webui-secret
+  # Change to your actual namespace
+  namespace: default
+type: Opaque
+stringData:
+  #ENC[AES256_GCM,data:uJWvwWxF7K5NoooLl5NejFxelpfx0LiGlyvcpZcXfpwRs0fWR5So2hgpLtlo8JuK5NCm9IG18PtX5ZuPKotkDZEDutfHF/hNvA==,iv:G5NCtVBB4aBXuOPIPcEM2fKAbAStUZ12IHnaZESfcAc=,tag:1BhCCEAbhyvsxj3e3uYOZA==,type:comment]
+  oidc-client-id: ENC[AES256_GCM,data:C+c/B0PRN1SykUPdgyEO6srbvecMUvwY8buojJuxXCq96MFb0a38vA==,iv:6K+K1ugZJdkhsv6koG9bVPWq/PG23457B7WOCNB4NAY=,tag:cgfZb2RvFu6bXsV3slkS0w==,type:str]
+  oidc-client-secret: ENC[AES256_GCM,data:oHrJ4UXwuTdMT3aJlB/UQCcPCMlce3JwtHNMmp4j6i8TH+KB7UEO/W14IGwnC7WPMo3CcMDNF270Q2G14UiNroHgKlnCf850ZAKPKXzUQYgJMx3wwjXeK0G8h14pZbDkExPlxUVXBnqBlubU00eEZDohulOa1P6RPUpQatXOWwI=,iv:dIcuDjSuLYUO90n9pUNbi3A+WgXM769+kw6wMGc/WaE=,tag:xuDWcMqTkibOMy9EhsQBAw==,type:str]
+sops:
+  age:
+    - recipient: age154ykr0f2v25m3jwdgk5xx3v4a4c5fnmt76852csf0dtm54mzaevqxykxzm
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQcDlTU2trVkZUUElEcEcy
+        bUdoWkdFdENXT3lTZHZabVNwT0pFVmM3alJvCk1MNm1aVnlJSGRNMkRNQzZQVjRC
+        RnVMd2JLRVRMb0FYcjRkL0ZyOFJ6NFUKLS0tIDVUK1ZrVnJieUg1S2ZDazl0UU5Q
+        a01mdU51R2d6bEk5T1ZYN1RtQnZOZUUK7t8cB6A626+RGHTr/I717RCTyQ2prRmx
+        K7e9P0fTUNYu5qa3cwGwfDomNAAg8d+TGl7L0OoLo4MC/lcPZ1f0UA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-12T01:23:58Z"
+  mac: ENC[AES256_GCM,data:x1TDGYXSU2fs88b59J8YQr9R5LUggmppb8VMGrS+HU68y5McXYrMtabKDl+u7rXo4Aq0Pek/BdZrd0NHSFYP9IzLyjpgRejfVv2MTnJ0cAgRVsqlvYOJenhznN9ZcwZuFjQqj5v1254jseIX/M7IedVzCLTcB+IH0PLgmIjTDJ4=,iv:w44yNFlWJ/9otYidPKpgOZp3UKDDJtO8usaGZfZu0PQ=,tag:VXuuMC6e7zDJlU8kbv5ijA==,type:str]
+  encrypted_regex: ^(data|stringData|secret_key|password|redis_password|postgresql_password| clientSecret|client_id|apiKey|token|secret|key|credential|auth_token| access_token|refresh_token|bearer_token|ssh_key|private_key|public_key| certificate|cert|key|pem|p12|pfx|keystore|truststore|jks|jwt|session_key| encryption_key|signing_key|master_key|root_key|admin_password| service_account_key|oauth_token|api_token|auth_secret|auth_key| auth_credentials|auth_password|auth_username|auth_email|auth_phone| auth_code|auth_verification|auth_confirmation|auth_reset|auth_recovery| auth_backup|auth_restore|auth_export|auth_import|auth_migration| auth_transfer|auth_sync|auth_backup_key|auth_restore_key|auth_export_key| auth_import_key|auth_migration_key|auth_transfer_key|auth_sync_key)$
+  mac_only_encrypted: true
+  version: 3.10.1

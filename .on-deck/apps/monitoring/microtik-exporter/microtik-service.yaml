@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: mikrotik-exporter
+    namespace: monitoring
+    labels:
+        app: mikrotik-exporter
+spec:
+    ports:
+        - port: 9436
+          targetPort: 9436
+          name: metrics
+    selector:
+        app: mikrotik-exporter
+sops:
+    age:
+        - recipient: age154ykr0f2v25m3jwdgk5xx3v4a4c5fnmt76852csf0dtm54mzaevqxykxzm
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBkNW5rUDVxbjgzQzZCYmg1
+            ay9EeUVweFpzUHEzdmVrR21pZFBEc2xaTlFzCmZCRmNyS20rMHNKSU9oaWtjUnJJ
+            Y2xkaUY3RytQS0dkajlMcjc4MW5ld0EKLS0tIEJhTU5GcFBzOEo3Sy9KcHNDNmpG
+            a3BKTTY4UlpqckJWVmtQWWx1TnpLN28KRacpsRKgIZc4fVHmX8YKGGt/pAi9+GRI
+            pPyAQMLZGFYtNV1YZLoOik5JnsxYkk9ULgx5u3Ws7kFs792tU0muYQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-04-13T08:52:27Z"
+    mac: ENC[AES256_GCM,data:hG+kd5ro2om8KK0R6vpZFxY/H1PSBxASoHQVgWPOriEPDNb9ZQ8V2Dvglm6lA30lI1iJ27cTHs4FLBCDzvsn/XpPU1Pqfzcwi3cekm0hW0aK/5twK6HqvdXBG9F56z5ngE6zKdoSiBhsB7aGBToGbTSH19qfeAPFp/Zi2LjFFNk=,iv:mkOHkQknO1zYgq9iDp15bbOX/6RgoYEjJylwyf28uk0=,tag:VsFnTU1vQtd4VjWDvrfyVw==,type:str]
+    encrypted_regex: ^(data|stringData|secret_key|password|redis_password|postgresql_password| clientSecret|client_id|apiKey|token|secret|key|credential|auth_token| access_token|refresh_token|bearer_token|ssh_key|private_key|public_key| certificate|cert|key|pem|p12|pfx|keystore|truststore|jks|jwt|session_key| encryption_key|signing_key|master_key|root_key|admin_password| service_account_key|oauth_token|api_token|auth_secret|auth_key| auth_credentials|auth_password|auth_username|auth_email|auth_phone| auth_code|auth_verification|auth_confirmation|auth_reset|auth_recovery| auth_backup|auth_restore|auth_export|auth_import|auth_migration| auth_transfer|auth_sync|auth_backup_key|auth_restore_key|auth_export_key| auth_import_key|auth_migration_key|auth_transfer_key|auth_sync_key)$
+    mac_only_encrypted: true
+    version: 3.10.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mikrotik-10g-exporter
+    namespace: monitoring
+    labels:
+        app: mikrotik-10g-exporter
+spec:
+    ports:
+        - port: 9436
+          targetPort: 9436
+          name: metrics
+    selector:
+        app: mikrotik-10g-exporter
+sops:
+    age:
+        - recipient: age154ykr0f2v25m3jwdgk5xx3v4a4c5fnmt76852csf0dtm54mzaevqxykxzm
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBkNW5rUDVxbjgzQzZCYmg1
+            ay9EeUVweFpzUHEzdmVrR21pZFBEc2xaTlFzCmZCRmNyS20rMHNKSU9oaWtjUnJJ
+            Y2xkaUY3RytQS0dkajlMcjc4MW5ld0EKLS0tIEJhTU5GcFBzOEo3Sy9KcHNDNmpG
+            a3BKTTY4UlpqckJWVmtQWWx1TnpLN28KRacpsRKgIZc4fVHmX8YKGGt/pAi9+GRI
+            pPyAQMLZGFYtNV1YZLoOik5JnsxYkk9ULgx5u3Ws7kFs792tU0muYQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-04-13T08:52:27Z"
+    mac: ENC[AES256_GCM,data:hG+kd5ro2om8KK0R6vpZFxY/H1PSBxASoHQVgWPOriEPDNb9ZQ8V2Dvglm6lA30lI1iJ27cTHs4FLBCDzvsn/XpPU1Pqfzcwi3cekm0hW0aK/5twK6HqvdXBG9F56z5ngE6zKdoSiBhsB7aGBToGbTSH19qfeAPFp/Zi2LjFFNk=,iv:mkOHkQknO1zYgq9iDp15bbOX/6RgoYEjJylwyf28uk0=,tag:VsFnTU1vQtd4VjWDvrfyVw==,type:str]
+    encrypted_regex: ^(data|stringData|secret_key|password|redis_password|postgresql_password| clientSecret|client_id|apiKey|token|secret|key|credential|auth_token| access_token|refresh_token|bearer_token|ssh_key|private_key|public_key| certificate|cert|key|pem|p12|pfx|keystore|truststore|jks|jwt|session_key| encryption_key|signing_key|master_key|root_key|admin_password| service_account_key|oauth_token|api_token|auth_secret|auth_key| auth_credentials|auth_password|auth_username|auth_email|auth_phone| auth_code|auth_verification|auth_confirmation|auth_reset|auth_recovery| auth_backup|auth_restore|auth_export|auth_import|auth_migration| auth_transfer|auth_sync|auth_backup_key|auth_restore_key|auth_export_key| auth_import_key|auth_migration_key|auth_transfer_key|auth_sync_key)$
+    mac_only_encrypted: true
+    version: 3.10.1

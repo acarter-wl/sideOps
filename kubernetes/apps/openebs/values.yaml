@@ -68,4 +68,4 @@ storageClass:
     repl: 3
 # Disable local PV provisioner as we're using Mayastor for storage
 localpv-provisioner:
-  enabled: false
+  enabled: true

@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: jellyfin-udp
+  namespace: jellyfin
+  annotations:
+    lbipam.cilium.io/ips: "192.168.101.6" # Replace with your IP
+    lbipam.cilium.io/sharing-key: "jellyfin" # Same value for both services
+spec:
+  selector:
+    app: jellyfin
+  ports:
+    - port: 1900
+      targetPort: 1900
+      name: dlna-udp
+      protocol: UDP
+    - port: 7359
+      targetPort: 7359
+      name: discovery-udp
+      protocol: UDP
+  type: LoadBalancer
+  sessionAffinity: ClientIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jellyfin-tcp
+  namespace: jellyfin
+  annotations:
+    lbipam.cilium.io/ips: "192.168.101.6" # Same IP as above
+    lbipam.cilium.io/sharing-key: "jellyfin" # Same sharing key value
+spec:
+  selector:
+    app: jellyfin
+  ports:
+    - port: 8096
+      targetPort: 8096
+      name: http-tcp
+      protocol: TCP
+    - port: 8920
+      targetPort: 8920
+      name: https-tcp
+      protocol: TCP
+  type: LoadBalancer
+  sessionAffinity: ClientIP

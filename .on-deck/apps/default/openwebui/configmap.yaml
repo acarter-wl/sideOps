@@ -1,0 +1,13 @@
+---
+# ConfigMap for non-sensitive OIDC configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-webui-oidc-config
+  namespace: default # Change to your actual namespace
+data:
+  oauth-provider-name: "authentik"
+  oauth-scopes: "openid profile email"
+  enable-oauth-signup: "true"
+  openid-provider-url: "https://auth.wakkalabs.com/application/o/openwebui/.well-known/openid-configuration" # Direct Authentik URL with port
+  oauth-merge-accounts-by-email: "true" # Optional: set to "false" if you encounter issues

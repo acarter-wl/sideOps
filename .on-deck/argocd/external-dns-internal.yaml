@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-internal
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    argocd.argoproj.io/instance: external-dns-internal
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: https://github.com/acarter-wl/sideops.git
+      path: kubernetes/apps/network/external-dns/internal
+      targetRevision: main
+      ref: repo
+    - repoURL: https://kubernetes-sigs.github.io/external-dns/
+      chart: external-dns
+      targetRevision: 1.16.1
+      helm:
+        releaseName: external-dns-internal
+        valueFiles:
+          - $repo/values.override.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: network
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env
+  namespace: default
+  labels:
+    app.kubernetes.io/name: glance
+data:
+  WEATHER_LAT: "36.18"
+  WEATHER_LON: "86.63"
