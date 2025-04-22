@@ -1,0 +1,10 @@
+- op: add
+  path: /machine/kubelet/extraMounts
+  value:
+    - destination: /var/local/mayastor
+      type: bind
+      source: /var/openebs/local
+      options:
+        - rbind
+        - rw
+        - rshared
