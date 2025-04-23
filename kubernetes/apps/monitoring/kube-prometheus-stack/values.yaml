@@ -123,8 +123,8 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: mayastor-3
-          accessModes: ["ReadWriteOnce"]
+          storageClassName: mayastor-ha
+          accessModes: [ "ReadWriteOnce" ]
           resources:
             requests:
               storage: 100Gi
@@ -258,7 +258,7 @@ grafana:
     accessModes:
       - ReadWriteMany
     size: 100Gi
-    storageClassName: mayastor-3
+    storageClassName: mayastor-ha
   datasources:
     datasources.yaml:
       apiVersion: 1
