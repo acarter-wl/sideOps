@@ -1,3 +1,8 @@
+openebs-crds:
+  csi:
+    volumeSnapshots:
+      enabled: false
+      keep: false
 mayastor:
   csi:
     node:
