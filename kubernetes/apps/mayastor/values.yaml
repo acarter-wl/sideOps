@@ -18,7 +18,7 @@ loki-stack:
 engines:
   local:
     lvm:
-      enabled: true
+      enabled: false
     zfs:
       enabled: false
       zfsNode:
