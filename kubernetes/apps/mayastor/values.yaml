@@ -10,15 +10,19 @@ mayastor:
     enabled: true
   crds:
     enabled: true
+
 loki-stack:
   # -- Enable loki log collection for our components
   enabled: false
+
 engines:
   local:
     lvm:
       enabled: true
     zfs:
-      enabled: true
+      enabled: false
+      zfsNode:
+        encrKeysDir: "/var/local/mayastor/zfs/keys" # Set the encryption keys directory for ZFS
   replicated:
     mayastor:
       enabled: true
