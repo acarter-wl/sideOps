@@ -9,7 +9,6 @@ cluster:
           exemptions:
             namespaces:
               - mayastor
-              - openebs
     extraArgs:
       enable-aggregator-routing: true
   controllerManager:
