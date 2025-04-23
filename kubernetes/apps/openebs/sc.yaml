@@ -1,0 +1,24 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mayastor-ha
+provisioner: io.openebs.csi-mayastor
+parameters:
+  repl: "3"
+  protocol: "nvmf"
+  # Ensure one replica in each zone
+  poolAffinityTopologyKey: "zone"
+  poolAffinityTopologyValue: "replica-1,replica-2,replica-3"
+  # Spread replicas across zones
+  poolAntiAffinityTopologyKey: "zone"
+---
+# Standard availability (2 replicas)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mayastor-standard
+provisioner: io.openebs.csi-mayastor
+parameters:
+  repl: "2"
+  protocol: "nvmf"
+  poolAntiAffinityTopologyKey: "zone"

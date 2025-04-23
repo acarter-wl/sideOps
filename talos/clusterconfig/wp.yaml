@@ -3,11 +3,6 @@ machine:
     vm.nr_hugepages: "1024"
   nodeLabels:
     openebs.io/engine: "mayastor"
-  disks:
-    - device: /dev/sdb
-      partitions:
-        - mountpoint: /var/local
-          size: 0
   kubelet:
     extraMounts:
       - destination: /var/local
@@ -15,5 +10,5 @@ machine:
         source: /var/local
         options:
           - bind
-          - rw
           - rshared
+          - rw
