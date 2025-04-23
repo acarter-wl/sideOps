@@ -17,19 +17,3 @@ spec:
         selector:
           dnsZones:
             - wakkalabs.com
-sops:
-  age:
-    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxUUVrU0RLemhGUVQzWlpX
-        d3MwNmJJbUtaYUdwaHpHdnlHQXRZWnBZZnpVCkxRZUNEeXU2VW1SaWZPRkQvS05n
-        RkVqaGs5OWE5THNoekRSZW9zYUxzczQKLS0tIGpmSGNJYWZNSkRvTFRkY01EYXE5
-        dWMzc3pLS2F3K1Z2ejNNZ0VVaFVNa0kKOPxzHmotLViD1UjOe3hfvnA7j3I043vA
-        5IlbyAa8oxAn8H10Lisu2x0DInR/hC/6A6xoHuRdiuyoJ0ZJN1zYLw==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-19T17:52:26Z"
-  mac: ENC[AES256_GCM,data:6moP0Cjz9Zv83IpKYvWkVzawFZ5IbAPHQmJjGxAPu2dwoYh50T1tNLi6I3NUcFdHVyzb9+UpbWyi+dIK93wTytByxlBzhTsAhqjPagsqcfMayR9jeoAPyFS2kJgRabEZuDu+mFquaTJyAb5u9nUbPmvTsidJTYm+59DM64j63d8=,iv:KilXSSJIQggUr59ZnPTP2J0Jyf3f93+hZGRnCxR5PLU=,tag:lFl/FG93W6FNuzVy0giiMg==,type:str]
-  encrypted_regex: ^(data|stringData)$
-  mac_only_encrypted: true
-  version: 3.10.1
