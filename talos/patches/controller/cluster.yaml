@@ -8,7 +8,7 @@ cluster:
           kind: PodSecurityConfiguration
           exemptions:
             namespaces:
-              - mayastor
+              - openebs
     extraArgs:
       enable-aggregator-routing: true
   controllerManager:
