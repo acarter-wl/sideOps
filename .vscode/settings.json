@@ -14,5 +14,6 @@
     "yaml.schemaStore.enable": true,
     "yaml.schemas": {
         "kubernetes": "./kubernetes/**/*.yaml"
-    }
+    },
+    "vs-code-prettier-eslint.prettierLast": true
 }

@@ -124,7 +124,7 @@ prometheus:
       volumeClaimTemplate:
         spec:
           storageClassName: mayastor-3
-          accessModes: [ "ReadWriteOnce" ]
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 100Gi
@@ -132,10 +132,10 @@ prometheus:
     additionalVolumes:
       - name: etcd-client-cert
         secret:
-          secretName: etcd-client-cert
+          secretName: etcd-certs
     additionalVolumeMounts:
       - name: etcd-client-cert
-        mountPath: /etc/prometheus/secrets/etcd-client-cert
+        mountPath: /etc/prometheus/secrets/etcd-certs
 
   ingress:
     enabled: true

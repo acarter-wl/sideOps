@@ -6,6 +6,13 @@ extraPorts:
     containerPort: 5170
     protocol: TCP
     name: fluent-bit
+dashboards:
+  enabled: true
+  labelKey: grafana_dashboard
+  labelValue: 1
+  annotations: {}
+  namespace: "monitoring"
+  deterministicUid: false
 
 config:
   service: |
