@@ -1,5 +1,0 @@
-mayastor:
-  csi:
-    node:
-      initContainers:
-        enabled: false
