@@ -111,7 +111,21 @@ alertmanager:
             send_resolved: true
     templates:
       - '/etc/alertmanager/config/*.tmpl'
-
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - alertmanager.wakkalabs.com
+    path: /
+    tls:
+      - secretName: alertmanager-wakkalabs-tls
+        hosts:
+          - alertmanager.wakkalabs.com
   defaultRules:
     create: true
     rules:
@@ -138,21 +152,6 @@ kubeScheduler:
     ipFamilyPolicy: SingleStack
     ipFamilies:
       - IPv4
-  ingress:
-    enabled: true
-    ingressClassName: internal
-    annotations:
-      kubernetes.io/ingress.class: internal
-      internal-dns.alpha.kubernetes.io/enabled: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-production"
-      secret.reloader.stakater.com/reload: gateway-monitor
-    hosts:
-      - alertmanager.wakkalabs.com
-    path: /
-    tls:
-      - secretName: alertmanager-wakkalabs-tls
-        hosts:
-          - alertmanager.wakkalabs.com
 
 # ================================
 # Grafana Configuration
