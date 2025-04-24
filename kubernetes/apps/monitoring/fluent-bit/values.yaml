@@ -89,8 +89,6 @@ config:
       Port        3100
       Labels      job=fluentbit
       Label_Keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
-      Tenant_ID   wakkalabs
-      Auto_Kubernetes_Labels on´
   # If you wish to ship directly to Loki from Fluentbit,
   # Uncomment the following output, updating the Host with your Loki DNS/IP info as necessary.
   # [OUTPUT]´
