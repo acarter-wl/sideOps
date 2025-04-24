@@ -126,6 +126,7 @@ alertmanager:
       - secretName: alertmanager-wakkalabs-tls
         hosts:
           - alertmanager.wakkalabs.com
+
   defaultRules:
     create: true
     rules:
