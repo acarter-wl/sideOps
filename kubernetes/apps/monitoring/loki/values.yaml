@@ -28,11 +28,11 @@ loki:
           prefix: index_
           period: 24h
 
-  # Compactor configuration
+
   compactor:
     working_directory: /var/loki/compactor
 
-  # Ruler configuration
+
   rulerConfig:
     storage:
       type: s3
@@ -48,10 +48,10 @@ loki:
     retention_deletes_enabled: false
     retention_period: 0s
 
-# Set deployment mode to SingleBinary (monolithic)
+
 deploymentMode: SingleBinary
 
-# Environment variables for S3 credentials
+
 extraEnvFrom:
   - secretRef:
       name: minio-credentials
@@ -67,17 +67,17 @@ env:
         name: minio-credentials
         key: secret_key
 
-# Disable MinIO deployment, since you're using external S3 storage
+
 minio:
   enabled: false
 
-# Service configuration for Loki monolith
+
 service:
   type: ClusterIP
   port: 3100
   annotations: {}
 
-# Resources configuration
+
 resources:
   requests:
     cpu: 200m
@@ -92,8 +92,7 @@ persistence:
   size: 10Gi
   storageClassName: standard
 
-# Set replicas to 0 for microservices components
-# This ensures only the monolithic deployment is active
+
 ingester:
   replicas: 0
 querier:
