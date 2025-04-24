@@ -1,7 +1,7 @@
 apiVersion: onepassword.com/v1
 kind: OnePasswordItem
 metadata:
-  name: loki-s3-credentials
+  name: minio-credentials
   namespace: monitoring
 spec:
-  itemPath: "vaults/automation/items/minio-access"
+  itemPath: "vaults/automation/items/minio-credentials"
