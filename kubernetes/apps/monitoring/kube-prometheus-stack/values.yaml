@@ -122,8 +122,22 @@ alertmanager:
       kubePrometheusNodeRecording: true
       kubernetesSystem: true
       kubernetesResources: true
+      kubeControllerManager: true
+      kubeScheduler: true
       kubernetesStorage: true
       prometheusOperator: true
+
+kubeControllerManager:
+  service:
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+
+kubeScheduler:
+  service:
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
   ingress:
     enabled: true
     ingressClassName: internal
