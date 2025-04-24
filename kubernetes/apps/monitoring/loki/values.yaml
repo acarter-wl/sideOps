@@ -1,5 +1,5 @@
-auth_enabled: false
 commonConfig:
+  auth_enabled: false
   replication_factor: 1
 schemaConfig:
   configs:
