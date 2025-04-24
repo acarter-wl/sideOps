@@ -56,3 +56,4 @@ bloomCompactor:
   replicas: 0
 bloomGateway:
   replicas: 0
+StorageClass: mayastor-ha
