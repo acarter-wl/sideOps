@@ -6,20 +6,10 @@ extraPorts:
     containerPort: 5170
     protocol: TCP
     name: fluent-bit
-dashboards:
-  enabled: true
-  labelKey: grafana_dashboard
-  labelValue: 1
-  annotations: {}
-  namespace: "monitoring"
-  deterministicUid: false
 
 config:
   service: |
     [SERVICE]
-      HTTP_Server    On
-      HTTP_Listen    0.0.0.0
-      HTTP_Port      5170
       Flush         5
       Daemon        Off
       Log_Level     warn
@@ -29,7 +19,7 @@ config:
     [INPUT]
       Name          tcp
       Listen        0.0.0.0
-      Port          12345
+      Port          5170
       Format        json
       Tag           talos.*
 
@@ -95,13 +85,13 @@ config:
       auto_kubernetes_labels on
       Line_Format   json
       Tenant_ID     homelab
-    # [Output]
-    #     Name loki
-    #     Match *
-    #     uri http://loki:3100/loki/api/v1/push
-    #     Labels {job="fluent-bit"}
-    #     AutoKubernetesLabels true
-    #     LineFormat json
+    [OUTPUT]
+      Name          loki
+      Match         *
+      Host          loki.monitoring.svc.cluster.local
+      Port          3100
+      Labels        job=fluentbit
+      Auto_Kubernetes_Labels on
   # If you wish to ship directly to Loki from Fluentbit,
   # Uncomment the following output, updating the Host with your Loki DNS/IP info as necessary.
   # [OUTPUT]
