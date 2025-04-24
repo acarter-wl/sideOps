@@ -1,33 +1,54 @@
-commonConfig:
+loki:
   auth_enabled: false
-  replication_factor: 1
-schemaConfig:
-  configs:
-    - from: "2024-04-01"
-      store: tsdb
-      object_store: s3
-      schema: v13
-      index:
-        prefix: loki_index_
-        period: 24h
-storage:
-  type: s3
-  bucketNames:
-    chunks: ac-loki-chunk
-    ruler: ac-loki-ruler
-    admin: ac-loki-admin
-  s3:
-    endpoint: https://s3api.wakkalabs.com
-    region: default
-    access_key:
-      name: loki-s3-credentials
-      key: S3_ACCESS_KEY
-    secret_key:
-      name: loki-s3-credentials
-      key: secret_key
-    s3ForcePathStyle: false
-    insecure: false
-    http_config: {}
+
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+    s3:
+      endpoint: s3api.wakkalabs.com # or your internal service DNS
+      region: us-east-1
+      access_key_id:
+      secret_access_key:
+      s3ForcePathStyle: true
+      insecure: true  # set to false if MinIO is using TLS
+
+  commonConfig:
+    replication_factor: 1
+    path_prefix: /var/loki
+
+  schemaConfig:
+    configs:
+      - from: 2023-01-01
+        store: boltdb-shipper
+        object_store: s3d
+        schema: v11
+        index:
+          prefix: index_
+          period: 24h
+
+  compactor:
+    working_directory: /var/loki/compactor
+    shared_store: s3
+
+  rulerConfig:
+    storage:
+      type: s3
+      s3:
+        bucketnames: loki-ruler
+        endpoint: s3api.wakkalabs.com
+        access_key_id: 3VJfiU6WPBVxJ6fLXPsnJL4RTz4quQqK7GRq4m
+        secret_access_key: K7GRq4md3VJfiU6WPBVxJ6fLXPsnJL4RTz4quQqK7GRq4md
+        s3ForcePathStyle: true
+        insecure: true
+
+  ingester:
+    lifecycler:
+      ring:
+        kvstore:
+          store: inmemory
 # extraEnvFrom:
 #   - secretRef:
 #       name: minio-loki-credentials
