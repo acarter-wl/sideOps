@@ -256,7 +256,7 @@ grafana:
     enabled: true
     type: pvc
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     size: 100Gi
     storageClassName: mayastor-ha
   datasources:

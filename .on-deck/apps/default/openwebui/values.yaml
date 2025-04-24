@@ -33,7 +33,7 @@ persistence:
   existingClaim: ""
   # -- Subdirectory of Open WebUI PVC to mount. Useful if root directory is not empty.
   subPath: ""
-  # -- If using multiple replicas, you must update accessModes to ReadWriteMany
+  # -- If using multiple replicas, you must update accessModes to ReadWriteOnly
   accessModes:
     - ReadWriteOnce
   storageClass: "mayastor-ha"
