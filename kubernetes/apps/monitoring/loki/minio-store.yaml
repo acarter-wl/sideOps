@@ -1,7 +1,26 @@
-apiVersion: onepassword.com/v1
-kind: OnePasswordItem
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
 metadata:
-  name: loki-s3-credentials
+  name: minio-secret
   namespace: monitoring
 spec:
-  itemPath: "vaults/automation/items/minio-access"
+  refreshInterval: 1h
+  secretStoreRef:
+    name: k8s
+    kind: ClusterSecretStore
+  target:
+    name: minio-secret
+    creationPolicy: Owner
+  data:
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: minio-credentials
+        property: access_key
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: minio-credentials
+        property: secret_key
+    - secretKey: AWS_ENDPOINTS
+      remoteRef:
+        key: minio-credentials
+        property: AWS_ENDPOINTS

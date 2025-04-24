@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - ./config
   - ./servicemonitors
-  - ./prometheus_alerts.yaml
+  - prometheus_alerts.yaml
+  - notifications.yaml

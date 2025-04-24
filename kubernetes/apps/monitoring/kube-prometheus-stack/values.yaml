@@ -130,11 +130,11 @@ prometheus:
               storage: 100Gi
     replicas: 1
     additionalVolumes:
-      - name: etcd-client-cert
+      - name: etcd-certs
         secret:
           secretName: etcd-certs
     additionalVolumeMounts:
-      - name: etcd-client-cert
+      - name: etcd-certs
         mountPath: /etc/prometheus/secrets/etcd-certs
 
   ingress:
