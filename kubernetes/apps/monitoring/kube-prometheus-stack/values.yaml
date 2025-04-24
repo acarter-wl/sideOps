@@ -24,6 +24,8 @@ kubeEtcd:
     enabled: true
     port: 2379
     targetPort: 2379
+    ipDualStack:
+      enabled: false
   serviceMonitor:
     scheme: https
     insecureSkipVerify: false
