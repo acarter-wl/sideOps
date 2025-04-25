@@ -44,7 +44,7 @@ daemonset:
         protocol: https
         hosts: ["https://elasticsearch-master:9200"]
         ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca.crt"]
-        ssl.verification_mode: "certificate"
+        ssl.verification_mode: "none"
 
   resources:
     requests:
