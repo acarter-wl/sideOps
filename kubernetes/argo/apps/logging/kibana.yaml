@@ -15,7 +15,7 @@ spec:
       ref: repo
     - repoURL: https://helm.elastic.co
       chart: kibana
-      targetRevision: "8.5.1" # You can replace this with the desired version
+      targetRevision: 21.6.0 # You can replace this with the desired version
       helm:
         releaseName: kibana
         valueFiles:
