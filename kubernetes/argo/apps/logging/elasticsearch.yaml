@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: elasticsearch
   namespace: argo-system
-  annotations:
-    argocd.argocd.io/sync-wave: '0'
 spec:
   project: kubernetes
   sources:
@@ -13,9 +11,9 @@ spec:
       path: kubernetes/apps/logging/elasticsearch
       targetRevision: main
       ref: repo
-    - repoURL: https://charts.bitnami.com/bitnami
+    - repoURL: https://helm.elastic.co
       chart: elasticsearch
-      targetRevision: "21.6.1"
+      targetRevision: "8.5.1"
       helm:
         releaseName: elasticsearch
         # Temporarily comment out values to test chart fetching
