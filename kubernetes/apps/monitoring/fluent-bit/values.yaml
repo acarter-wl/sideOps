@@ -14,14 +14,17 @@ config:
       Daemon        Off
       Log_Level     warn
       Parsers_File  custom_parsers.conf
+      # Add this
+      Buffer_Chunk_Size 64k
+      Buffer_Max_Size   256k
 
   inputs: |
-    [INPUT]
-      Name          tcp
-      Listen        0.0.0.0
-      Port          2020
-      Format        json
-      Tag           talos.*
+    # [INPUT]
+    #   Name          tcp
+    #   Listen        0.0.0.0
+    #   Port          5170
+    #   Format        json
+    #   Tag           talos.*
 
     [INPUT]
       Name          tail
@@ -76,7 +79,7 @@ config:
     [OUTPUT]
         Name        loki
         Match       *
-        Host        loki-gateway.monitoring.svc.cluster.local
+        Host        loki.monitoring.svc.cluster.local
         Port        3100
         Labels      job=fluentbit
         Label_Keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
