@@ -41,8 +41,9 @@ daemonset:
       output.elasticsearch:
         username: "${ELASTICSEARCH_USERNAME}"
         password: "${ELASTICSEARCH_PASSWORD}"
-        protocol: http
-        hosts: ["http://elasticsearch-master:9200"]
+        protocol: https
+        hosts: ["https://elasticsearch-master:9200"]
+        ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca.crt"]
         ssl.verification_mode: "none"
 
   resources:

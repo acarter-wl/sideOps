@@ -1,8 +1,8 @@
-elasticsearchHosts: "http://elasticsearch-master:9200"
+elasticsearchHosts: "https://elasticsearch-master:9200"
 elasticsearch:
   ssl:
     verificationMode: none
-  # certificateAuthorities: [ "/usr/share/kibana/config/certs/ca.crt" ]
+  certificateAuthorities: [ "/usr/share/kibana/config/certs/ca.crt" ]
   username: "${ELASTICSEARCH_USERNAME}"
   password: "${ELASTICSEARCH_PASSWORD}"
 replicas: 1

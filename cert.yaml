@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: elastic-certificates
+  namespace: logging
+spec:
+  # ... other fields remain the same
+  ipAddresses:
+    - 127.0.0.1
+    - 192.168.101.2
+    - 10.42.0.86  
