@@ -1,0 +1,68 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: elasticsearch
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/logging/elasticsearch
+      targetRevision: main
+      ref: repo
+    - repoURL: https://helm.elastic.co
+      chart: elasticsearch
+      targetRevision: "8.9.0" # You can replace this with the desired version
+      helm:
+        releaseName: elasticsearch
+        valueFiles:
+          - $repo/kubernetes/apps/logging/elastic/values.sops.yaml
+  destination:
+    name: in-cluster
+    namespace: logging
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+# ---
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: elasticsearch
+#   namespace: argo-system
+#   annotations:
+#     argocd.argoproj.io/sync-wave: '0'
+# spec:
+#   project: kubernetes
+#   sources:
+#     - repoURL: "https://github.com/acarter-wl/sideops.git"
+#       path: kubernetes/apps/logging/elasticsearch
+#       targetRevision: main
+#       ref: repo
+#     - repoURL: https://helm.elastic.co
+#       chart: elasticsearch
+#       targetRevision: "7.17.1"
+#       helm:
+#         releaseName: elasticsearch
+#         valueFiles:
+#           - $repo/kubernetes/apps/logging/elasticsearch/values.yaml
+#   destination:
+#     name: in-cluster
+#     namespace: logging
+#   syncPolicy:
+#     automated:
+#       allowEmpty: true
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#     - CreateNamespace=true
+#     - ServerSideApply=true
