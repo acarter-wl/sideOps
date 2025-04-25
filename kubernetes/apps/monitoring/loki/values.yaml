@@ -14,11 +14,11 @@ loki:
       secret_access_key: ${LOKI_S3_SECRET_KEY}
 
   schemaConfig:
-    configs:
-      - from: 2023-01-01
-        store: boltdb-shipper
-        object_store: s3
-        schema: v12
-        index:
-          prefix: index_
-          period: 24h
+  configs:
+    - from: 2023-01-01
+      store: boltdb-shipper
+      object_store: s3
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
