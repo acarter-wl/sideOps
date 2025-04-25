@@ -15,12 +15,12 @@ spec:
       ref: repo
     - repoURL: https://charts.bitnami.com/bitnami
       chart: elasticsearch
-      targetRevision: "21.6.2"
+      targetRevision: "21.6.1"
       helm:
         releaseName: elasticsearch
         # Temporarily comment out values to test chart fetching
-        # valueFiles:
-        #  - $repo/kubernetes/apps/logging/elasticsearch/values.yaml
+        valueFiles:
+          - $repo/kubernetes/apps/logging/elasticsearch/values.yaml
   destination:
     name: in-cluster
     namespace: logging
