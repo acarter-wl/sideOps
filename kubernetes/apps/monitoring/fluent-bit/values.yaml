@@ -19,7 +19,7 @@ config:
     [INPUT]
       Name          tcp
       Listen        0.0.0.0
-      Port          5170
+      Port          2020
       Format        json
       Tag           talos.*
 
@@ -74,21 +74,12 @@ config:
 
   outputs: |
     [OUTPUT]
-      Name        loki
-      Match       *
-      Host        loki.monitoring.svc.cluster.local
-      Port        3100
-      Labels      job=fluentbit
-      Label_Keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
-  # If you wish to ship directly to Loki from Fluentbit,
-  # Uncomment the following output, updating the Host with your Loki DNS/IP info as necessary.
-  # [OUTPUT]´
-  # Name loki
-  # Match *
-  # Host loki.loki.svc
-  # Port 3100
-  # Labels job=fluentbit
-  # Auto_Kubernetes_Labels on
+        Name        loki
+        Match       *
+        Host        loki.monitoring.svc.cluster.local
+        Port        3100
+        Labels      job=fluentbit
+        Label_Keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
 
 daemonSetVolumes:
   - name: varlog

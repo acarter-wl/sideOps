@@ -1,29 +1,24 @@
-# This is a complete configuration to deploy Loki backed by a s3-compatible API
-# like MinIO for storage.
-# Index files will be written locally at /loki/index and, eventually, will be shipped to the storage via tsdb-shipper.
-# values.yaml - Simplified monolithic Loki deployment
 loki:
   auth_enabled: false
 
-  pattern_ingester:
-    enabled: false
-
-  # Configure storage without the complex nested structure
   storage:
     type: s3
     bucketNames:
       chunks: loki-chunks
       ruler: loki-ruler
       admin: loki-admin
+    s3:
+      endpoint: s3api.wakkalabs.com
+      region: default
+      access_key_id: ${LOKI_S3_ACCESS_KEY}
+      secret_access_key: ${LOKI_S3_SECRET_KEY}
 
   schemaConfig:
     configs:
       - from: 2023-01-01
         store: boltdb-shipper
-        object_store:
-          type: s3
-          bucketnames: loki-chunks
-          endpoint: s3api.wakkalabs.com
-          region: default
-          access_key_id: QwTzRMtF06jMjMdj#1Si
-          secret_access_key: K7GRq4md3VJfiU6WPBVxJ6fLXPsnJL4RTz4quQqK7GRq4md
+        object_store: s3
+        schema: v12
+        index:
+          prefix: index_
+          period: 24h
