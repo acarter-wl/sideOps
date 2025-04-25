@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: clickhouse
+  namespace: argo-system
+spec:
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: clickhouse
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 4.7.7
+    helm:
+      values: |
+        auth:
+          username: vector
+          password: vectorpass
+          database: logs
+        persistence:
+          enabled: true
+          size: 10Gi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
