@@ -1,55 +1,29 @@
-auth_enabled: false
+# This is a complete configuration to deploy Loki backed by a s3-compatible API
+# like MinIO for storage.
+# Index files will be written locally at /loki/index and, eventually, will be shipped to the storage via tsdb-shipper.
+# values.yaml - Simplified monolithic Loki deployment
+loki:
+  auth_enabled: false
 
-server:
-  http_listen_port: 3100
-  # The websocket_enabled field is not valid here
-  # Remove it or replace with grpc_listen_port if needed
-  grpc_listen_port: 9096
+  pattern_ingester:
+    enabled: false
 
-common:
-  path_prefix: /loki
+  # Configure storage without the complex nested structure
   storage:
-    filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
-  replication_factor: 1
-  ring:
-    kvstore:
-      store: inmemory
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
 
-schema_config:
-  configs:
-    - from: 2020-10-24
-      store: boltdb-shipper
-      object_store: filesystem
-      schema: v11
-      index:
-        prefix: index_
-        period: 24h
-
-storage_config:
-  boltdb_shipper:
-    active_index_directory: /tmp/loki/boltdb-shipper-active
-    cache_location: /tmp/loki/boltdb-shipper-cache
-    cache_ttl: 24h
-    shared_store: filesystem
-  filesystem:
-    directory: /tmp/loki/chunks
-
-compactor:
-  working_directory: /tmp/loki/compactor
-  shared_store: filesystem
-
-limits_config:
-  reject_old_samples: true
-  reject_old_samples_max_age: 168h
-
-chunk_store_config:
-  max_look_back_period: 0s
-
-table_manager:
-  retention_deletes_enabled: false
-  retention_period: 0s
-
-ruler:
-  alertmanager_url: http://localhost:9093
+  schemaConfig:
+    configs:
+      - from: 2023-01-01
+        store: boltdb-shipper
+        object_store:
+          type: s3
+          bucketnames: loki-chunks
+          endpoint: s3api.wakkalabs.com
+          region: default
+          access_key_id: QwTzRMtF06jMjMdj#1Si
+          secret_access_key: K7GRq4md3VJfiU6WPBVxJ6fLXPsnJL4RTz4quQqK7GRq4md
