@@ -13,9 +13,9 @@ spec:
       path: kubernetes/apps/logging/kibana
       targetRevision: main
       ref: repo
-    - repoURL: https://charts.bitnami.com/bitnami
+    - repoURL: https://helm.elastic.co
       chart: kibana
-      targetRevision: 11.6.0
+      targetRevision: 8.5.1
       helm:
         releaseName: kibana
         valueFiles:
