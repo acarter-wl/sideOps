@@ -76,7 +76,7 @@ config:
     [OUTPUT]
         Name        loki
         Match       *
-        Host        loki.monitoring.svc.cluster.local
+        Host        loki-gateway.monitoring.svc.cluster.local
         Port        3100
         Labels      job=fluentbit
         Label_Keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
