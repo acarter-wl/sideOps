@@ -22,6 +22,15 @@ loki:
       emptyDir: {}
   extraEnv: []
 
+  singleBinary:
+    enabled: true
+  backend:
+    enabled: false
+  read:
+    enabled: false
+  write:
+write:
+  enabled: false
   command:
     - -config.file=/etc/loki/config/config.yaml
     - -config.expand-env=true
