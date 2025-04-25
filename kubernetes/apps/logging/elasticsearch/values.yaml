@@ -41,7 +41,7 @@ resources:
 
 volumeClaimTemplate:
   accessModes: [ "ReadWriteOnce" ]
-  storageClassName: "mayastor-ha"
+  storageClassName: "mayastor-ha-delayed"
   resources:
     requests:
       storage: 64Gi
