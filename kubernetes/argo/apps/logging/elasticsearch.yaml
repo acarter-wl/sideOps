@@ -13,9 +13,10 @@ spec:
       path: kubernetes/apps/logging/elasticsearch
       targetRevision: main
       ref: repo
-    - repoURL: https://charts.bitnami.com/bitnami
+    - repoURL: oci://registry-1.docker.io/bitnamicharts/elasticsearch
       chart: elasticsearch
-      targetRevision: "21.6.1" # Using a verified stable version
+      targetRevision: "21.6.2"
+
       helm:
         releaseName: elasticsearch
         valueFiles:
