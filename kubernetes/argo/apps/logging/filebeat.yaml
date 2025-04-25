@@ -15,11 +15,11 @@ spec:
       ref: repo
     - repoURL: https://helm.elastic.co
       chart: filebeat
-      targetRevision: "7.17.1" # Specified version from your command
+      targetRevision: "8.5.1" # Specified version from your command
       helm:
         releaseName: filebeat
         valueFiles:
-          - $repo/kubernetes/apps/logging/filebeat/values.sops.yaml
+          - $repo/kubernetes/apps/logging/filebeat/values.yaml
   destination:
     name: in-cluster
     namespace: logging

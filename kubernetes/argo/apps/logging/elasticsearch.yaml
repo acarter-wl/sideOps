@@ -19,7 +19,7 @@ spec:
       helm:
         releaseName: elasticsearch
         valueFiles:
-          - $repo/kubernetes/apps/logging/elastic/values.sops.yaml
+          - $repo/kubernetes/apps/logging/elastic/values.yaml
   destination:
     name: in-cluster
     namespace: logging

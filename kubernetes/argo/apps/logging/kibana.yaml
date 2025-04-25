@@ -15,11 +15,11 @@ spec:
       ref: repo
     - repoURL: https://helm.elastic.co
       chart: kibana
-      targetRevision: "11.6.0" # You can replace this with the desired version
+      targetRevision: "8.5.1" # You can replace this with the desired version
       helm:
         releaseName: kibana
         valueFiles:
-          - $repo/kubernetes/apps/logging/kibana/values.sops.yaml
+          - $repo/kubernetes/apps/logging/kibana/values.yaml
   destination:
     name: in-cluster
     namespace: logging
