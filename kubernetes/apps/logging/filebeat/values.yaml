@@ -12,12 +12,11 @@ extraEnvs:
         name: "elastic-credentials"
         key: "username"
 
-# Mount the CA cert from the correct Elasticsearch TLS secret
+# Mount the Elasticsearch CA cert
 extraVolumes:
   - name: elasticsearch-ca
     secret:
       secretName: elasticsearch-master-certs
-      defaultMode: 755
 
 extraVolumeMounts:
   - name: elasticsearch-ca
