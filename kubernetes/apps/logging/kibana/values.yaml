@@ -1,28 +1,23 @@
----
 elasticsearchHosts: "https://elasticsearch-master:9200"
 
 replicas: 1
 
 extraEnvs:
   - name: "ELASTICSEARCH_USERNAME"
-    valueFrom:
-      secretKeyRef:
-        name: elastic-credentials
-        key: username
+    value: "kibana_system"
   - name: "ELASTICSEARCH_PASSWORD"
     valueFrom:
       secretKeyRef:
         name: elastic-credentials
-        key: password
+        key: kibana_password # make sure this key exists in the secret
 
 kibanaConfig:
   kibana.yml: |
     server.ssl.enabled: true
     server.ssl.key: /usr/share/kibana/config/certs/tls.key
     server.ssl.certificate: /usr/share/kibana/config/certs/tls.crt
-    elasticsearch.ssl.certificateAuthorities:
-      - "/usr/share/kibana/config/certs/ca.crt"
-    elasticsearch.ssl.verificationMode: none
+    elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/config/certs/ca.crt"]
+    elasticsearch.ssl.verificationMode: certificate
 
 secretMounts:
   - name: kibana-certificates
@@ -44,7 +39,8 @@ service:
 
 protocol: https
 
-healthCheckPath: "/api/status"
+healthCheckPath: "/app/kibana"
+
 ingress:
   enabled: true
   className: internal
