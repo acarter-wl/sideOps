@@ -15,7 +15,7 @@ spec:
       ref: repo
     - repoURL: https://charts.bitnami.com/bitnami
       chart: elasticsearch
-      targetRevision: "21.6.2" # Downgrading to a more stable version
+      targetRevision: "21.6.1" # Using a verified stable version
       helm:
         releaseName: elasticsearch
         valueFiles:
