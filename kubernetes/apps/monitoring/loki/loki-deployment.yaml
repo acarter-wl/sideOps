@@ -135,7 +135,7 @@ data:
         selector: '{namespace="kube-system"}'
       - period: 30d
         priority: 11
-        selector: '{namespace="logging"}'
+        selector: '{namespace="monitoring"}'
       - period: 30d
         priority: 12
         selector: '{namespace="monitoring"}'
