@@ -20,8 +20,9 @@ kibanaConfig:
     server.ssl.enabled: true
     server.ssl.key: /usr/share/kibana/config/certs/tls.key
     server.ssl.certificate: /usr/share/kibana/config/certs/tls.crt
-    elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/config/certs/ca.crt"]
-    elasticsearch.ssl.verificationMode: certificate
+    elasticsearch.ssl.certificateAuthorities:
+      - "/usr/share/kibana/config/certs/ca.crt"
+    elasticsearch.ssl.verificationMode: none
 
 secretMounts:
   - name: kibana-certificates
@@ -42,7 +43,7 @@ service:
   targetPort: 5601
 
 protocol: https
-´´
+
 healthCheckPath: "/api/status"
 ingress:
   enabled: true
