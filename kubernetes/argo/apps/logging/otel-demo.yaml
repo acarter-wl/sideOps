@@ -3,7 +3,7 @@ kind: Application
 metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  name: signoz
+  name: otel-demo
   namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: '5'
@@ -11,16 +11,16 @@ spec:
   project: infrastructure
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/logging/signoz
+      path: kubernetes/apps/logging/otel-demo
       targetRevision: main
       ref: repo
-    - repoURL: https://charts.signoz.io
-      chart: signoz
-      targetRevision: 0.78.0
+    - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+      chart: opentelemetry-demo
+      targetRevision: latest
       helm:
-        releaseName: signoz
+        releaseName: otel-demo
         valueFiles:
-          - $repo/kubernetes/apps/logging/signoz/values.yaml
+          - $repo/kubernetes/apps/logging/otel-demo/values.yaml
   destination:
     namespace: logging
     server: https://kubernetes.default.svc
@@ -31,4 +31,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-      - Timeout=3600s # 1h timeout to match your helm command
