@@ -42,7 +42,7 @@ service:
   targetPort: 5601
 
 protocol: https
-
+´´
 healthCheckPath: "/api/status"
 ingress:
   enabled: true
