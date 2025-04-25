@@ -16,6 +16,9 @@ loki:
           prefix: index_
           period: 24h
 
+  singleBinary:
+    enabled: true
+
   extraVolumeMounts:
     - name: loki-storage
       mountPath: /var/loki
@@ -23,20 +26,6 @@ loki:
   extraVolumes:
     - name: loki-storage
       emptyDir: {}
-
-  extraEnv: []
-
-  singleBinary:
-    enabled: true
-
-  backend:
-    enabled: false
-
-  read:
-    enabled: false
-
-  write:
-    enabled: false
 
   command:
     - -config.file=/etc/loki/config/config.yaml
