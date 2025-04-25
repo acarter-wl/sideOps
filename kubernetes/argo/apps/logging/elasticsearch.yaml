@@ -5,7 +5,7 @@ metadata:
   name: elasticsearch
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: '0'
+    argocd.argocd.io/sync-wave: '0'
 spec:
   project: kubernetes
   sources:
@@ -18,8 +18,9 @@ spec:
       targetRevision: "21.6.2"
       helm:
         releaseName: elasticsearch
-        valueFiles:
-          - $repo/kubernetes/apps/logging/elasticsearch/values.yaml
+        # Temporarily comment out values to test chart fetching
+        # valueFiles:
+        #  - $repo/kubernetes/apps/logging/elasticsearch/values.yaml
   destination:
     name: in-cluster
     namespace: logging
