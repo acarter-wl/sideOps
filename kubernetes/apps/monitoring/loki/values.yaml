@@ -5,7 +5,6 @@
 loki:
   auth_enabled: false
 
-  # Define storage pattern_ingester (required to avoid nil error)
   pattern_ingester:
     enabled: false
 
@@ -33,5 +32,9 @@ loki:
       - from: 2023-01-01
         store: boltdb-shipper
         object_store:
-
-
+          type: s3
+          bucketnames: loki-chunks
+          endpoint: s3api.wakkalabs.com
+          region: default
+          access_key_id: QwTzRMtF06jMjMdj#1Si
+          secret_access_key: K7GRq4md3VJfiU6WPBVxJ6fLXPsnJL4RTz4quQqK7GRq4md
