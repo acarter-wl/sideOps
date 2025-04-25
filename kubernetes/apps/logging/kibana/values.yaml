@@ -7,22 +7,22 @@ elasticsearch:
   password: "${ELASTICSEARCH_PASSWORD}"
 replicas: 1
 
-# extraEnvs:
-#   - name: "ELASTICSEARCH_PASSWORD"
-#     valueFrom:
-#       secretKeyRef:
-#         name: "elastic-credentials"
-#         key: "password"
-#   - name: "ELASTICSEARCH_USERNAME"
-#     valueFrom:
-#       secretKeyRef:
-#         name: "elastic-credentials"
-#         key: "username"
+extraEnvs:
+  - name: "ELASTICSEARCH_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: "elastic-credentials"
+        key: "password"
+  - name: "ELASTICSEARCH_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        name: "elastic-credentials"
+        key: "username"
 
-# secretMounts:
-#   - name: kibana-certificates
-#     secretName: elastic-certificates
-#     path: /usr/share/kibana/config/certs
+secretMounts:
+  - name: kibana-certificates
+    secretName: elasticsearch-master-certs
+    path: /usr/share/kibana/config/certs
 
 resources:
   requests:
