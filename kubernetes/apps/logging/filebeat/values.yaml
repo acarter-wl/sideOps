@@ -16,7 +16,7 @@ extraEnvs:
 extraVolumes:
   - name: elasticsearch-ca
     secret:
-      secretName: elasticsearch-http-ca
+      secretName: elasticsearch-master-certs
 
 extraVolumeMounts:
   - name: elasticsearch-ca
@@ -43,7 +43,6 @@ daemonset:
         password: "${ELASTICSEARCH_PASSWORD}"
         protocol: https
         hosts: ["https://elasticsearch-master:9200"]
-        ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca.crt"]
         ssl.verification_mode: "none"
 
   resources:
