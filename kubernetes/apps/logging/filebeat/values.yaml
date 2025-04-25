@@ -40,7 +40,7 @@ daemonset:
         protocol: https
         host: "${NODE_NAME}"
         hosts: ["https://elasticsearch-master:9200"]
-        ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/homelab-ca.crt"]
+        ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca.crt"]
         ssl.verification_mode: "certificate"
   resources:
     requests:
@@ -49,6 +49,5 @@ daemonset:
     limits:
       cpu: "1000m"
       memory: "200Mi"
-
 deployment:
-  enabled: false
+  enabled: false  # Disables the Filebeat deployment mode, forcing DaemonSet mode only
