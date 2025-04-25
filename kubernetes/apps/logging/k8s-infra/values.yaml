@@ -9,3 +9,39 @@ presets:
     enabled: true
   loggingExporter:
     enabled: true
+signoz:
+  ingress:
+    enabled: true
+    className: internal
+    hosts:
+      - host: signoz.wakkalabs.com # Replace with your domain
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            port: 8080
+    tls:
+      - secretName: signoz-tls-cert
+        hosts:
+          - signoz.wakkalabs.com # Replace with your domain
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
+
+# Configure SigNoz OTel Collector Ingress
+otelCollector:
+  ingress:
+    enabled: true
+    className: internal
+    hosts:
+      - host: signoz-ingest.wakkalabs.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            port: 4317
+    tls:
+      - secretName: signoz-ingest-tls-cert
+        hosts:
+          - signoz-ingest.wakkalabs.com # Replace with your ingestion domain
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
