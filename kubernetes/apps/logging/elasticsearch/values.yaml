@@ -1,13 +1,12 @@
----
 clusterName: "elasticsearch"
 nodeGroup: "master"
 
 roles:
-  master: "true"
-  ingest: "true"
-  data: "true"
-  remote_cluster_client: "true"
-  ml: "true"
+  - master
+  - ingest
+  - data
+  - remote_cluster_client
+  - ml
 
 replicas: 1
 minimumMasterNodes: 1
