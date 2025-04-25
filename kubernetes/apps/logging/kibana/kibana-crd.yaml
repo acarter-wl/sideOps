@@ -1,0 +1,84 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: logging
+  namespace: logging
+spec:
+  version: 8.11.1  # Make sure this matches your Elasticsearch version
+  count: 1
+  elasticsearchRef:
+    name: logging  # Reference to your Elasticsearch cluster
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true  # For simplicity, disable TLS in development
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          limits:
+            memory: 1Gi
+            cpu: 1
+          requests:
+            memory: 512Mi
+            cpu: 500m
+# elasticsearchHosts: "https://elasticsearch-master:9200"
+# elasticsearch:
+#   ssl:
+#     verificationMode: none
+#   certificateAuthorities: [ "/usr/share/kibana/config/certs/ca.crt" ]
+#   username: "${ELASTICSEARCH_USERNAME}"
+#   password: "${ELASTICSEARCH_PASSWORD}"
+# replicas: 1
+
+# extraEnvs:
+#   - name: "ELASTICSEARCH_PASSWORD"
+#     valueFrom:
+#       secretKeyRef:
+#         name: "elastic-credentials"
+#         key: "password"
+#   - name: "ELASTICSEARCH_USERNAME"
+#     valueFrom:
+#       secretKeyRef:
+#         name: "elastic-credentials"
+#         key: "username"
+
+# secretMounts:
+#   - name: kibana-certificates
+#     secretName: elasticsearch-master-certs
+#     path: /usr/share/kibana/config/certs
+
+# resources:
+#   requests:
+#     cpu: "250m"
+#     memory: "1Gi"
+#   limits:
+#     cpu: "500m"
+#     memory: "2Gi"
+
+# service:
+#   type: ClusterIP
+#   port: 5601 # Changed from 443 to 5601 since we're using HTTP
+#   targetPort: 5601
+# protocol: http
+
+# healthCheckPath: "/app/kibana"
+
+# ingress:
+#   enabled: true
+#   className: internal
+#   annotations:
+#     cert-manager.io/cluster-issuer: letsencrypt-production
+#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+#   hosts:
+#     - host: kibana.wakkalabs.com
+#       paths:
+#         - path: /
+#           pathType: Prefix
+#   tls:
+#     - secretName: kibana-tls
+#       hosts:
+#         - kibana.wakkalabs.com

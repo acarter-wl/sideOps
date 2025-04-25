@@ -13,13 +13,13 @@ spec:
       path: kubernetes/apps/logging/kibana
       targetRevision: main
       ref: repo
-    - repoURL: https://helm.elastic.co
-      chart: kibana
-      targetRevision: 8.5.1
-      helm:
-        releaseName: kibana
-        valueFiles:
-          - $repo/kubernetes/apps/logging/kibana/values.yaml
+    # - repoURL: https://helm.elastic.co
+    #   chart: kibana
+    #   targetRevision: 8.5.1
+    #   helm:
+    #     releaseName: kibana
+    #     valueFiles:
+    #       - $repo/kubernetes/apps/logging/kibana/values.yaml
   destination:
     name: in-cluster
     namespace: logging
