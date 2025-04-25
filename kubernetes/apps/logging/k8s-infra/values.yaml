@@ -1,0 +1,11 @@
+global:
+  cloud: others
+  clusterName: kubernetes
+  deploymentEnvironment: lab
+otelCollectorEndpoint: signoz-otel-collector.logging.svc.cluster.local:4317
+otelInsecure: true
+presets:
+  otlpExporter:
+    enabled: true
+  loggingExporter:
+    enabled: true
