@@ -48,6 +48,8 @@ prometheus:
   prometheusSpec:
     secrets:
       - etcd-certs
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector: {}
     retentionDuration: "90d"
     retentionSize: "90GB"
     storageSpec:
