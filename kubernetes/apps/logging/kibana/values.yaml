@@ -43,7 +43,7 @@ service:
 
 protocol: https
 
-healthCheckPath: "/app/kibana"
+healthCheckPath: "/api/status"
 ingress:
   enabled: true
   className: internal
