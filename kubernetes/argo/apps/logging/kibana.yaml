@@ -13,9 +13,9 @@ spec:
       path: kubernetes/apps/logging/kibana
       targetRevision: main
       ref: repo
-    - repoURL: https://helm.elastic.co
+    - repoURL: https://charts.bitnami.com/bitnami
       chart: kibana
-      targetRevision: 21.6.0 # You can replace this with the desired version
+      targetRevision: 11.6.0
       helm:
         releaseName: kibana
         valueFiles:
