@@ -16,7 +16,7 @@ extraEnvs:
 extraVolumes:
   - name: elasticsearch-ca
     secret:
-      secretName: elasticsearch-master-certs
+      secretName: elasticsearch-http-ca
 
 extraVolumeMounts:
   - name: elasticsearch-ca
