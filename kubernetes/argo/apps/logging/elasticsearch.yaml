@@ -16,7 +16,6 @@ spec:
     - repoURL: oci://registry-1.docker.io/bitnamicharts/elasticsearch
       chart: elasticsearch
       targetRevision: "21.6.2"
-
       helm:
         releaseName: elasticsearch
         valueFiles:
