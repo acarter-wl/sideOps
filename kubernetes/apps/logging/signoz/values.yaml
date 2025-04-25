@@ -1,0 +1,5 @@
+global:
+  storageClass: openebs-single-replica
+
+clickhouse:
+  installCustomStorageClass: true
