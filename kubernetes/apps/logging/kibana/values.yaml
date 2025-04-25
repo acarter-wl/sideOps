@@ -1,4 +1,4 @@
-elasticsearchHosts: "https://elasticsearch-master:9200"
+elasticsearchHosts: "http://elasticsearch-master:9200"
 elasticsearch:
   ssl:
     verificationMode: certificate
@@ -37,7 +37,7 @@ service:
   port: 443
   targetPort: 5601
 
-protocol: https
+protocol: http
 
 healthCheckPath: "/app/kibana"
 

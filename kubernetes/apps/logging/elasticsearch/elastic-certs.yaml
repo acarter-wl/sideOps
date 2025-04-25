@@ -34,7 +34,7 @@ metadata:
   name: elastic-certificates
   namespace: logging
 spec:
-  secretName: elastic-certificates
+  secretName: elasticsearch-master-certs
   duration: 8760h # 1 year
   renewBefore: 720h # 30 days
   subject:
@@ -58,6 +58,7 @@ spec:
   ipAddresses:
     - 127.0.0.1
     - 192.168.101.2
+    - 10.42.0.86
   issuerRef:
     name: elasticsearch-issuer
     kind: Issuer
