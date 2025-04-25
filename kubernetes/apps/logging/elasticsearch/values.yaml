@@ -15,18 +15,6 @@ protocol: https
 httpPort: 9200
 imagePullPolicy: "IfNotPresent"
 
-extraEnvs:
-  - name: "ELASTIC_PASSWORD"
-    valueFrom:
-      secretKeyRef:
-        name: "elastic-credentials"
-        key: "password"
-  - name: "ELASTIC_USERNAME"
-    valueFrom:
-      secretKeyRef:
-        name: "elastic-credentials"
-        key: "username"
-
 esConfig:
   elasticsearch.yml: |
     xpack.security.enabled: true
@@ -42,11 +30,6 @@ esConfig:
     xpack.security.http.ssl.key: /usr/share/elasticsearch/config/certs/tls.key
     xpack.security.http.ssl.certificate: /usr/share/elasticsearch/config/certs/tls.crt
     xpack.security.http.ssl.certificate_authorities: ["/usr/share/elasticsearch/config/certs/ca.crt"]
-
-secretMounts:
-  - name: elastic-certificates
-    secretName: elastic-certificates
-    path: /usr/share/elasticsearch/config/certs
 
 resources:
   requests:
