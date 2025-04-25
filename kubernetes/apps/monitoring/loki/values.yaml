@@ -5,6 +5,7 @@ loki:
     type: filesystem
     filesystem:
       directory: /var/loki
+
   schemaConfig:
     configs:
       - from: 2023-01-01
@@ -14,23 +15,29 @@ loki:
         index:
           prefix: index_
           period: 24h
+
   extraVolumeMounts:
     - name: loki-storage
       mountPath: /var/loki
+
   extraVolumes:
     - name: loki-storage
       emptyDir: {}
+
   extraEnv: []
 
   singleBinary:
     enabled: true
+
   backend:
     enabled: false
+
   read:
     enabled: false
+
   write:
-write:
-  enabled: false
+    enabled: false
+
   command:
     - -config.file=/etc/loki/config/config.yaml
     - -config.expand-env=true
