@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - elastic-credentials.yaml
   - elastic-certs.yaml
+  - reset-password.yaml
