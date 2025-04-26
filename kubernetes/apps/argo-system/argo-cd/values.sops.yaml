@@ -1,12 +1,10 @@
 crds:
   install: true
-
 global:
   domain: argo.wakkalabs.com
 configs:
   params:
     server.insecure: true
-
   cm:
     dex.config: |
       connectors:
@@ -24,18 +22,19 @@ configs:
               - email
               - groups
             getUserInfo: true
-
     exec.enabled: true
     accounts.readonly: apikey
     statusbadge.enabled: true
     kustomize.buildOptions: --enable-alpha-plugins --enable-exec
-    helm.valuesFileSchemes: >
+    helm.valuesFileSchemes: |
       secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
-
     resource.exclusions:
-      - apiGroups: [ "cilium.io" ]
-        kinds: [ "CiliumIdentity" ]
-        clusters: [ "*" ]
+      - apiGroups:
+          - cilium.io
+        kinds:
+          - CiliumIdentity
+        clusters:
+          - '*'
   rbac:
     scopes: '[groups]'
     groupClaim: groups
@@ -43,12 +42,11 @@ configs:
     policy.rules: |
       p, role:admin, *, *, *, allow
       g, ArgoCD Admins, role:admin
-
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:8wZCSKeojMYrecSHw5ARwj5YHhmWUrqPs6eUTMUtxPQqd360gkfegp+xdDIGZ/OtwvStZxvA2GWb4dQ4fCfRqDUNrXOLWKX13EgpOm9WRl6/l+fyiHXpqEFFDyMtBu9CcUaYPcTc5KWDWujMKmBa7qeoFKOODRtYIx1RZuXO3aZ33SOCU3/9Ewjnp78HUK6vZlSvqbGR8nGi1N5YrROC3VW84wo248XmrLe0gFGnaxgzASacdn8afHoYYw==,iv:f7PUgDiurP1Mxmi0edoqgIDTSDv/IT6t7pEVqCnBpLw=,tag:FeVnlDEwltyf845WpagafA==,type:str]
-    argocdServerAdminPasswordMtime: ENC[AES256_GCM,data:btzM12IhgCLLwZzJ9WjtXPwS2C/afSgIHDNSzJc/MgY5ceLAS/OOQTFQDWJcOr2Qpy31Ap32IgeujaptBx7k/MfHP0wKCrOP6qtFF4ar+KU925pjNbFJM0Y0apGnioZ14z/ymSp9vGoBtSUBHAKPyGHAGTTqR1KgherZkEnMBc91z0ouzocs,iv:5p7dV5DEOpSB0Ye4yTGBL1yHqxCxxUIs1bUAgHcLSRg=,tag:SR0sN3o/MQxLqtaAetG+Cg==,type:str]
-    githubSecret: ENC[AES256_GCM,data:oeidWvlSrQJLRDcGx44l3eLe3L7nKS0Eg5D3sUpTWIcU3DslflH61r2Yh0jGy/Rycr8nW7V5dE1SfOrbaUGROcuT0Li3WTMcZumqpeKRt7pLFJAXCx1b/9htfRv5jkBYWnQWcXztZLb1dG1vlG8bgPljt+KH5qKZ1e+C/BHY1CqM8b9S/0Tc3xFw1fOpbY5rPLw86nCAxg==,iv:2o9LWvhqiL6XnWBHvDwEOJzOSkugEBTdb6uJcubfvjQ=,tag:m/STH74+Tvx0CoN1EYfnDg==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:MU4pftPI76eiu8suiO+fKogA61IccnB4COvCkhOyqgEN2mmD7exlqkSp26ZG2htLhI58qRb2/0Om8gwO5iISzVYxuZ8/dZppKWFNS64HwdOeGEb4p3sCjvNXhGPx3mecbTVcBzlcyBbWfKOkVt5VA/SZ268jyJedkA97kxmtEgsw6u7bYjqVKldVlhzr/8K4B84SMzspuFS5TFj917bsLGuqV1dVgK6lVTcYCvUL8J/RmaJodvBKG2bttzQmzP5YRzDLkWodBbbWqKkeWP3Ne+vP8VAQfeLaqJly6llmrkTHflISPnenW+O3OJtp2McaRriADkVw+JKbSmbvyrU4pJVvxTFrvQ+UBT9LV46z0XK7+DJxebnE,iv:30oeAyxS0YSMY6ntDhl2n96ZBMhWZsOy+4GVESmkihE=,tag:EcmSkiDcgCb1mh2uXf6HBw==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:4OTJfBT/KZ67C9okGp621Wa+O6P0yJjO1HUWhlx9I+Sv8H5TzB0LY6d3Nf3z7mLSxWbM5MXzSXfQDq6T,iv:dQjpcaO+TeO9Zy3EtYcTwz+j3LtCuW7LzQClxOcELBE=,tag:NBMfT2b+kICd/kLBEong4w==,type:str]
+    argocdServerAdminPasswordM: ENC[AES256_GCM,data:n3c4pJukqqAAl3mSHADGe1F+/6R9LH3jWA==,iv:R2dtIS7iAwrFh5y2dNV4ZIQz87fiiVWm7aw2hB2a1P0=,tag:8mPqQ6c1dwqcCHEpwk2U7A==,type:str]
+    githubSecret: ENC[AES256_GCM,data:l0WGJmh3trYKiatpEJPuz80+uS6Ib3xEYhyXqVk=,iv:g4vf6McWcqW8G/c5hcmWvWjdfkx9zlwmiuphgSSHF5c=,tag:zu/N8+G66pLqoKabdo4+qw==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:vfDAwEjlJ/AtqAVJuLJf+eEuzOcf0YhlsBqrkvJih8XHwH4E1Ysn9GcmUVDdimjYIKsw7cNk7l4vKUEHV7aiMpQ/eLIPJOOubWc0k8kb1QMch40c9pui14C80vZuzni9FHAAf+hDL3W0DUfXtivjX77O6adA4i55qGWQaBjvasA=,iv:YTFQKH88J6mGBcfv2vJRVcraTi3JPL8RmyEhSHg/1tU=,tag:58VNg3DD68OfxN4o63QQTw==,type:str]
 controller:
   replicas: 2
   metrics:
@@ -156,7 +154,7 @@ repoServer:
       emptyDir: {}
     - name: helm-secrets-private-keys
       secret:
-        secretName: ENC[AES256_GCM,data:X/vHCOEujW79K58QlPREa+3aovuzJZsIBxG8ZNgc2+VXLasqvBIDVMvwEeguzl+jOTzZI/Lu6jbF9xthvEVn2OrEMlG+s+0sZ8GdL6tLYj2Nw71RWmuv22LrgckT4Svdj5YXkzD/vfpUVvhw2XnwlPBtpNP4z0YG4ebYVxuqTGhNSgBkjvgrlF8k6tPBE/E=,iv:TlWkr18Pjw8b//iOgQ7i7qLhMTFk/wR4LRKvHJVb57E=,tag:ffLjbsppci48Lkp+sPOCfg==,type:str]
+        secretName: ENC[AES256_GCM,data:VwjuVKIUNKjFQttThcWSlzwdOl1B5AyfQCFQWEXBj1TE0utkQzN+oaiao5yGKrehU40a6eyC0Sig6zfJCxWU49Lxyc3gMuT2JNwZxlisbgfuWq234efjY9NTVqRTxIc9U308dfV06Jv110FP8OIIoxNOsZMLHiQMbtfDRticicNDO/Jo8+LCY2qLSt+1zAaHr+Iyuag6/ouw+XNzT/egWfe4i1rtPHvHBcwctAXHl8+YftCy1YUQ5ZNBfXlfVEvcAOF9RcfSMyQ7P+zhYjc4j4OzMCBTm/5VtRRcTVMMwJOBgYYRJHYqPP+Wh4JZVw/F+9tljbkhkasdb4OTZyKV6Awc6twaJYs3flnwDWHoTTa71WV9wl7Gz1KBs28ZZe55Q0dK+Q/NjzZwP3o=,iv:c6diJYbtielSexZVWfpKgHLQEOsOk2OFpcKkomJ0HE0=,tag:JsiIhySReaqYDoqCaNz2Ww==,type:str]
   volumeMounts:
     - mountPath: /custom-tools
       name: custom-tools
@@ -191,13 +189,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzL0RRZXZZNlRnNWZOSEE3
-        QjVEMnFPNWlKb29SaGsrMW93KzJvMWMyb1MwCmhCaEJYMXVZMWl4dE5iSXFVQnhZ
-        Y1BNNGJVaFRHQi9EVzN6MDV5ai9HN1kKLS0tIHIxSFZ2OTN4Rmo4dHJaeEZPUVc3
-        RDhhNFh3VUxHUWNjNEdLbS93WUdEWXMKZgCPbmc45Y3LZyqg24w5ke1padlS4tah
-        OR6egvBzMYBT6m5h4Jj9dDsdhduTYXI+8/xC74Bigv9+0047e36oPg==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1bVhKd2RIVjBsbm1BVHlx
+        MkdDaWp1bkgyQW5HeHgrOW1CemkxRVRySHdJCkVzQXRGT0NZWHpNUzAxRGZCODdn
+        dzFyS2xOOWtBdEU0Mmh6VXgwZUNQdlUKLS0tIGVmNjZ6cTU3aVVtaStnTVRqdGRo
+        eWtzc2wrbTBLTDdLRFZ6M1VsRVJYalEK3usaVD7LnIyXGTqnkPQ4l34n6sK21Afu
+        pIzPun+mH9UNuDoWdtgRhiGdvGfGma54Sogdw+zVFBFkjVjARh+coQ==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-26T10:15:04Z"
-  mac: ENC[AES256_GCM,data:QijXKBk4Vq0g9dYL0VTFz6JIH3Q0fRxClCk9YBVkqd8nVgQ37EsTxivmdWtZDdC9Vs/D/zwvpXw5kEiGB9VKcJJ0Ue2L0sX4+ha1ACSXDfxLtiTDnFT0mIepvKjSbh06MOuT1eJ0V8R4tMR6zt4bx94TQUaMmh0D4AUtITg8Bt0=,iv:mDsa5G6+DJvrS+dw1ToV2/NcIOq2WUrnZgmECC0HYnI=,tag:fbbZ4CCvL5wfhZA2Hps3xg==,type:str]
+  lastmodified: "2025-04-26T23:42:12Z"
+  mac: ENC[AES256_GCM,data:KiT2UfhEX7FZAOfTMRRjHJo1y9HsvB11O8/qdqON5maltkoT/9r71tPBbIb+pttA0vffKfJatYjW3WxOC88kxA1Hs9+0fUQipQG5Pjr+qr6EQsMHSSWbWSeD+Xepe8gfyrUeu7elXLJfoejE3gOCmpCb1Ps37fXyc3w3zy3pCXQ=,iv:6BqtV6qThCb4qB8xt7RzOwaTw9GMOuV5z1sKgFU6/dw=,tag:H+aIHnzzTHirUYj5MdpIsA==,type:str]
   encrypted_regex: ^(data|stringData|.*[Pp]assword|.*[Ss]ecret|.*[Tt]oken)$
   version: 3.10.2
