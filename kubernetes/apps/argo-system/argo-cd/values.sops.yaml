@@ -33,18 +33,17 @@ configs:
         clusters:
           - "*"
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:LnDE6WXmZf4JAlhP1PqFNX0CfD6sqDvMbiCUGaaX2nJDeR+X76b2rUMbulfIhiqKM1AkZipb11yBg80m,iv:YjAuR0wcttLNp4zbKDqXBtYPXLCm+SXz9Hy25DnPcSw=,tag:eUO3REcN+5utSlvjWmTtzg==,type:str]
-    argocdServerAdminPasswordMtime: ENC[AES256_GCM,data:My52cb6KWzgDmnKwanrsdTOcqA==,iv:D4qg0+rYM+ABO4g97s6wh3qW/yXYi3E89vrlKU1cHVU=,tag:UTGSoS7ohV7FWZqbqPwuEA==,type:str]
-    githubSecret: ENC[AES256_GCM,data:TuLFFAYjfN2HpRR7nHBE7eyP8/QszAJJVGd6xsZJLsE=,iv:KtK0Om0nwnZfo/IB8uCn4QoghEFUqZ/oYdldye+oG8s=,tag:OAEEFl/0lJbFJJfTmhhCNg==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:IpepSpNiAddCQZZ7mTzq42eLVocwLU43Fi3zs2Qy3ps2Ds3/Qe4Sp2WVVzD1uHjedtNrZeHCpvCNjcFmz/MjBjILe2iDspc1JsnZS6YHDNyipJNUbNk1kr+eyhMb2TEQj3Q0MNx8w1qiQDeoAADxCsjD9zJtBfuIZuUXksYB/zQ=,iv:Wj2kTia3OiICZsfiomENSfetKkY6+FmNad/mbfz/+iM=,tag:/AqL0xPYO6Me34dwtPzgcQ==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:8wZCSKeojMYrecSHw5ARwj5YHhmWUrqPs6eUTMUtxPQqd360gkfegp+xdDIGZ/OtwvStZxvA2GWb4dQ4fCfRqDUNrXOLWKX13EgpOm9WRl6/l+fyiHXpqEFFDyMtBu9CcUaYPcTc5KWDWujMKmBa7qeoFKOODRtYIx1RZuXO3aZ33SOCU3/9Ewjnp78HUK6vZlSvqbGR8nGi1N5YrROC3VW84wo248XmrLe0gFGnaxgzASacdn8afHoYYw==,iv:f7PUgDiurP1Mxmi0edoqgIDTSDv/IT6t7pEVqCnBpLw=,tag:FeVnlDEwltyf845WpagafA==,type:str]
+    argocdServerAdminPasswordMtime: ENC[AES256_GCM,data:btzM12IhgCLLwZzJ9WjtXPwS2C/afSgIHDNSzJc/MgY5ceLAS/OOQTFQDWJcOr2Qpy31Ap32IgeujaptBx7k/MfHP0wKCrOP6qtFF4ar+KU925pjNbFJM0Y0apGnioZ14z/ymSp9vGoBtSUBHAKPyGHAGTTqR1KgherZkEnMBc91z0ouzocs,iv:5p7dV5DEOpSB0Ye4yTGBL1yHqxCxxUIs1bUAgHcLSRg=,tag:SR0sN3o/MQxLqtaAetG+Cg==,type:str]
+    githubSecret: ENC[AES256_GCM,data:oeidWvlSrQJLRDcGx44l3eLe3L7nKS0Eg5D3sUpTWIcU3DslflH61r2Yh0jGy/Rycr8nW7V5dE1SfOrbaUGROcuT0Li3WTMcZumqpeKRt7pLFJAXCx1b/9htfRv5jkBYWnQWcXztZLb1dG1vlG8bgPljt+KH5qKZ1e+C/BHY1CqM8b9S/0Tc3xFw1fOpbY5rPLw86nCAxg==,iv:2o9LWvhqiL6XnWBHvDwEOJzOSkugEBTdb6uJcubfvjQ=,tag:m/STH74+Tvx0CoN1EYfnDg==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:MU4pftPI76eiu8suiO+fKogA61IccnB4COvCkhOyqgEN2mmD7exlqkSp26ZG2htLhI58qRb2/0Om8gwO5iISzVYxuZ8/dZppKWFNS64HwdOeGEb4p3sCjvNXhGPx3mecbTVcBzlcyBbWfKOkVt5VA/SZ268jyJedkA97kxmtEgsw6u7bYjqVKldVlhzr/8K4B84SMzspuFS5TFj917bsLGuqV1dVgK6lVTcYCvUL8J/RmaJodvBKG2bttzQmzP5YRzDLkWodBbbWqKkeWP3Ne+vP8VAQfeLaqJly6llmrkTHflISPnenW+O3OJtp2McaRriADkVw+JKbSmbvyrU4pJVvxTFrvQ+UBT9LV46z0XK7+DJxebnE,iv:30oeAyxS0YSMY6ntDhl2n96ZBMhWZsOy+4GVESmkihE=,tag:EcmSkiDcgCb1mh2uXf6HBw==,type:str]
 controller:
   replicas: 2
   metrics:
     enabled: true
-    applicationLabels:
-      enabled: true
     serviceMonitor:
       enabled: true
+      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -53,6 +52,7 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -60,9 +60,38 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 server:
+  initContainers:
+    - name: extension-installer
+      image: quay.io/argoprojlabs/argocd-extension-installer:v0.0.5@sha256:27e72f047298188e2de1a73a1901013c274c4760c92f82e6e46cd5fbd0957c6b
+      env:
+        - name: EXTENSION_NAME
+          value: rollouts
+        - name: EXTENSION_URL
+          value: https://github.com/argoproj-labs/rollout-extension/releases/latest/download/extension.tar
+        - name: EXTENSION_VERSION
+          value: latest
+        - name: EXTENSION_JS_VARS
+          value: |
+            {
+              "key1": "value1",
+              "key2": "value2"
+            }
+      volumeMounts:
+        - name: extensions
+          mountPath: /tmp/extensions/
+      securityContext:
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+  volumes:
+    - name: extensions
+      emptyDir: {}
+  volumeMounts:
+    - name: extensions
+      mountPath: /tmp/extensions/
   replicas: 2
   allowAnyNamespace: true
   ingress:
@@ -75,6 +104,7 @@ server:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
   containers:
@@ -88,6 +118,7 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
@@ -115,7 +146,6 @@ repoServer:
       value: /custom-tools/kubectl
     - name: HELM_SECRETS_BACKEND
       value: sops
-    # https://github.com/jkroepke/helm-secrets/wiki/Security-in-shared-environments
     - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
       value: "false"
     - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
@@ -128,16 +158,14 @@ repoServer:
       value: "true"
     - name: HELM_SECRETS_HELM_PATH
       value: /usr/local/bin/helm
-    # For age
     - name: SOPS_AGE_KEY_FILE
       value: /helm-secrets-private-keys/key.txt
   volumes:
     - name: custom-tools
       emptyDir: {}
-    # kubectl create secret generic helm-secrets-private-keys --from-file=key.asc=assets/gpg/private2.gpg
     - name: helm-secrets-private-keys
       secret:
-        secretName: ENC[AES256_GCM,data:5elBZmxJHhRSHfv5fs3VVZ3nXtncqH2xyA==,iv:1WyUCwFjKhq6Cs5GNciKDUqYUMnEzwv/6Ljf8NTj/os=,tag:7SEL9Uf4YLGcyPmwd28x3w==,type:str]
+        secretName: ENC[AES256_GCM,data:X/vHCOEujW79K58QlPREa+3aovuzJZsIBxG8ZNgc2+VXLasqvBIDVMvwEeguzl+jOTzZI/Lu6jbF9xthvEVn2OrEMlG+s+0sZ8GdL6tLYj2Nw71RWmuv22LrgckT4Svdj5YXkzD/vfpUVvhw2XnwlPBtpNP4z0YG4ebYVxuqTGhNSgBkjvgrlF8k6tPBE/E=,iv:TlWkr18Pjw8b//iOgQ7i7qLhMTFk/wR4LRKvHJVb57E=,tag:ffLjbsppci48Lkp+sPOCfg==,type:str]
   volumeMounts:
     - mountPath: /custom-tools
       name: custom-tools
@@ -172,13 +200,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCNG05Uk0vZXpNaXUrTG1q
-        akdTMENvME1zRzJweFRoZkVTRVhiMmFxSmpjCkJ3OGVNdE1sQlQ3M0l6TWwyREZn
-        STA4RXBzYm1IY1ovNkdNTjRIRktLRGsKLS0tIEFLNWVHVWtSUzhUTzYvQlZiTGh0
-        aXJtWkxPbXRiUVZ1bklEcUhaVzk0V00KKsobDfwums3Nkv0M+770j3ek6OKW1/WL
-        r3rQt+T556ppP4o0o2A9Foqd3qFYsPeCxE/9vMfoApKck4zNcqKvWA==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzL0RRZXZZNlRnNWZOSEE3
+        QjVEMnFPNWlKb29SaGsrMW93KzJvMWMyb1MwCmhCaEJYMXVZMWl4dE5iSXFVQnhZ
+        Y1BNNGJVaFRHQi9EVzN6MDV5ai9HN1kKLS0tIHIxSFZ2OTN4Rmo4dHJaeEZPUVc3
+        RDhhNFh3VUxHUWNjNEdLbS93WUdEWXMKZgCPbmc45Y3LZyqg24w5ke1padlS4tah
+        OR6egvBzMYBT6m5h4Jj9dDsdhduTYXI+8/xC74Bigv9+0047e36oPg==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-26T08:44:00Z"
-  mac: ENC[AES256_GCM,data:lcspyFooEupZCfBjDMc4d3j/XcY4DTSs7tzNkSv5nmhoYeRsjJLA6yc+9p8Bt/uuG2+k0x+MZHRY5ZFKEa1M1idakaaZh/wSQUmHy/F2wpvsNAvnoCl36p/Ed/W0xBFWVljcEBZcPjpACK3zLfh4cVafjwEEPnWQW4sT09AqOGc=,iv:X9zDZU5ccMxgCgjJqODj3s/pDqaS5pQguvXbPrv3fFY=,tag:owt/s91zRb40L+hHngdAqw==,type:str]
+  lastmodified: "2025-04-26T10:15:04Z"
+  mac: ENC[AES256_GCM,data:QijXKBk4Vq0g9dYL0VTFz6JIH3Q0fRxClCk9YBVkqd8nVgQ37EsTxivmdWtZDdC9Vs/D/zwvpXw5kEiGB9VKcJJ0Ue2L0sX4+ha1ACSXDfxLtiTDnFT0mIepvKjSbh06MOuT1eJ0V8R4tMR6zt4bx94TQUaMmh0D4AUtITg8Bt0=,iv:mDsa5G6+DJvrS+dw1ToV2/NcIOq2WUrnZgmECC0HYnI=,tag:fbbZ4CCvL5wfhZA2Hps3xg==,type:str]
   encrypted_regex: ^(data|stringData|.*[Pp]assword|.*[Ss]ecret|.*[Tt]oken)$
   version: 3.10.2
