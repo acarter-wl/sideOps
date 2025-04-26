@@ -1,10 +1,12 @@
 crds:
   install: true
+
 global:
   domain: argo.wakkalabs.com
 configs:
   params:
     server.insecure: true
+
   cm:
     dex.config: |
       connectors:
@@ -20,18 +22,28 @@ configs:
               - openid
               - profile
               - email
+              - groups
+            getUserInfo: true
+
     exec.enabled: true
     accounts.readonly: apikey
     statusbadge.enabled: true
     kustomize.buildOptions: --enable-alpha-plugins --enable-exec
-    helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
-    resource.exclusions: |
-      - apiGroups:
-          - cilium.io
-        kinds:
-          - CiliumIdentity
-        clusters:
-          - "*"
+    helm.valuesFileSchemes: >
+      secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
+
+    resource.exclusions:
+      - apiGroups: [ "cilium.io" ]
+        kinds: [ "CiliumIdentity" ]
+        clusters: [ "*" ]
+
+  rbac:
+    policy.csv: |
+      g, ArgoCD Admins, role:admin
+      g, ArgoCD Users, role:readonly
+    policy.default: role:readonly
+    scopes: '[groups]'
+
   secret:
     argocdServerAdminPassword: ENC[AES256_GCM,data:8wZCSKeojMYrecSHw5ARwj5YHhmWUrqPs6eUTMUtxPQqd360gkfegp+xdDIGZ/OtwvStZxvA2GWb4dQ4fCfRqDUNrXOLWKX13EgpOm9WRl6/l+fyiHXpqEFFDyMtBu9CcUaYPcTc5KWDWujMKmBa7qeoFKOODRtYIx1RZuXO3aZ33SOCU3/9Ewjnp78HUK6vZlSvqbGR8nGi1N5YrROC3VW84wo248XmrLe0gFGnaxgzASacdn8afHoYYw==,iv:f7PUgDiurP1Mxmi0edoqgIDTSDv/IT6t7pEVqCnBpLw=,tag:FeVnlDEwltyf845WpagafA==,type:str]
     argocdServerAdminPasswordMtime: ENC[AES256_GCM,data:btzM12IhgCLLwZzJ9WjtXPwS2C/afSgIHDNSzJc/MgY5ceLAS/OOQTFQDWJcOr2Qpy31Ap32IgeujaptBx7k/MfHP0wKCrOP6qtFF4ar+KU925pjNbFJM0Y0apGnioZ14z/ymSp9vGoBtSUBHAKPyGHAGTTqR1KgherZkEnMBc91z0ouzocs,iv:5p7dV5DEOpSB0Ye4yTGBL1yHqxCxxUIs1bUAgHcLSRg=,tag:SR0sN3o/MQxLqtaAetG+Cg==,type:str]
@@ -64,34 +76,13 @@ redis:
       additionalLabels:
         release: kube-prometheus-stack
 server:
-  initContainers:
-    - name: extension-installer
-      image: quay.io/argoprojlabs/argocd-extension-installer:v0.0.5@sha256:27e72f047298188e2de1a73a1901013c274c4760c92f82e6e46cd5fbd0957c6b
-      env:
-        - name: EXTENSION_NAME
-          value: rollouts
-        - name: EXTENSION_URL
-          value: https://github.com/argoproj-labs/rollout-extension/releases/latest/download/extension.tar
-        - name: EXTENSION_VERSION
-          value: latest
-        - name: EXTENSION_JS_VARS
-          value: |
-            {
-              "key1": "value1",
-              "key2": "value2"
-            }
-      volumeMounts:
-        - name: extensions
-          mountPath: /tmp/extensions/
-      securityContext:
-        runAsUser: 1000
-        allowPrivilegeEscalation: false
-  volumes:
-    - name: extensions
-      emptyDir: {}
-  volumeMounts:
-    - name: extensions
-      mountPath: /tmp/extensions/
+  extensions:
+    enabled: true
+    extensionList:
+      - name: rollout-extension
+        env:
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
   replicas: 2
   allowAnyNamespace: true
   ingress:
