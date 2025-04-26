@@ -47,10 +47,10 @@ configs:
       p, role:admin, *, *, *, allow
       g, ArgoCD Admins, role:admin
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:4OTJfBT/KZ67C9okGp621Wa+O6P0yJjO1HUWhlx9I+Sv8H5TzB0LY6d3Nf3z7mLSxWbM5MXzSXfQDq6T,iv:dQjpcaO+TeO9Zy3EtYcTwz+j3LtCuW7LzQClxOcELBE=,tag:NBMfT2b+kICd/kLBEong4w==,type:str]
-    argocdServerAdminPasswordM: ENC[AES256_GCM,data:n3c4pJukqqAAl3mSHADGe1F+/6R9LH3jWA==,iv:R2dtIS7iAwrFh5y2dNV4ZIQz87fiiVWm7aw2hB2a1P0=,tag:8mPqQ6c1dwqcCHEpwk2U7A==,type:str]
-    githubSecret: ENC[AES256_GCM,data:l0WGJmh3trYKiatpEJPuz80+uS6Ib3xEYhyXqVk=,iv:g4vf6McWcqW8G/c5hcmWvWjdfkx9zlwmiuphgSSHF5c=,tag:zu/N8+G66pLqoKabdo4+qw==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:vfDAwEjlJ/AtqAVJuLJf+eEuzOcf0YhlsBqrkvJih8XHwH4E1Ysn9GcmUVDdimjYIKsw7cNk7l4vKUEHV7aiMpQ/eLIPJOOubWc0k8kb1QMch40c9pui14C80vZuzni9FHAAf+hDL3W0DUfXtivjX77O6adA4i55qGWQaBjvasA=,iv:YTFQKH88J6mGBcfv2vJRVcraTi3JPL8RmyEhSHg/1tU=,tag:58VNg3DD68OfxN4o63QQTw==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:jSpIANtRdjE4UTkBWMu67fjFjZQhtrK60et0KR/O25GMWSDTdlMQKLLQvzyRYQ/g5B8=,iv:Uk2MxtfLkSZecnq7Kb5vvxAo8JOok32qzcA7OiLYQvk=,tag:bgUkd4lx/tpQRXGNJianSA==,type:str]
+    argocdServerAdminPasswordM: ENC[AES256_GCM,data:upBfKIkHU4BEht9g6GZaGlN3gBD+/SdPuDIWS5EsPGTTfNP0MkP54+0ecqy0oku/flh6XkdnKRxYeefMZ8IY7YJxsAtwt+GayiZlKxVX+P4OBVPUm3LN3YbpDDggqyJftFu6I+UxWfskIledOatHaGF1IfAiq9MLQnWwkAHCSm8=,iv:4r0i64CI0gVuiLO8xxsJ1XIlwDGY3TOE8PAri7UVfic=,tag:NiC3nlgoAfUWMlA6x/P+Hw==,type:str]
+    githubSecret: ENC[AES256_GCM,data:tNrk6COgI0T4VeJz6pBMC0P9soTIywrY/xvfZx3T4kU=,iv:YW1mHQE3YRXzEApSLSwo+4882c2pIF/O0X7oj1Z8RrQ=,tag:IuC0EJSMGrLdCm99ehpt3g==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:PIwg3lN5sjFvjJmxgCCzwlefoVsgmNU8+9RplRJwNOBV3BeLF4+EsKhanJ9fIqQF+LUIALkfEk07dSCslP1VDOITWhy0M27qIcSnz08VIBK59u7EX6uI9eSBSNssWubMUW3ljH+Hg4/wGKiZSYAUe1A3dTByOBs451m/q/EhPBE=,iv:2PJf+jIyWiYSLGMos3NBxX+22xt6haDRjaFUmSe4C6I=,tag:n2ivk+xL2MbFQxEqJc50UQ==,type:str]
 controller:
   replicas: 2
   metrics:
@@ -158,7 +158,7 @@ repoServer:
       emptyDir: {}
     - name: helm-secrets-private-keys
       secret:
-        secretName: ENC[AES256_GCM,data:VwjuVKIUNKjFQttThcWSlzwdOl1B5AyfQCFQWEXBj1TE0utkQzN+oaiao5yGKrehU40a6eyC0Sig6zfJCxWU49Lxyc3gMuT2JNwZxlisbgfuWq234efjY9NTVqRTxIc9U308dfV06Jv110FP8OIIoxNOsZMLHiQMbtfDRticicNDO/Jo8+LCY2qLSt+1zAaHr+Iyuag6/ouw+XNzT/egWfe4i1rtPHvHBcwctAXHl8+YftCy1YUQ5ZNBfXlfVEvcAOF9RcfSMyQ7P+zhYjc4j4OzMCBTm/5VtRRcTVMMwJOBgYYRJHYqPP+Wh4JZVw/F+9tljbkhkasdb4OTZyKV6Awc6twaJYs3flnwDWHoTTa71WV9wl7Gz1KBs28ZZe55Q0dK+Q/NjzZwP3o=,iv:c6diJYbtielSexZVWfpKgHLQEOsOk2OFpcKkomJ0HE0=,tag:JsiIhySReaqYDoqCaNz2Ww==,type:str]
+        secretName: ENC[AES256_GCM,data:XgJEuWOuCZBc9ObKc+xdB1ae2+GZ3LRNfenHViDNa0BOdade3js7B55NfVXKNw1ABxve/PAP3K5+dGhZd6XhRYuPx29XAzmKvnuqAgg7qrbW9Go69QZJ/ybsboFP4q0fYH592lqnRvFAvFF0KHY8eIVs5EgsrpU2hBZEeziW9ydzhSosya216RmlHMLm0eYwGlEGuEC3w9tCd67Fgzq2diOgp+4Gn154CfVneMwtKzikjokGekB91Czg62O92t9U066ASFu4Wo9NuRBRczZKX0tXeNcXcAc8Lnc8qXKzqbRsN+gi0XKTL37OMJOq4HTH7QiTF8i3/YOvZ7bJr1BLbkGD8SGerQspFIPBArGIT2QP4Z3Qp5Y/JGjOEnnlvpZo+4QA2W7E9kE7pFNbocAKl3iEMutOo1Br1zpD/sWZJVVGacNlHd0r0agCXvfytwWwQHVz6lKUiye2iX7ESKabQ0IrUxfQBknNj66+GxmBFldimFagRLFYqHkugt3w8hKopfmnW1UWoRzIV5LAtSeqKo7kPIRaj53EflMkgz/bmGyqS/SaYGrergdmeA2eAfMNFjfg79CcUbtII6764gU2y8Igk5uUa0oXglwhWwHZHmpoaruNWIn4cHUe6J+4ZxMXdjwTIbLHNTDvYysixpsCckzYlwwpRzqhufoR,iv:0OqptKGCQbt0ksC4s8fsLm9cAU1qZptFJX+v/qWjwtg=,tag:BWmmjDe9UGwRZY4k2INjOA==,type:str]
   volumeMounts:
     - mountPath: /custom-tools
       name: custom-tools
@@ -193,13 +193,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1bVhKd2RIVjBsbm1BVHlx
-        MkdDaWp1bkgyQW5HeHgrOW1CemkxRVRySHdJCkVzQXRGT0NZWHpNUzAxRGZCODdn
-        dzFyS2xOOWtBdEU0Mmh6VXgwZUNQdlUKLS0tIGVmNjZ6cTU3aVVtaStnTVRqdGRo
-        eWtzc2wrbTBLTDdLRFZ6M1VsRVJYalEK3usaVD7LnIyXGTqnkPQ4l34n6sK21Afu
-        pIzPun+mH9UNuDoWdtgRhiGdvGfGma54Sogdw+zVFBFkjVjARh+coQ==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBJOE13dm83TXZ1WldlMlla
+        anNsQWNsTzlRTjBPcDZRUDZYOXBKSGJqUkE0CnRMUUdCWHdwYlZMSWJFVEp6Z2dj
+        Y05Fbndyd2lvWE5WbkpmZnBYWGJKL0EKLS0tIFlFUWgrNWFvY2d2WGVUSE5JZmZB
+        QkpGZ2tob0szVHVqT1Fkb21oOHVVZ1EKPysGtncGcEmkiVSzLJXyleVG38ZWwHZm
+        v6TYvjcXWu8/LXNxiqz/21lag0cEE1QnWBhI+NfxQXleELltMuZjGQ==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-26T23:42:12Z"
-  mac: ENC[AES256_GCM,data:KiT2UfhEX7FZAOfTMRRjHJo1y9HsvB11O8/qdqON5maltkoT/9r71tPBbIb+pttA0vffKfJatYjW3WxOC88kxA1Hs9+0fUQipQG5Pjr+qr6EQsMHSSWbWSeD+Xepe8gfyrUeu7elXLJfoejE3gOCmpCb1Ps37fXyc3w3zy3pCXQ=,iv:6BqtV6qThCb4qB8xt7RzOwaTw9GMOuV5z1sKgFU6/dw=,tag:H+aIHnzzTHirUYj5MdpIsA==,type:str]
+  lastmodified: "2025-04-26T23:49:22Z"
+  mac: ENC[AES256_GCM,data:T7cdWeO9zSb1lsF/iLJ7miotLTXChW5EnESxRQ9JotyM4eekzvOUlXWAmeb8svCIAOOntmcx3monk/WzOqVIDjnlFuYak+HxxwrTNbH00Itz6NDMEoggsIhbbMjzLVRI9eGBeHA3aqMqZHvFinI0LEb6gnQEdiRNMZRo/L1mJmI=,iv:XY0sqTx5HH4tTlu1/stM3oFZToYiBtBrrzFxXLjw5cQ=,tag:sT6I44Cs3eWXWqwUdkLibA==,type:str]
   encrypted_regex: ^(data|stringData|.*[Pp]assword|.*[Ss]ecret|.*[Tt]oken)$
   version: 3.10.2
