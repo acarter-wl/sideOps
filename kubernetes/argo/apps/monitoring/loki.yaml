@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: "https://github.com/acarter-wl/sideops.git"
     path: kubernetes/apps/monitoring/loki
-    targetRevision: HEAD # Or the specific branch/tag/commit you want to deploy
+    targetRevision: main # Or the specific branch/tag/commit you want to deploy
   destination:
     server: https://kubernetes.default.svc
     # As per the README, these manifests should go into the 'logging' namespace

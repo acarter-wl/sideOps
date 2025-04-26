@@ -6,6 +6,22 @@ configs:
   params:
     server.insecure: true
   cm:
+    dex.config: |
+      connectors:
+        - type: oidc
+          id: authentik
+          name: authentik
+          config:
+            issuer: https://auth.wakkalabs.com/application/o/argocd/
+            clientID: GHFrNg3pZTxyoxvzuut0q0Kr2HSkBBqX0rqINETT
+            clientSecret: $dex.authentik.clientSecret
+            insecureEnableGroups: true
+            scopes:
+              - openid
+              - profile
+              - email
+    exec.enabled: true
+    accounts.readonly: apikey
     statusbadge.enabled: true
     kustomize.buildOptions: --enable-alpha-plugins --enable-exec
     helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
@@ -17,9 +33,10 @@ configs:
         clusters:
           - "*"
   secret:
-    argocdServerAdminPassword: $2a$10$5TnJS.VBR//mhM.hu6LYt.C1MZGCk31xCGIvXWLpELe4yNcmDnoEy
-    argocdServerAdminPasswordMtime: 2025-04-23T02:31:26
-    githubSecret: 24fdb5f6664d8c428cca944b49a3208b
+    argocdServerAdminPassword: ENC[AES256_GCM,data:LnDE6WXmZf4JAlhP1PqFNX0CfD6sqDvMbiCUGaaX2nJDeR+X76b2rUMbulfIhiqKM1AkZipb11yBg80m,iv:YjAuR0wcttLNp4zbKDqXBtYPXLCm+SXz9Hy25DnPcSw=,tag:eUO3REcN+5utSlvjWmTtzg==,type:str]
+    argocdServerAdminPasswordMtime: ENC[AES256_GCM,data:My52cb6KWzgDmnKwanrsdTOcqA==,iv:D4qg0+rYM+ABO4g97s6wh3qW/yXYi3E89vrlKU1cHVU=,tag:UTGSoS7ohV7FWZqbqPwuEA==,type:str]
+    githubSecret: ENC[AES256_GCM,data:TuLFFAYjfN2HpRR7nHBE7eyP8/QszAJJVGd6xsZJLsE=,iv:KtK0Om0nwnZfo/IB8uCn4QoghEFUqZ/oYdldye+oG8s=,tag:OAEEFl/0lJbFJJfTmhhCNg==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:IpepSpNiAddCQZZ7mTzq42eLVocwLU43Fi3zs2Qy3ps2Ds3/Qe4Sp2WVVzD1uHjedtNrZeHCpvCNjcFmz/MjBjILe2iDspc1JsnZS6YHDNyipJNUbNk1kr+eyhMb2TEQj3Q0MNx8w1qiQDeoAADxCsjD9zJtBfuIZuUXksYB/zQ=,iv:Wj2kTia3OiICZsfiomENSfetKkY6+FmNad/mbfz/+iM=,tag:/AqL0xPYO6Me34dwtPzgcQ==,type:str]
 controller:
   replicas: 2
   metrics:
@@ -60,6 +77,11 @@ server:
       enabled: true
       additionalLabels:
         release: kube-prometheus-stack
+  containers:
+    - args:
+        - /usr/local/bin/argocd-server
+        - --port=8080
+        - -metrics-port=8083
 notifications:
   replicas: 2
   metrics:
@@ -115,7 +137,7 @@ repoServer:
     # kubectl create secret generic helm-secrets-private-keys --from-file=key.asc=assets/gpg/private2.gpg
     - name: helm-secrets-private-keys
       secret:
-        secretName: helm-secrets-private-keys
+        secretName: ENC[AES256_GCM,data:5elBZmxJHhRSHfv5fs3VVZ3nXtncqH2xyA==,iv:1WyUCwFjKhq6Cs5GNciKDUqYUMnEzwv/6Ljf8NTj/os=,tag:7SEL9Uf4YLGcyPmwd28x3w==,type:str]
   volumeMounts:
     - mountPath: /custom-tools
       name: custom-tools
@@ -150,14 +172,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0NCtYaVZwTVJTSHBnSTlV
-        R2NMRzNXMlgvZk16Vk5CclpqYXJybEFsQmprCmxucnRSVkRSdERWbjMzSEFZZUZ6
-        Y29OMWU5WDVPL05XRUQvUS9oc3ZSM28KLS0tIERsb3lpNXhsUml1TXlaU1cvV3ZN
-        MUczSEJVV0N6V2JXS09XRXRUczlyblUKZrTmQHeiOqRDDuy8LebaR8JSuUaIKvXp
-        r8xSCFWvSUxig8LxcDt/BAlzNIzrmdq+z1rNFNZ/Yfo0Je7vMJqLWw==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCNG05Uk0vZXpNaXUrTG1q
+        akdTMENvME1zRzJweFRoZkVTRVhiMmFxSmpjCkJ3OGVNdE1sQlQ3M0l6TWwyREZn
+        STA4RXBzYm1IY1ovNkdNTjRIRktLRGsKLS0tIEFLNWVHVWtSUzhUTzYvQlZiTGh0
+        aXJtWkxPbXRiUVZ1bklEcUhaVzk0V00KKsobDfwums3Nkv0M+770j3ek6OKW1/WL
+        r3rQt+T556ppP4o0o2A9Foqd3qFYsPeCxE/9vMfoApKck4zNcqKvWA==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-23T07:31:26Z"
-  mac: ENC[AES256_GCM,data:dBkdM3q2datyQ5t/4RtZ9D4kJhoKWOTTRC3+6oupVDtONFz2KhbEEXXVGjLoTYoj1xJvFKEtkDyU/rdkS/Bu2EdVD6fotoBDoOFu83HKxBkGrs78aHQ3ULYAjAFDdR4SjOgxPb56uh4Q83ilZ6Bzsj1fO20ejYhOtPfW4bf7BZI=,iv:ncZj9WHJL0YShV1jodKYTgOCAUr5mpv+6qy6lRjvIq4=,tag:e3UvvejaxxZE45+RayokzQ==,type:str]
-  encrypted_regex: ^(data|stringData)$
-  mac_only_encrypted: true
-  version: 3.10.1
+  lastmodified: "2025-04-26T08:44:00Z"
+  mac: ENC[AES256_GCM,data:lcspyFooEupZCfBjDMc4d3j/XcY4DTSs7tzNkSv5nmhoYeRsjJLA6yc+9p8Bt/uuG2+k0x+MZHRY5ZFKEa1M1idakaaZh/wSQUmHy/F2wpvsNAvnoCl36p/Ed/W0xBFWVljcEBZcPjpACK3zLfh4cVafjwEEPnWQW4sT09AqOGc=,iv:X9zDZU5ccMxgCgjJqODj3s/pDqaS5pQguvXbPrv3fFY=,tag:owt/s91zRb40L+hHngdAqw==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Pp]assword|.*[Ss]ecret|.*[Tt]oken)$
+  version: 3.10.2
