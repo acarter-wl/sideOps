@@ -2,6 +2,10 @@ crds:
   install: true
 global:
   domain: argo.wakkalabs.com
+  serviceMonitor:
+    namespace: argo-system
+    additionalLabels:
+      release: kube-prometheus-stack
 configs:
   params:
     server.insecure: true
