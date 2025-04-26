@@ -36,13 +36,13 @@ configs:
       - apiGroups: [ "cilium.io" ]
         kinds: [ "CiliumIdentity" ]
         clusters: [ "*" ]
-
   rbac:
-    policy.csv: |
-      g, ArgoCD Admins, role:admin
-      g, ArgoCD Users, role:readonly
-    policy.default: role:readonly
     scopes: '[groups]'
+    groupClaim: groups
+    policy.default: role:readonly
+    policy.rules: |
+      p, role:admin, *, *, *, allow
+      g, ArgoCD Admins, role:admin
 
   secret:
     argocdServerAdminPassword: ENC[AES256_GCM,data:8wZCSKeojMYrecSHw5ARwj5YHhmWUrqPs6eUTMUtxPQqd360gkfegp+xdDIGZ/OtwvStZxvA2GWb4dQ4fCfRqDUNrXOLWKX13EgpOm9WRl6/l+fyiHXpqEFFDyMtBu9CcUaYPcTc5KWDWujMKmBa7qeoFKOODRtYIx1RZuXO3aZ33SOCU3/9Ewjnp78HUK6vZlSvqbGR8nGi1N5YrROC3VW84wo248XmrLe0gFGnaxgzASacdn8afHoYYw==,iv:f7PUgDiurP1Mxmi0edoqgIDTSDv/IT6t7pEVqCnBpLw=,tag:FeVnlDEwltyf845WpagafA==,type:str]

@@ -1,0 +1,115 @@
+# Jellyseerr values for app-template
+# ---------------------------------------------------
+controllers:
+  main:
+    enabled: true
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    initContainers:
+      init-chmod:
+        enabled: true
+        image:
+          repository: busybox
+          tag: latest
+          pullPolicy: IfNotPresent
+        command:
+          - /bin/sh
+          - -c
+          - mkdir -p /app/config && chown -R 0:0 /app/config && chmod -R 775 /app/config
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          privileged: true
+    containers:
+      main:
+        enabled: true
+        image:
+          repository: hotio/jellyseerr
+          tag: "release-2.5.1"
+          pullPolicy: Always
+        env:
+          TZ: America/Chicago
+          PUID: "0"
+          PGID: "0"
+        securityContext:
+          # Running as root initially to let the container's init scripts handle user switching
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: true
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 15
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          startup:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 30
+service:
+  jellyseerr:
+    controller: main
+    ports:
+      http:
+        port: 5055
+        targetPort: 5055
+ingress:
+  main:
+    enabled: true
+    className: internal
+    annotations:
+    hosts:
+      - host: jellyseerr.wakkalabs.com
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: jellyseerr
+              port: 5055
+    tls:
+      - secretName: jellyseerr-tls
+        hosts:
+          - jellyseerr.wakkalabs.com
+securityContext:
+  fsGroup: 0
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: jellyseerr-config
+  media:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: nfs-media
+    globalMounts:
+      - path: /media

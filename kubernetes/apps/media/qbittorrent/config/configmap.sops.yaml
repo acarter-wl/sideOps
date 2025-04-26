@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qbittorrent-vpn-config
+  namespace: media
+  labels:
+    argocd.argoproj.io/instance: media-pvcs
+data:
+  DOT: ENC[AES256_GCM,data:9nls,iv:SL4AMG4QwEi0a1VK7e0Uhzad9N6K/MaNGPf+fcIiLgo=,tag:WlOCAUe2MtLhekA1LBJvnw==,type:str]
+  FIREWALL: ENC[AES256_GCM,data:VxrI,iv:a/sQVwbg+9VVD5QpQNACzZ0aVPziN2lFBYn+/cfCPA8=,tag:H3IiK6HptfoWroL+BIjwOQ==,type:str]
+  LOG_LEVEL: ENC[AES256_GCM,data:GhvASDQ=,iv:aTfYON+EuHxBQoP+aFpN2OAD9ScjlErScu6HW4aYqFo=,tag:t8SVRxV+S1FZ4DuM6I1wXw==,type:str]
+  PGID: ENC[AES256_GCM,data:aXhgYA==,iv:Sx/Xj7HSVpVwa9SVqqtpzoUysIFy+9xks8fKUUf8Bqg=,tag:jhDYX51wXOeX3ZV19xmsig==,type:str]
+  PUID: ENC[AES256_GCM,data:z1ZPfA==,iv:jPO9ISQM09rYAVXMIGqKMcneaLnQ4p8X0zHNaOdV5W8=,tag:MPXHjr2pg16Y48nu1XqorA==,type:str]
+  SERVER_HOSTNAMES: ENC[AES256_GCM,data:dySlX8bGV+IUEMIKbYL4Ek5sry05fWP+Og==,iv:Vhb3JJ/jtCw/5KW5pPfkQbVrnIf/47DsqOKJisbsiho=,tag:XHNv2U/uErXlLHOozniSIg==,type:str]
+  TZ: ENC[AES256_GCM,data:1onK1zA6SCoyJhGHGMPu,iv:Kj1jg5yiOMI8QoxIUQKdnKwYNuw0gTHd3DJFE3sw3Ao=,tag:al25HCeA3z5ScG0imIByGw==,type:str]
+  UMASK: ENC[AES256_GCM,data:TJja,iv:4AivMoJuc+im1jxFHS7J1+tBv/P9ufz30Q7ge2iM+2M=,tag:k2Wphi04E+VF+8lALDJB1A==,type:str]
+  UPDATER_PERIOD: ENC[AES256_GCM,data:nBAr,iv:SfEM4MqlA5oQ0hhF8/yqFWipEkp2PgdkTqjh01L1TYw=,tag:jCB7PfuYS4TW+J0hV5gZfg==,type:str]
+  VPN_SERVICE_PROVIDER: ENC[AES256_GCM,data:ugiuHrlxpXma,iv:zLSx0qMNLej6d1Qkmom6U4kjJvc4gKbq3QK2rzxWRz8=,tag:VhCqesEi0YaF1Z9Pl6jgtQ==,type:str]
+  VPN_TYPE: ENC[AES256_GCM,data:AyvrZKDQ7t8D,iv:W8hnVqDxEKgRa5Sd/BC1Qw70QPr3K1I+Uz7s3te9KyI=,tag:I2ARQkYcefwPIPGxPC+LJQ==,type:str]
+  WIREGUARD_ADDRESSES: ENC[AES256_GCM,data:DidUfEqirqQztO6t,iv:5duANRWkenMfcEBVUC/3ScB7QiUcxKyDpupIBqVMzPE=,tag:i2DyRrfz0Z+i4G55kUpybg==,type:str]
+  WIREGUARD_DNS: ENC[AES256_GCM,data:JdpObd9ZhRu72ELmhtpbTbh4GVErt4lwbxFQHgQw,iv:pzhYSBNpYXFYoy5HjjqYwCZ6o2iofnMzumLuVjP8CtI=,tag:UdyL1T/bJEioczgn+1LlQg==,type:str]
+sops:
+  kms: []
+  gcp_kms: []
+  azure_kv: []
+  hc_vault: []
+  age:
+    - recipient: age154ykr0f2v25m3jwdgk5xx3v4a4c5fnmt76852csf0dtm54mzaevqxykxzm
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA5M0hvd0d4SGRKVzFoZGhN
+        LzVIY0FxQ1gwaGI1OU9nZGNYY3o4Rm1JdEFNCnUyWjE0Vjg3QUxyQTRrZnhGblor
+        VXMva2pnVkpKNWJJSVBWSWJ2ZFIwcTAKLS0tIDhZallzNkVFdXAxeEN1M3B0cWg3
+        MXMwVmlFai9ZNzRQYTU0WmpOVlBaaHMKxL8pd8wpH5dXQpjIFTBo7Nebz8ZbJ+N9
+        wNEcnWP7f7GdqRdpnCEK3wX1sA1tgT1wijlSRIjsSoG9Jg88EfdtSQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-03-26T11:05:26Z"
+  mac: ENC[AES256_GCM,data:3bNd/VnJZb4LUUd9oqZYCIbodo4ePgUTu5FibuCsbg2FmeP5SFogJPYZEL95EuQ5ZtFVie28GioQCVffRnC6rnH9tBQx3mP00vCX8oLwcaFMclqc/CERnCo/L9GACko3EJ2n9F+/Ym3ZjFJWeVtQlIGcFtb0ERDXzBdVixg9mCg=,iv:e7SkCGk9VYLGmTCyVw2C0+5YvJfX+ogGJ8eG78ZNOyc=,tag:zQoJjLZ/xlKuioTHA6omdQ==,type:str]
+  pgp: []
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.9.4

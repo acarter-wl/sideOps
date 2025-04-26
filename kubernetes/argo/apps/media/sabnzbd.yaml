@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sabnzbd
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '8'
+spec:
+  destination:
+    namespace: media
+    server: https://kubernetes.default.svc
+  project: media
+  source:
+    repoURL: https://github.com/acarter-wl/sideops.git
+    targetRevision: main
+    path: kubernetes/apps/media/sabnzbd
+  syncPolicy:
+    syncOptions:
+      - Replace=true
+    automated:
+      prune: true
+      selfHeal: true
