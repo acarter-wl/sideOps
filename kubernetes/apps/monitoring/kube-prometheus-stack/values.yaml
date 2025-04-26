@@ -49,14 +49,16 @@ prometheus:
     secrets:
       - etcd-certs
     serviceMonitorSelectorNilUsesHelmValues: false
-    serviceMonitorSelector: {}
+    serviceMonitorSelector:
+      matchLabels:
+        release: kube-prometheus-stack
     retentionDuration: "90d"
     retentionSize: "90GB"
     storageSpec:
       volumeClaimTemplate:
         spec:
           storageClassName: mayastor-ha
-          accessModes: [ "ReadWriteOnce" ]
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 100Gi
@@ -91,7 +93,7 @@ alertmanager:
     global:
       resolve_timeout: 5m
     route:
-      group_by: [ 'job', 'alertname', 'namespace' ]
+      group_by: ['job', 'alertname', 'namespace']
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h

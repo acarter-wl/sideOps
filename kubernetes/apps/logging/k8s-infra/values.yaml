@@ -9,12 +9,14 @@ presets:
     enabled: true
   loggingExporter:
     enabled: true
+
+# SigNoz UI Ingress Configuration
 signoz:
   ingress:
     enabled: true
     className: internal
     hosts:
-      - host: signoz.wakkalabs.com # Replace with your domain
+      - host: signoz.wakkalabs.com
         paths:
           - path: /
             pathType: ImplementationSpecific
@@ -22,11 +24,11 @@ signoz:
     tls:
       - secretName: signoz-tls-cert
         hosts:
-          - signoz.wakkalabs.com # Replace with your domain
+          - signoz.wakkalabs.com
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-production
 
-# Configure SigNoz OTel Collector Ingress
+# SigNoz OTel Collector Ingress Configuration
 otelCollector:
   ingress:
     enabled: true
@@ -40,7 +42,7 @@ otelCollector:
     tls:
       - secretName: signoz-ingest-tls-cert
         hosts:
-          - signoz-ingest.wakkalabs.com # Replace with your ingestion domain
+          - signoz-ingest.wakkalabs.com
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-production
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
