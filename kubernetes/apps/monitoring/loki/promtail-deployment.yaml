@@ -23,7 +23,7 @@ spec:
   selector:
     app: promtail
   type: LoadBalancer
-  loadBalancerIP: 10.11.1.57
+  loadBalancerIP: 192.168.101.2
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -73,7 +73,7 @@ data:
       log_level: info
       http_listen_port: 3101
     clients:
-      - url: http://loki-headless.logging.svc:3100/loki/api/v1/push
+      - url: http://loki-headless.monitoring.svc:3100/loki/api/v1/push
     positions:
       filename: /run/promtail/positions.yaml
     scrape_configs:

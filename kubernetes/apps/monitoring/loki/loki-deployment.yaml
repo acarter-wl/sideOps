@@ -75,7 +75,7 @@ rules:
       - get
       - watch
       - list
-    apiGroups: [""]
+    apiGroups: [ "" ]
     resources:
       - configMaps
       - secrets
@@ -178,6 +178,8 @@ data:
         at: "250ms"
         max_per_second: 20
         up_to: 3
+    analytics:
+      reporting_enabled: false
 ---
 apiVersion: v1
 kind: ConfigMap
