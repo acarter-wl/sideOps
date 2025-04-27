@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: repositories
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: '-5'
 spec:
   project: default
   source:

@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: apps
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
 spec:
   project: default
 

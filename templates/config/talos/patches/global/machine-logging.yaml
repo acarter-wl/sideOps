@@ -1,8 +1,8 @@
 machine:
   install:
     extraKernelArgs:
-      - "talos.logging.kernel=tcp://fluent-bit.monitoring:5170"
+      - "talos.logging.kernel="tcp://loki.monitoring:1313
   logging:
     destinations:
-      - endpoint: "tcp://fluent-bit.monitoring:5170"
+      - endpoint: "tcp://loki.monitoring:1313"
         format: json_lines
