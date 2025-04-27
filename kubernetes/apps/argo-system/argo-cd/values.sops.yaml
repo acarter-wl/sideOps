@@ -51,7 +51,7 @@ controller:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring  # Add this line
+      namespace: monitoring # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -59,7 +59,7 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring  # Add this line
+      namespace: monitoring # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -67,7 +67,7 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring  # Add this line
+      namespace: monitoring # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -102,7 +102,7 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring  # Add this line
+      namespace: monitoring # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
@@ -194,4 +194,3 @@ sops:
   mac: ENC[AES256_GCM,data:X0HowEKOdv7azsniorPgjzA0rJaPm92c04TboGrmZ3tnmYe6NUUCfiS24aGpc5Fpe+Nw9XJk+7oh5bwTrR2o5eR8LAmgNHg/XSbRsQTbNiLLTpH1HUdLUes7G6S3CEhU5HteyYbFoZEB4XC5iFHsRI2DGmbwHBYBaVLZ9sEJU94=,iv:VjEzEkutwf3BMSTnqdOW4i+Yyt7rVu7oKN9j6vOmcMA=,tag:KMRhBxHpjUG3ni73PaGeHg==,type:str]
   encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
   version: 3.10.2
-´
