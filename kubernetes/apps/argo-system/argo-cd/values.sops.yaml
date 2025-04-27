@@ -47,19 +47,19 @@ configs:
     webhook.github.secret: 5J4puta1vqCZTvhDwgMyB2dOVAbyxFFnujGK
     dex.authentik.clientSecret: ENC[AES256_GCM,data:31TPgg8AsbzjR31m0ulq/FGURPPKrNAaT25ZR94X8qFp/lBCYkguoLJv+dCI0Jv0DpGp9Sih6riLNeZkdeViGOwv66JqwF/YQj/tIJbpB0FG9la99C0aVj6L0XZguXyqq02l00BaK7qKJrLwvcAm43cyMCnzgZYZNiaNGk2bQPs=,iv:N372oP+UTX0jagg+pM5kLgyg0rXgV81vllVOkOUG8zw=,tag:L8sq5UK3y/CyeIvLrP8fMg==,type:str]
 controller:
-  replicas: 2
   metrics:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring  # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 dex:
-  replicas: 2
   metrics:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring  # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -67,6 +67,7 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring  # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -97,11 +98,11 @@ server:
         - --port=8080
         - -metrics-port=8083
 notifications:
-  replicas: 2
   metrics:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring  # Add this line
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
@@ -193,3 +194,4 @@ sops:
   mac: ENC[AES256_GCM,data:X0HowEKOdv7azsniorPgjzA0rJaPm92c04TboGrmZ3tnmYe6NUUCfiS24aGpc5Fpe+Nw9XJk+7oh5bwTrR2o5eR8LAmgNHg/XSbRsQTbNiLLTpH1HUdLUes7G6S3CEhU5HteyYbFoZEB4XC5iFHsRI2DGmbwHBYBaVLZ9sEJU94=,iv:VjEzEkutwf3BMSTnqdOW4i+Yyt7rVu7oKN9j6vOmcMA=,tag:KMRhBxHpjUG3ni73PaGeHg==,type:str]
   encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
   version: 3.10.2
+´
