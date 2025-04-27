@@ -1,8 +1,6 @@
 crds:
   install: true
 global:
-  serviceMonitor:
-    namespace: argo-system
   domain: argo.wakkalabs.com
 
 configs:
@@ -92,7 +90,6 @@ server:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
   containers:
