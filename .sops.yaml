@@ -1,8 +1,9 @@
 ---
 creation_rules:
-  - path_regex: (bootstrap|kubernetes)/.*\.sops\.ya?ml
-    encrypted_regex: "^(data|stringData|.*[Pp]assword|.*[Ss]ecret|.*[Tt]oken)$"
-    age: "age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h"
+  - path_regex: .*.yaml$
+    # Only encrypt specific sensitive keys
+    encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
+    age: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h # Your age public key
 stores:
   yaml:
     indent: 2
