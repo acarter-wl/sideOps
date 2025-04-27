@@ -1,11 +1,10 @@
 crds:
   install: true
 global:
-  domain: argo.wakkalabs.com
   serviceMonitor:
     namespace: argo-system
-    additionalLabels:
-      release: kube-prometheus-stack
+  domain: argo.wakkalabs.com
+
 configs:
   params:
     server.insecure: true
@@ -56,7 +55,6 @@ controller:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -65,7 +63,6 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -73,7 +70,6 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -110,7 +106,6 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: argo-system
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
@@ -187,18 +182,3 @@ repoServer:
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
-sops:
-  age:
-    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0c0w5aFkzTTUvMW5RR3dr
-        ckFvaDZ1bHdtN3IySTNFb0NyVktRbERCMVI4ClFsWVJ3OWZXek1mT3RNbXZQWnFT
-        UWUzQnBtSmxuK0VZWjVNcU5mb0NoZzQKLS0tIGJMNXVzanpxWjFKYUt5T3BwYndl
-        ckRZN3Z5TVcxZEFWYlh6TFN1VVZqZTAKrsJdrIsa1bNz9WS3WxPZ8LlqO22ihp4w
-        d3Jo02M2qpLkSW5t6NM7eERJyuCmq4xINWFCT+uc0eTqm5eiu4d3uA==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-27T00:37:47Z"
-  mac: ENC[AES256_GCM,data:fLQN+TGhIKhAqx5pPTzgodNuVe1cDwmLFYoJJ/KCuawxIbIhjoALafqZ8y40aqAJP8ZsoqwAHLHHwPyY7ZCacBzAjD8HUE4bk6otOLm8y5u35yDQEq2JpOLS+pCbppA0K3LeGrYSOkt3HYBVbrQf95nTr0bWlE9W8h+GV7IzpyM=,iv:uUdYOq1fip3geRWjnv/JRwMTXzOSp88m26Y2PkcUyXc=,tag:Uqzngl8EeA9e84sO14Kt2A==,type:str]
-  encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
-  version: 3.10.2
