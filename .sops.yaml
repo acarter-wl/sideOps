@@ -4,11 +4,10 @@ creation_rules:
     mac_only_encrypted: true
     age: "age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h"
 
-  # Rule specifically for Kubernetes Helm values SOPS files
+  # Rule specifically for Kubernetes Helm values AND K8s Manifest SOPS files
   - path_regex: kubernetes/.*\.sops\.ya?ml
-    # This regex targets the specific keys in your argo-cd values file
-    # Add other keys here if needed for other apps
-    encrypted_regex: '^(argocdServerAdminPassword|webhook\.github\.secret|dex\.authentik\.clientSecret|githubSecret)$'
+    # This regex now targets 'data'/'stringData' OR the specific Argo CD keys
+    encrypted_regex: '^(data|stringData|argocdServerAdminPassword|webhook\.github\.secret|dex\.authentik\.clientSecret|githubSecret)$'
     age: "age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h"
 
 stores:
