@@ -4,6 +4,7 @@ metadata:
   name: nzbhydra2
   namespace: argo-system
   annotations:
+    argocd.argoproj.io/sync-wave: '7'
 spec:
   project: media
   sources:
