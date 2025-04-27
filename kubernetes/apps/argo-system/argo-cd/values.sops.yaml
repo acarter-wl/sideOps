@@ -48,7 +48,6 @@ configs:
       g, ArgoCD Admins, role:admin
   secret:
     argocdServerAdminPassword: ENC[AES256_GCM,data:Yha0sVPfDBFIUG7YoDt0YgKEFKhsW1+Led6TYHfx1xi7afAFYg0LU5kcpxSiNQcyjmFxFuJkIOspUkbg,iv:LTehqdoKG4gekVJ3/M2wpw5jNhE/XCMSLv883Z6FE/c=,tag:SaGXPTz6JMqLYY+fnA8O4Q==,type:str]
-    argocdServerAdminPasswordMtime: 2025-04-26T23:49:22Z
     githubSecret: ENC[AES256_GCM,data:L5+8U8ZtpqCPEWrgbx4y3Qqbjc5CPR2x6zeJumfgahg=,iv:zCuWoXOTR64IJY7H3xLtwwopi0BVcBJGF0MCZlXF+fw=,tag:a8Oy7EIL0x7hX2XK+I6PDg==,type:str]
     dex.authentik.clientSecret: ENC[AES256_GCM,data:yFtLTfej3Efwh9yldAAvfKHNQFSFvWaFg7gEHJS0XrFvGpLRDf9+9Cr5js35gq+69XMsb2fs4X5MbDN68XJ427HpX/Ffd3ai6z72yywGBn7XVViejFOlb4CFXBsP91CLCLvnzqzwO7UhIbVeQGvpRqBjCBzzTIvPKew0h7xGkTM=,iv:kGRP26tHVYqcDGv0OiUhNVJho1c76dh61WWBh5mSbho=,tag:a/SdcJJaOUDEz0qAssD0+g==,type:str]
 controller:
