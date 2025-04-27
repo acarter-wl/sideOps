@@ -5,19 +5,19 @@ metadata:
   namespace: default
 spec:
   containers:
-  - name: benchmark
-    image: nixery.dev/shell/fio
-    command:
-      - "/bin/sh"
-      - "-c"
-      - "cd /data && fio --name=benchmark --ioengine=libaio --rw=randrw --bs=4k --direct=1 --size=1G --numjobs=4 --runtime=60 --time_based --group_reporting"
-    volumeMounts:
-    - name: benchmark-volume
-      mountPath: /data
+    - name: benchmark
+      image: nixery.dev/shell/fio
+      command:
+        - "/bin/sh"
+        - "-c"
+        - "cd /data && fio --name=benchmark --ioengine=libaio --rw=randrw --bs=4k --direct=1 --size=1G --numjobs=4 --runtime=60 --time_based --group_reporting"
+      volumeMounts:
+        - name: benchmark-volume
+          mountPath: /data
   volumes:
-  - name: benchmark-volume
-    persistentVolumeClaim:
-      claimName: benchmark-pvc
+    - name: benchmark-volume
+      persistentVolumeClaim:
+        claimName: benchmark-pvc
   restartPolicy: Never
 ---
 apiVersion: v1
@@ -31,4 +31,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: mayastor-ha
+  storageClassName: ceph-block

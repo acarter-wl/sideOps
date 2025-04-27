@@ -10,7 +10,7 @@ CLEANUP=false
 function show_help {
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "Run storage benchmarks against mayastor-ha storage class"
+  echo "Run storage benchmarks against ceph-block storage class"
   echo
   echo "Options:"
   echo "  -r, --runtime SECONDS    Set benchmark runtime in seconds (default: 60)"

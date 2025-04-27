@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: disk-wipe-job-n2
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      nodeName: n2
+      containers:
+        - name: disk-wiper
+          image: ubuntu:20.04
+          securityContext:
+            privileged: true # Required for direct disk access
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              # Ensure required utilities are installed
+              apt-get update && apt-get install -y gdisk util-linux
+
+              # Define the target disk - this needs to be adjusted based on your environment
+              # IMPORTANT: Be extremely careful with this value!
+              DISK="/dev/sdb"  # Replace with the actual disk you want to wipe
+
+              echo "Starting disk wipe procedure on $DISK"
+
+              # Safety check to prevent accidental wiping of system disk
+              if [[ "$DISK" == "/dev/sda" || "$DISK" == "/dev/vda" ]]; then
+                echo "ERROR: Refusing to wipe potential system disk $DISK"
+                exit 1
+              fi
+
+              # Zap the disk to a fresh, usable state (zap-all removes GPT and MBR)
+              echo "Removing partition tables with sgdisk"
+              sgdisk --zap-all $DISK
+
+              # Wipe the first 15GB of the disk to remove LVM, RAID, ZFS or other metadata
+              #echo "Wiping first 15GB of the disk to remove storage metadata"
+              #dd if=/dev/zero of="$DISK" bs=1M count=15360 oflag=direct,dsync status=progress
+              dd if=/dev/zero of=/dev/sdb bs=1M count=1
+              dd if=/dev/zero of=/dev/sdb bs=1M count=1 seek=$(( $(blockdev --getsz /dev/sdb) * 512 / 1024 / 1024 - 1 ))
+              # For SSDs, you might want to use blkdiscard instead
+              # Detect if the device supports discard operations
+              if [ -e /sys/block/$(basename $DISK)/queue/discard_max_bytes ]; then
+                DISCARD_MAX=$(cat /sys/block/$(basename $DISK)/queue/discard_max_bytes)
+                if [ "$DISCARD_MAX" -gt 0 ]; then
+                  echo "SSD detected, performing blkdiscard operation"
+                  blkdiscard $DISK
+                fi
+              fi
+
+              # Inform the OS of partition table changes
+              echo "Updating kernel partition table"
+              partprobe $DISK
+
+              echo "Disk wipe completed successfully"
+      volumes:
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: sys
+          hostPath:
+            path: /sys

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cephfs-benchmark
+spec:
+  containers:
+    - name: fio
+      image: nixery.dev/shell/fio
+      command:
+        - "/bin/sh"
+        - "-c"
+        - "sleep 1000000"
+      volumeMounts:
+        - name: ceph-block
+          mountPath: /data
+  volumes:
+    - name: ceph-block
+      persistentVolumeClaim:
+        claimName: cephfs-benchmark-pvc

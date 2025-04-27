@@ -57,8 +57,8 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: mayastor-ha
-          accessModes: ["ReadWriteOnce"]
+          storageClassName: ceph-block
+          accessModes: [ "ReadWriteOnce" ]
           resources:
             requests:
               storage: 100Gi
@@ -93,7 +93,7 @@ alertmanager:
     global:
       resolve_timeout: 5m
     route:
-      group_by: ['job', 'alertname', 'namespace']
+      group_by: [ 'job', 'alertname', 'namespace' ]
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
@@ -204,7 +204,7 @@ grafana:
     accessModes:
       - ReadWriteOnce
     size: 100Gi
-    storageClassName: mayastor-ha
+    storageClassName: ceph-block
   datasources:
     datasources.yaml:
       apiVersion: 1

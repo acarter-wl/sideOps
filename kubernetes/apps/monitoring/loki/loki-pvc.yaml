@@ -7,9 +7,9 @@ metadata:
   labels:
     app: loki
   annotations:
-    volume.beta.kubernetes.io/storage-class: "mayastor-ha"
+    volume.beta.kubernetes.io/storage-class: "ceph-block"
 spec:
-  storageClassName: mayastor-ha
+  storageClassName: ceph-block
   accessModes:
     - ReadWriteOnce
   resources:

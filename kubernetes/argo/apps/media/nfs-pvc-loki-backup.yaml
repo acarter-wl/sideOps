@@ -4,12 +4,12 @@ metadata:
   annotations:
     pv.kubernetes.io/bind-completed: "yes"
     pv.kubernetes.io/bound-by-controller: "yes"
-    volume.beta.kubernetes.io/storage-class: mayastor-ha
+    volume.beta.kubernetes.io/storage-class: ceph-block
     volume.beta.kubernetes.io/storage-provisioner: io.openebs.csi-mayastor
     volume.kubernetes.io/storage-provisioner: io.openebs.csi-mayastor
   creationTimestamp: "2025-04-25T14:32:22Z"
   finalizers:
-  - kubernetes.io/pvc-protection
+    - kubernetes.io/pvc-protection
   labels:
     app: loki
     argocd.argoproj.io/instance: loki-promtail
@@ -19,16 +19,16 @@ metadata:
   uid: e73f2642-7799-48db-adad-734e1fd517ef
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: 64Gi
-  storageClassName: mayastor-ha
+  storageClassName: ceph-block
   volumeMode: Filesystem
   volumeName: pvc-e73f2642-7799-48db-adad-734e1fd517ef
 status:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   capacity:
     storage: 64Gi
   phase: Bound

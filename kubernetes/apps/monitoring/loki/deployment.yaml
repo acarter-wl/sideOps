@@ -303,7 +303,7 @@ metadata:
   labels:
     app: loki
 spec:
-  storageClassName: mayastor-ha
+  storageClassName: ceph-block
   accessModes:
     - ReadWriteOnce
   resources:

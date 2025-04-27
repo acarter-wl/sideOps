@@ -226,7 +226,7 @@ cephBlockPools:
         csi.storage.k8s.io/fstype: xfs
 
 cephFileSystems:
-  - name: ceph-filesystem
+  - name: ceph-block
     spec:
       metadataPool:
         replicated:
@@ -249,7 +249,7 @@ cephFileSystems:
     storageClass:
       enabled: true
       isDefault: false
-      name: ceph-filesystem
+      name: ceph-block
       pool: data0
       reclaimPolicy: Delete
       allowVolumeExpansion: true
