@@ -26,3 +26,87 @@ data:
               url: "$${__value.raw}"
         version: 1
         editable: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+data:
+  config.yaml: |
+    auth_enabled: false
+    common:
+      compactor_address: 'loki'
+      path_prefix: /var/loki
+      replication_factor: 1
+      storage:
+        filesystem:
+          chunks_directory: /var/loki/chunks
+          rules_directory: /var/loki/rules
+    compactor:
+      compaction_interval: 60m
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+      retention_enabled: true
+    frontend:
+      compress_responses: true
+      max_outstanding_per_tenant: 4096
+    index_gateway:
+      mode: ring
+    limits_config:
+      enforce_metric_name: false
+      max_cache_freshness_per_query: 10m
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      retention_period: 90d
+      retention_stream:
+      - period: 30d
+        priority: 10
+        selector: '{namespace="kube-system"}'
+      - period: 30d
+        priority: 11
+        selector: '{namespace="monitoring"}'
+      volume_enabled: true  # This is the critical setting
+    memberlist:
+      join_members:
+      - loki-memberlist
+    querier:
+      max_concurrent: 2048
+    query_range:
+      align_queries_with_step: true
+      parallelise_shardable_queries: false
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 4096
+    ruler:
+      storage:
+        type: local
+    runtime_config:
+      file: /etc/loki/runtime-config/runtime-config.yaml
+    schema_config:
+      configs:
+      - from: "2020-10-24"
+        index:
+          period: 24h
+          prefix: index_
+        object_store: filesystem
+        schema: v11
+        store: boltdb-shipper
+      - from: "2023-09-12"
+        index:
+          period: 24h
+          prefix: index_
+        object_store: filesystem
+        schema: v12
+        store: tsdb
+    server:
+      grpc_listen_port: 9095
+      http_listen_port: 3100
+    storage_config:
+      hedging:
+        at: "250ms"
+        max_per_second: 20
+        up_to: 3
+    analytics:
+      reporting_enabled: false
