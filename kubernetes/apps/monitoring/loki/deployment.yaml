@@ -298,7 +298,7 @@ data:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-pvc-loki
+  name: loki-pvc
   namespace: monitoring
   labels:
     app: loki
@@ -423,13 +423,13 @@ spec:
           emptyDir: {}
         - name: config
           configMap:
-            name: loki
+            name: loki-config
         - name: runtime-config
           configMap:
             name: loki-runtime
         - name: storage
           persistentVolumeClaim:
-            claimName: nfs-pvc-loki
+            claimName: loki-pvc
       containers:
         - name: loki
           image: grafana/loki:2.9.0

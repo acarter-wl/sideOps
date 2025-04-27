@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - deployment.yaml
-  - configmap.yaml
+  - cm.yaml
