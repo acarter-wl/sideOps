@@ -8,8 +8,8 @@ metadata:
     app: mikrotik-exporter
 data:
   device1: mikrotik
-  address1: 10.11.1.1
-  user1: prometheus
+  address1: 192.168.101.200
+  user1: admin
   device2: mikrotik
-  address2: 10.11.1.11
-  user2: prometheus
+  address2: 192.168.100.254
+  user2: admin
