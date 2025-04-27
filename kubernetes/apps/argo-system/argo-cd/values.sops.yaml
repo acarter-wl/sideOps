@@ -2,7 +2,6 @@ crds:
   install: true
 global:
   domain: argo.wakkalabs.com
-
 configs:
   params:
     server.insecure: true
@@ -44,9 +43,9 @@ configs:
       p, role:admin, *, *, *, allow
       g, ArgoCD Admins, role:admin
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:yhiRYZd+qbp4rFPWB0k6w6F14tT2B8vKQfq+7lWn/zzHeionrmnbIgcPLvRJZhK+055TeTnz0U2w4nAc,iv:5t12UQccRta7/1NX35bWU9pivwg225EqNMziZyicL1c=,tag:YqAeW6OXsRamQ80ecyBVNw==,type:str]
-    githubSecret: ENC[AES256_GCM,data:k73p2wlOMc6vYXcsxkXue86JN3YMT2jOXRBjgr6zUMU=,iv:2NBjsFgGzwwaano3pypbJexeV36og6UbzOFcHWC0c9o=,tag:vutioAZCjfByGf3pVXtYwA==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:ynhwRR3wUhixDvJIyurZEmDNWRODR2x//WHMCmbGC/grJ0E2ScjqkkSPP/yIvdIcN+gxlJsj0Z5U7DFYYMd1S4/X6w0v2rXt2lwHWwpkjv0Jazct+WRieO8SxWMo9DhSYeiZqghVMiZJZhrooTODKfcxuFbrRqEx3xVI0ZuaBYU=,iv:+fZd8Nfb8WYAO+3xhC1AlHcbCbgKvcKosxgIsyvDQZA=,tag:GKHS60WfJan5miRBkaw48Q==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:sMOpb0+fJ0Wa2j12KfQEaoZI/+IfBtDldmCDcVTFRa10b7B4wqgw9AnGD7ZVV+L65oBvGkmRucwxA7D3,iv:AjqHQIM9hN9XFPRcjVeYFgCW3Si7cd1ob9WfbAIK2Bc=,tag:wQ1zGfWI3gMTFvax/Zu3qQ==,type:str]
+    webhook.github.secret: 5J4puta1vqCZTvhDwgMyB2dOVAbyxFFnujGK
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:31TPgg8AsbzjR31m0ulq/FGURPPKrNAaT25ZR94X8qFp/lBCYkguoLJv+dCI0Jv0DpGp9Sih6riLNeZkdeViGOwv66JqwF/YQj/tIJbpB0FG9la99C0aVj6L0XZguXyqq02l00BaK7qKJrLwvcAm43cyMCnzgZYZNiaNGk2bQPs=,iv:N372oP+UTX0jagg+pM5kLgyg0rXgV81vllVOkOUG8zw=,tag:L8sq5UK3y/CyeIvLrP8fMg==,type:str]
 controller:
   replicas: 2
   metrics:
@@ -179,3 +178,18 @@ repoServer:
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBNZ3YvRi8wbnpmMWk4bWM0
+        QktXcnBhU2tOaVE4MTVmVjVGVEpkam1ia3gwCi9vakNnMVREOStZY1Jad2dpRS9x
+        alBtU2lyTXBKVE5RZjhWdGNPM3NOOGcKLS0tIElPVWxHY0QyNW5ZMTV5TDRNbDY1
+        VmVZZjdKMDlDQVhUZ0dpaVJZZzIxNXMKcNHv7KZ0mMi7GEZ34z+eCori9abHW9Sq
+        1T4Ein2mfnXseFye6NV5cgD6I7v38KTbo2BDxYICPWxNrURh5Hv2MQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-27T01:03:34Z"
+  mac: ENC[AES256_GCM,data:X0HowEKOdv7azsniorPgjzA0rJaPm92c04TboGrmZ3tnmYe6NUUCfiS24aGpc5Fpe+Nw9XJk+7oh5bwTrR2o5eR8LAmgNHg/XSbRsQTbNiLLTpH1HUdLUes7G6S3CEhU5HteyYbFoZEB4XC5iFHsRI2DGmbwHBYBaVLZ9sEJU94=,iv:VjEzEkutwf3BMSTnqdOW4i+Yyt7rVu7oKN9j6vOmcMA=,tag:KMRhBxHpjUG3ni73PaGeHg==,type:str]
+  encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
+  version: 3.10.2
