@@ -3,22 +3,21 @@
 # Default values
 RUNTIME=60
 TEST_TYPE="random-read"
+RESULTS_FILE="benchmark_results.md"
 
 # Help message
 function show_help {
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "Run storage benchmarks against ceph-block storage class"
+  echo "Run storage benchmarks against Mayastor storage class"
   echo
   echo "Options:"
   echo "  -r, --runtime SECONDS    Set benchmark runtime in seconds (default: 60)"
   echo "  -t, --test TEST_TYPE     Set benchmark test type (default: random-read)"
-  echo "                           Available tests: random-read, random-write, sequential-read,"
-  echo "                           sequential-write, mixed, latency"
+  echo "                           Available tests: random-read, random-write, sequential-read, sequential-write, mixed, latency"
   echo "  -a, --all                Run all benchmark tests"
   echo "  -c, --cleanup            Clean up benchmark resources after completion"
   echo "  -h, --help               Show this help message"
-  echo
 }
 
 # Parse arguments
@@ -56,6 +55,13 @@ done
 echo "Setting up benchmark resources..."
 kubectl apply -k .
 
+# Initialize results file
+echo "# Benchmark Results" > $RESULTS_FILE
+echo "" >> $RESULTS_FILE
+echo "| Test Type | IOPS | Bandwidth | Avg Latency (usec) |" >> $RESULTS_FILE
+echo "|-----------|------|-----------|--------------------|" >> $RESULTS_FILE
+
+# Function to run a single benchmark
 function run_benchmark {
   local test_type=$1
   local runtime=$2
@@ -64,65 +70,35 @@ function run_benchmark {
   echo "Running $test_type benchmark (${runtime}s)..."
   echo "--------------------------------------------------------"
 
-  # Create job from template
-  cat job.yaml | \
-    TEST_TYPE="$test_type" \
-    RUNTIME="$runtime" \
-    envsubst | \
-    kubectl apply -f -
+  cat job.yaml | TEST_TYPE="$test_type" RUNTIME="$runtime" envsubst | kubectl apply -f -
 
-  # Wait for job to complete
-  kubectl wait --for=condition=complete job/storage-benchmark-$test_type --timeout=5m
+  kubectl wait --for=condition=complete job/storage-benchmark-$test_type --timeout=5m || true
 
-  # Get logs
   POD=$(kubectl get pods --selector=job-name=storage-benchmark-$test_type -o jsonpath='{.items[0].metadata.name}')
-  RESULT=$(kubectl logs "$POD")
+  OUTPUT=$(kubectl logs $POD)
 
-  # Print full logs (optional)
-  echo "$RESULT"
+  echo "$OUTPUT"
 
-  # Pretty print summary
-  print_summary "$RESULT"
-
-  # Cleanup job
   kubectl delete job storage-benchmark-$test_type
 
+  # Parse results
+  IOPS=$(echo "$OUTPUT" | grep -oP 'IOPS=\K[0-9\.kMG]+')
+  BW=$(echo "$OUTPUT" | grep -oP 'BW=\K[0-9\.kMG/]+\s\([0-9\.kMG/]+\)')
+  LATENCY=$(echo "$OUTPUT" | grep -oP 'avg=\K[0-9\.]+')
+
+  # Handle missing metrics
+  IOPS=${IOPS:-N/A}
+  BW=${BW:-N/A}
+  LATENCY=${LATENCY:-N/A}
+
+  # Append to results file
+  echo "| $test_type | $IOPS | $BW | $LATENCY |" >> $RESULTS_FILE
+
   echo "--------------------------------------------------------"
-  echo "$test_type benchmark completed"
+  echo "$test_type benchmark completed."
   echo "--------------------------------------------------------"
   echo
 }
-# Function to run a single benchmark
-# function run_benchmark {
-#   local test_type=$1
-#   local runtime=$2
-
-#   echo "--------------------------------------------------------"
-#   echo "Running $test_type benchmark (${runtime}s)..."
-#   echo "--------------------------------------------------------"
-
-#   # Create job from template with environment variables
-#   cat job.yaml | \
-#     TEST_TYPE="$test_type" \
-#     RUNTIME="$runtime" \
-#     envsubst | \
-#     kubectl apply -f -
-
-#   # Wait for job to complete
-#   kubectl wait --for=condition=complete job/storage-benchmark-$test_type --timeout=5m
-
-#   # Get logs from the job's pod
-#   POD=$(kubectl get pods --selector=job-name=storage-benchmark-$test_type -o jsonpath='{.items[0].metadata.name}')
-#   kubectl logs $POD
-
-#   # Delete the job
-#   kubectl delete job storage-benchmark-$test_type
-
-#   echo "--------------------------------------------------------"
-#   echo "$test_type benchmark completed"
-#   echo "--------------------------------------------------------"
-#   echo
-# }
 
 # Run benchmarks
 if [[ "$RUN_ALL" == true ]]; then
@@ -134,10 +110,14 @@ else
   run_benchmark "$TEST_TYPE" "$RUNTIME"
 fi
 
-# Clean up
+# Clean up if requested
 if [[ "$CLEANUP" == true ]]; then
   echo "Cleaning up benchmark resources..."
   kubectl delete -k .
 fi
 
-echo "Benchmark completed!"
+echo ""
+echo "============ Benchmark Summary ============"
+cat $RESULTS_FILE
+echo "============================================"
+echo "Benchmark results saved to $RESULTS_FILE!"

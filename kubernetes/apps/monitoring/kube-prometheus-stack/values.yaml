@@ -217,8 +217,4 @@ grafana:
           url: http://loki.monitoring.svc.cluster.local:3100
           jsonData: {}
 
-# ================================
-# Promtail Configuration
-# ================================
-promtail:
-  enabled: false # Disable Promtail since we're using Fluent Bit
+

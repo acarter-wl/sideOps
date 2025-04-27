@@ -57,8 +57,8 @@ cephClusterSpec:
     modules:
       - name: pg_autoscaler
         enabled: true
-      - name: nfs
-        enabled: false
+      # - name: nfs
+      #   enabled: false
   dashboard:
     enabled: true
     ssl: true
@@ -68,9 +68,9 @@ cephClusterSpec:
         enabled: false
       requireMsgr2: false
   crashCollector:
-    disable: false
+    disable: true
   logCollector:
-    enabled: true
+    enabled: false
     periodicity: daily
     maxLogSize: 500M
   cleanupPolicy:
@@ -248,7 +248,7 @@ cephFileSystems:
         priorityClassName: system-cluster-critical
     storageClass:
       enabled: true
-      isDefault: false
+      isDefault: true
       name: ceph-block
       pool: data0
       reclaimPolicy: Delete

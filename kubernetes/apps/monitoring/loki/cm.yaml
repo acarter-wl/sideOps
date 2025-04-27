@@ -30,7 +30,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: loki-config
+  name: loki-config # Changed name
   namespace: monitoring
   labels:
     app: loki
@@ -68,7 +68,7 @@ data:
       - period: 30d
         priority: 11
         selector: '{namespace="monitoring"}'
-      volume_enabled: true  # This is the critical setting
+      volume_enabled: true  # Enable log volume feature
     memberlist:
       join_members:
       - loki-memberlist
@@ -109,4 +109,4 @@ data:
         max_per_second: 20
         up_to: 3
     analytics:
-      reporting_enabled: true
+      reporting_enabled: false
