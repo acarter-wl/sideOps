@@ -1,0 +1,9 @@
+operator:
+  enabled: true
+  crds:
+    enabled: false
+  enableDiscoveryDaemon: true
+  discover:
+    enabled: true
+  monitoring:
+    enabled: true

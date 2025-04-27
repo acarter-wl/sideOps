@@ -1,0 +1,78 @@
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: rook-ceph
+#   namespace: argo-system
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "1"
+#     argocd.argoproj.io/helm-skip-secrets: "true"
+# spec:
+#   project: kubernetes
+#   sources:
+#     - repoURL: https://github.com/acarter-wl/homeops.git
+#       path: kubernetes/apps/rook-ceph/operator
+#       targetRevision: main
+#       ref: repo
+#     - repoURL: https://charts.rook.io/release
+#       chart: rook-ceph
+#       targetRevision: v1.17.1
+#       helm:
+#         releaseName: rook-ceph
+#         valueFiles:
+#           - $repo/kubernetes/apps/rook-ceph/operator/values.yaml
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: rook-ceph
+#   syncPolicy:
+#     automated:
+#       allowEmpty: true
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
+#     retry:
+#       limit: 5
+#       backoff:
+#         duration: 5s
+#         maxDuration: 3m0s
+#         factor: 2
+
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: rook-ceph-cluster
+#   namespace: argo-system
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "2"
+# spec:
+#   project: kubernetes
+#   sources:
+#     - repoURL: https://github.com/acarter-wl/sideops.git
+#       path: kubernetes/apps/rook-ceph/cluster
+#       targetRevision: main
+#       ref: repo
+#     - repoURL: https://charts.rook.io/release
+#       chart: rook-ceph-cluster
+#       targetRevision: v1.17.1
+#       helm:
+#         releaseName: rook-ceph-cluster
+#         valueFiles:
+#           - $repo/kubernetes/apps/rook-ceph/cluster/values.yaml
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: rook-ceph
+#   syncPolicy:
+#     automated:
+#       allowEmpty: true
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
+#       - PrunePropagationPolicy=foreground
+#       - PruneLast=true
+#       # Add this to ignore existing resources
+#       #   - ApplyOutOfSyncOnly=true

@@ -3,6 +3,8 @@
 # Default values
 RUNTIME=60
 TEST_TYPE="random-read"
+RUN_ALL=false
+CLEANUP=false
 
 # Help message
 function show_help {
@@ -52,40 +54,57 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Set up benchmark resources
+# Setup benchmark resources
 echo "Setting up benchmark resources..."
 kubectl apply -k .
 
+# Initialize results markdown table
+RESULTS="| Test Type | IOPS | Bandwidth | Avg Latency (usec) |\n|-----------|------|----------|--------------------|"
+
 # Function to run a single benchmark
+target_pod_name() {
+  kubectl get pods --selector=job-name=storage-benchmark-$1 -o jsonpath='{.items[0].metadata.name}'
+}
+
 function run_benchmark {
   local test_type=$1
   local runtime=$2
-  
+
   echo "--------------------------------------------------------"
   echo "Running $test_type benchmark (${runtime}s)..."
   echo "--------------------------------------------------------"
-  
-  # Create job from template with environment variables
+
   cat job.yaml | \
     TEST_TYPE="$test_type" \
     RUNTIME="$runtime" \
     envsubst | \
     kubectl apply -f -
-  
-  # Wait for job to complete
-  kubectl wait --for=condition=complete job/storage-benchmark-$test_type --timeout=5m
-  
-  # Get logs from the job's pod
-  POD=$(kubectl get pods --selector=job-name=storage-benchmark-$test_type -o jsonpath='{.items[0].metadata.name}')
-  kubectl logs $POD
-  
-  # Delete the job
+
+  kubectl wait --for=condition=complete job/storage-benchmark-$test_type --timeout=10m
+
+  POD=$(target_pod_name $test_type)
+  LOG=$(kubectl logs "$POD")
+  echo "$LOG"
+
+  # Parse metrics
+  IOPS=$(echo "$LOG" | grep -i "IOPS=" | head -1 | sed -E 's/.*IOPS=([^,]+).*/\1/')
+  BANDWIDTH=$(echo "$LOG" | grep -i "READ:" | grep -o 'bw=[^,]*' | head -1 | cut -d= -f2)
+  if [ -z "$BANDWIDTH" ]; then
+    BANDWIDTH=$(echo "$LOG" | grep -i "WRITE:" | grep -o 'bw=[^,]*' | head -1 | cut -d= -f2)
+  fi
+  AVG_LATENCY=$(echo "$LOG" | grep -A1 "clat (usec)" | grep "avg=" | sed -E 's/.*avg=([^,]+).*/\1/')
+
+  IOPS=${IOPS:-N/A}
+  BANDWIDTH=${BANDWIDTH:-N/A}
+  AVG_LATENCY=${AVG_LATENCY:-N/A}
+
+  # Add to results table
+  RESULTS="${RESULTS}\n| ${test_type} | ${IOPS} | ${BANDWIDTH} | ${AVG_LATENCY} |"
+
+  # Cleanup job
   kubectl delete job storage-benchmark-$test_type
-  
-  echo "--------------------------------------------------------"
-  echo "$test_type benchmark completed"
-  echo "--------------------------------------------------------"
-  echo
+
+  echo "Benchmark $test_type completed."
 }
 
 # Run benchmarks
@@ -104,4 +123,10 @@ if [[ "$CLEANUP" == true ]]; then
   kubectl delete -k .
 fi
 
-echo "Benchmark completed!"
+# Print the final results summary
+echo -e "\n============ Benchmark Summary ============\n"
+echo -e "$RESULTS" | column -t -s '|'
+echo -e "\n============================================\n"
+
+# Optionally, save to file
+echo -e "$RESULTS" > benchmark_summary.md

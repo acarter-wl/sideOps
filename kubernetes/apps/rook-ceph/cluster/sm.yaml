@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ceph-metrics
+  namespace: monitoring # Placing in monitoring namespace as requested
+  labels:
+    release: kube-prometheus-stack # Adjust based on your prometheus-operator configuration
+spec:
+  selector:
+    matchLabels:
+      app: rook-ceph-mgr # Match labels of the Ceph services to monitor
+  namespaceSelector:
+    matchNames:
+      - rook-ceph # The namespace where Ceph services run
+  endpoints:
+    - port: http-metrics # The port name in the Ceph service exposing metrics
+      path: /metrics
+      interval: 30s
+      honorLabels: true
