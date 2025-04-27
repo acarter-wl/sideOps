@@ -43,15 +43,16 @@ configs:
       p, role:admin, *, *, *, allow
       g, ArgoCD Admins, role:admin
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:sMOpb0+fJ0Wa2j12KfQEaoZI/+IfBtDldmCDcVTFRa10b7B4wqgw9AnGD7ZVV+L65oBvGkmRucwxA7D3,iv:AjqHQIM9hN9XFPRcjVeYFgCW3Si7cd1ob9WfbAIK2Bc=,tag:wQ1zGfWI3gMTFvax/Zu3qQ==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:ZNxwLDxJpMYdVFNQJ7Im9mfGVMlTrJbAhGEFXUVsrBCvskqYYoS2CUF7kcmXwJ2+i/ZVsmM17Cmz8Khx,iv:UAhV+jVpLhdd+pWw1R6T7cEjkB2mS+3OHES+u5+OmzM=,tag:WWADQ5fLDT8E/9CH8h7WDw==,type:str]
     webhook.github.secret: 5J4puta1vqCZTvhDwgMyB2dOVAbyxFFnujGK
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:31TPgg8AsbzjR31m0ulq/FGURPPKrNAaT25ZR94X8qFp/lBCYkguoLJv+dCI0Jv0DpGp9Sih6riLNeZkdeViGOwv66JqwF/YQj/tIJbpB0FG9la99C0aVj6L0XZguXyqq02l00BaK7qKJrLwvcAm43cyMCnzgZYZNiaNGk2bQPs=,iv:N372oP+UTX0jagg+pM5kLgyg0rXgV81vllVOkOUG8zw=,tag:L8sq5UK3y/CyeIvLrP8fMg==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:5DM9ScrdCS7ZY+935ackho2/7XBpYnfllyZgveACeGdQZzdoMPNfLlHiPmC5i2OgXjd3tq2rudw4dkOFe6P7BHC2bRmQsMEy+sDv4oc6KfZIGIuWPPzcLR0cetuwagfPOVQ+k219KIRvMzUB+G387bf4Bi2YnxjSrkjdfCFqYxs=,iv:j7i6UbnhlMjKDn0CZrBXQaqasmr+cEsxrtKmaCwdU9o=,tag:TlvhYFz5CG+b+cfB0PYAxA==,type:str]
 controller:
   metrics:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring # Add this line
+      # Add this line
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -59,7 +60,8 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring # Add this line
+      # Add this line
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -67,7 +69,8 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring # Add this line
+      # Add this line
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -102,7 +105,8 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring # Add this line
+      # Add this line
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
@@ -184,13 +188,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBNZ3YvRi8wbnpmMWk4bWM0
-        QktXcnBhU2tOaVE4MTVmVjVGVEpkam1ia3gwCi9vakNnMVREOStZY1Jad2dpRS9x
-        alBtU2lyTXBKVE5RZjhWdGNPM3NOOGcKLS0tIElPVWxHY0QyNW5ZMTV5TDRNbDY1
-        VmVZZjdKMDlDQVhUZ0dpaVJZZzIxNXMKcNHv7KZ0mMi7GEZ34z+eCori9abHW9Sq
-        1T4Ein2mfnXseFye6NV5cgD6I7v38KTbo2BDxYICPWxNrURh5Hv2MQ==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBKSlVtbCt6Mm5JeWlIVlJj
+        UkVieE9rRklDeXBucWRYdGsxRVBZUU13YkZVClNRNnc3SFdVaERiaXdRTmtQTTJP
+        VUF3NDVPcHJRZ0dkLzI3K1FJejRac3MKLS0tIG9la1kzWStSUmJKSVMvZ2tSMVMx
+        bVAwTDFRRnYrdUpjSUc0N2NMenp3dlkKo52w7AnNzTTUYV0eKAL8eEfbaa1CyF5D
+        vFUaPzdot5KNKEc157WuE1cuZbg935GRMVoOz1IeGBRb8cwUdcWCYw==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-27T01:03:34Z"
-  mac: ENC[AES256_GCM,data:X0HowEKOdv7azsniorPgjzA0rJaPm92c04TboGrmZ3tnmYe6NUUCfiS24aGpc5Fpe+Nw9XJk+7oh5bwTrR2o5eR8LAmgNHg/XSbRsQTbNiLLTpH1HUdLUes7G6S3CEhU5HteyYbFoZEB4XC5iFHsRI2DGmbwHBYBaVLZ9sEJU94=,iv:VjEzEkutwf3BMSTnqdOW4i+Yyt7rVu7oKN9j6vOmcMA=,tag:KMRhBxHpjUG3ni73PaGeHg==,type:str]
+  lastmodified: "2025-04-27T01:16:44Z"
+  mac: ENC[AES256_GCM,data:Z2sXZPR7eNu7mq0Y7fXATdZi9g+jR9YUpjwQpFJ8Hj3iSev22KHy2j+phDY7tITTo75p7aqCopQeUrsU6x5O+oCxqOSJV5YYltLaSkTmr2SWkkFTlvZ6xJZ/pq4mguueIgvkFL4x1CgkwW5SQrr+Q3TarGXSA2uO6obSddNQLz4=,iv:1CSf/p3HFMnHajFqSK0gGUaEv9Xo3kn9iSoeSCJM4YU=,tag:0nOxyPfKp7wHzgnZCIQPGA==,type:str]
   encrypted_regex: ^(argocdServerAdminPassword|githubSecret|dex\.authentik\.clientSecret)$
   version: 3.10.2
