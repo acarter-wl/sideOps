@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: storage-benchmark-${TEST_TYPE}
+  namespace: default
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: benchmark
+        image: nixery.dev/shell/fio/jq
+        env:
+        - name: RUNTIME
+          value: "${RUNTIME}"
+        - name: TEST_TYPE
+          value: "${TEST_TYPE}"
+        command:
+          - "/bin/sh"
+          - "-c"
+          - |
+            cd /data
+            echo "Running ${TEST_TYPE} benchmark for ${RUNTIME} seconds..."
+            fio /benchmarks/${TEST_TYPE}.fio
+            echo "Benchmark completed. Results saved in /data/${TEST_TYPE}-results.json"
+        volumeMounts:
+        - name: benchmark-volume
+          mountPath: /data
+        - name: benchmark-config
+          mountPath: /benchmarks
+      volumes:
+      - name: benchmark-volume
+        persistentVolumeClaim:
+          claimName: benchmark-pvc
+      - name: benchmark-config
+        configMap:
+          name: storage-benchmark-config
+      restartPolicy: Never
