@@ -185,24 +185,25 @@ spec:
     metadata:
       labels:
         app: promtail
+      annotations:
+        prometheus.io/port: "3101"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
     spec:
+      serviceAccountName: promtail
       volumes:
         - name: config
           configMap:
             name: promtail
-            defaultMode: 420
         - name: run
           hostPath:
             path: /run/promtail
-            type: ''
         - name: containers
           hostPath:
             path: /var/lib/docker/containers
-            type: ''
         - name: pods
           hostPath:
             path: /var/log/pods
-            type: ''
       containers:
         - name: promtail
           image: docker.io/grafana/promtail:2.6.1
@@ -258,12 +259,9 @@ spec:
             allowPrivilegeEscalation: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
-      serviceAccountName: promtail
-      serviceAccount: promtail
       securityContext:
         runAsUser: 0
         runAsGroup: 0
-      hostNetwork: false
       tolerations:
         - key: node-role.kubernetes.io/master
           operator: Exists
@@ -271,6 +269,3 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
-  updateStrategy:
-    type: RollingUpdate
-...

@@ -136,9 +136,6 @@ data:
       - period: 30d
         priority: 11
         selector: '{namespace="monitoring"}'
-      - period: 30d
-        priority: 12
-        selector: '{namespace="monitoring"}'
     memberlist:
       join_members:
       - loki-memberlist
@@ -192,120 +189,190 @@ data:
   runtime-config.yaml: |
     {}
 ---
+# ServiceMonitor for Loki
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: loki
+  endpoints:
+    - port: http-metrics
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - monitoring
+---
+# Promtail with updated configuration
 apiVersion: apps/v1
-kind: StatefulSet
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: monitoring
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+      annotations:
+        prometheus.io/port: "3101"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: promtail
+      volumes:
+        - name: config
+          configMap:
+            name: promtail
+        - name: run
+          hostPath:
+            path: /run/promtail
+        - name: containers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: pods
+          hostPath:
+            path: /var/log/pods
+      containers:
+        - name: promtail
+          image: docker.io/grafana/promtail:2.6.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - '-config.file=/etc/promtail/promtail.yaml'
+          ports:
+            - name: http-metrics
+              containerPort: 3101
+              protocol: TCP
+            - name: http-syslog
+              containerPort: 1514
+              protocol: TCP
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/promtail
+            - name: run
+              mountPath: /run/promtail
+            - name: containers
+              readOnly: true
+              mountPath: /var/lib/docker/containers
+            - name: pods
+              readOnly: true
+              mountPath: /var/log/pods
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+---
+# ServiceMonitor for Promtail
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: promtail
+  namespace: monitoring
+  labels:
+    app: promtail
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  endpoints:
+    - port: http-metrics
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - monitoring
+---
+# Updated Promtail Service with metrics port
+apiVersion: v1
+kind: Service
+metadata:
+  name: promtail
+  namespace: monitoring
+  labels:
+    app: promtail
+spec:
+  ports:
+    - name: http-syslog
+      protocol: TCP
+      port: 1514
+      targetPort: http-syslog
+    - name: http-metrics
+      protocol: TCP
+      port: 3101
+      targetPort: http-metrics
+  selector:
+    app: promtail
+  type: LoadBalancer
+  loadBalancerIP: 192.168.101.2
+---
+# Updated Loki Service with metrics port
+apiVersion: v1
+kind: Service
 metadata:
   name: loki
   namespace: monitoring
   labels:
     app: loki
 spec:
-  replicas: 1
+  ports:
+    - name: http-metrics
+      protocol: TCP
+      port: 3100
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
   selector:
-    matchLabels:
-      app: loki
-  template:
-    metadata:
-      labels:
-        app: loki
-      annotations:
-        prometheus.io/port: http-metrics
-        prometheus.io/scrape: 'true'
-    spec:
-      volumes:
-        - name: tmp
-          emptyDir: {}
-        - name: config
-          configMap:
-            name: loki
-        - name: runtime-config
-          configMap:
-            name: loki-runtime
-        - name: storage
-          persistentVolumeClaim:
-            claimName: nfs-pvc-loki
-      containers:
-        - name: loki
-          image: grafana/loki:2.9.0
-          imagePullPolicy: IfNotPresent
-          args:
-            - -config.file=/etc/loki/config/config.yaml
-            - -target=all
-          ports:
-            - name: http-metrics
-              containerPort: 3100
-              protocol: TCP
-            - name: grpc
-              containerPort: 9095
-              protocol: TCP
-            - name: memberlist-port
-              containerPort: 7946
-              protocol: TCP
-          resources:
-            limits:
-              cpu: 1000m
-              memory: 2Gi
-            requests:
-              cpu: 10m
-              memory: 128Mi
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: config
-              mountPath: /etc/loki/config
-            - name: runtime-config
-              mountPath: /etc/loki/runtime-config
-            - name: storage
-              mountPath: /var/loki
-          livenessProbe:
-            httpGet:
-              path: /ready
-              port: http-metrics
-              scheme: HTTP
-            initialDelaySeconds: 45
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: http-metrics
-              scheme: HTTP
-            initialDelaySeconds: 45
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 4800
-      dnsPolicy: ClusterFirst
-      serviceAccountName: loki
-      serviceAccount: loki
-      automountServiceAccountToken: true
-      enableServiceLinks: true
-      securityContext:
-        runAsUser: 10001
-        runAsGroup: 10001
-        runAsNonRoot: true
-        fsGroup: 10001
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app: loki
-              topologyKey: kubernetes.io/hostname
-      schedulerName: default-scheduler
-  serviceName: loki-headless
-  podManagementPolicy: Parallel
-  updateStrategy:
-    type: RollingUpdate
-  revisionHistoryLimit: 10
-...
+    app: loki
+  type: ClusterIP
