@@ -68,7 +68,7 @@ cephClusterSpec:
         enabled: false
       requireMsgr2: false
   crashCollector:
-    disable: true
+    disable: false
   logCollector:
     enabled: false
     periodicity: daily
@@ -193,7 +193,7 @@ ingress:
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      cert-manager.io/cluster-issuer: letsencrypt-production
+      cert-manager.io/cluster-issuer: letsencrypt-staging
     host:
       name: ceph.wakkalabs.com
       path: /
