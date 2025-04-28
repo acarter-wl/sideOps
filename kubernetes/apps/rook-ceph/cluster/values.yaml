@@ -140,27 +140,27 @@ cephClusterSpec:
     nodes:
       - name: "n1"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
       - name: "n2"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
       - name: "n3"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
       - name: "n4"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
       - name: "n5"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
       - name: "n6"
         devices:
-          - name: "/dev/sdb"
+          - name: "sdb"
             wipe: true
   disruptionManagement:
     managePodBudgets: true
