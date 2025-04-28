@@ -10,4 +10,4 @@ spec:
       image: busybox
       securityContext:
         privileged: true
-      command: ["/bin/sh", "-c", "dd if=/dev/zero bs=1M count=15360 oflag=direct of=/dev/sdb status=progress"]
+      command: [ "/bin/sh", "-c", "dd if=/dev/zero of=$DISK bs=1M count=15360 oflag=direct,dsync" ]
