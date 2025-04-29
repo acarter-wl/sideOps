@@ -1,37 +1,37 @@
 ---
 cluster:
-  name: "kubernetesr" # Your cluster name
+  name: "talos-cluster" # Your cluster name
 
 global:
   scrapeInterval: 30s
   maxCacheSize: 100000
 
 # Define destinations where telemetry will be sent
+# The valid destination types are: "loki", "prometheus", "otlp", or "pyroscope"
 destinations:
-  - name: "loki"
-    type: "logs"
+  - name: "lokistack"
+    type: "loki"
     loki:
-      endpoints:
-        - url: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-  - name: "prometheus"
-    type: "metrics"
+      url: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+  - name: "prometheusstack"
+    type: "prometheus"
     prometheus:
-      url: "http://prometheus.monitoring.svc.cluster.local:9090/api/v1/push"
+      url: "http://prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
 
 # Enable cluster metrics collection
 clusterMetrics:
   enabled: true
-  destinations: [ "prometheus" ]
+  destinations: [ "prometheusstack" ]
 
 # Enable cluster events collection
 clusterEvents:
   enabled: true
-  destinations: [ "loki" ]
+  destinations: [ "lokistack" ]
 
 # Enable node logs collection (using Promtail functionality)
 nodeLogs:
   enabled: true
-  destinations: [ "loki" ]
+  destinations: [ "lokistack" ]
 
   # Talos Linux specific configuration for node logs
   config:
@@ -39,15 +39,10 @@ nodeLogs:
       enabled: true
       maxAge: 12h
       path: /var/log/journal
-      labels:
-        job: systemd-journal
 
     targets:
       talos_logs:
         enabled: true
-        selector:
-          matchLabels:
-            instance: ${HOSTNAME}
         paths:
           - /var/log/pods/*/*/*.log
           - /var/log/journal/*.journal
@@ -55,7 +50,7 @@ nodeLogs:
 # Enable pod logs collection
 podLogs:
   enabled: true
-  destinations: [ "loki" ]
+  destinations: [ "lokistack" ]
 
   # Configure the scrape config for pod logs
   config:
@@ -76,7 +71,7 @@ podLogs:
 # Enable Prometheus operator objects integration
 prometheusOperatorObjects:
   enabled: true
-  destinations: [ "prometheus" ]
+  destinations: [ "prometheusstack" ]
 
 # Enable needed collectors
 alloy-metrics:
@@ -110,10 +105,6 @@ alloy-logs:
     mounts:
       varlog: true
       dockercontainers: false # Talos uses containerd, not Docker
-
-# Extra service for Promtail-like functionality (used by Node Logs feature)
-alloy-receiver:
-  enabled: false # Not needed for basic setup
 
 # Self-reporting can be disabled if desired
 selfReporting:
