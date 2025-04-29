@@ -13,9 +13,9 @@ spec:
       path: kubernetes/apps/monitoring/tempo
       targetRevision: main
       ref: repo
-    - repoURL: https://github.com/grafana/tempo
+    - repoURL: https://grafana.github.io/helm-charts
       chart: tempo
-      targetRevision: 1.38.2
+      targetRevision: 1.21.0
       helm:
         releaseName: tempo
         valueFiles:
