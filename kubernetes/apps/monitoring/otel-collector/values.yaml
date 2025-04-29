@@ -1,0 +1,53 @@
+mode: deployment
+
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+
+  processors:
+    batch:
+      send_batch_size: 8192
+      timeout: 10s
+    memory_limiter:
+      check_interval: 2s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    resource:
+      attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: kubernetes
+    attributes:
+      actions:
+        - key: service.instance.id
+          action: insert
+          value: ${HOSTNAME}
+
+  exporters:
+    prometheusremotewrite:
+      endpoint: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+    otlp/tempo:
+      endpoint: tempo.monitoring.svc.cluster.local:4317
+      tls:
+        insecure: true
+    loki:
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+
+  service:
+    pipelines:
+      metrics:
+        receivers: [otlp]
+        processors: [memory_limiter, batch, resource]
+        exporters: [prometheusremotewrite]
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [otlp/tempo]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [loki]

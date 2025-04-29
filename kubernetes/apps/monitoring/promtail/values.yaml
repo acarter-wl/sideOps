@@ -1,153 +1,83 @@
-# promtail-values.yaml
-# Promtail configuration optimized for Talos Linux and Prometheus integration
-
-# Promtail configuration
 config:
-  # Clients configuration
   clients:
     - url: http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
-  # Server configuration
+  positions:
+    filename: /var/log/positions.yaml
+
   server:
     http_listen_port: 3101
     grpc_listen_port: 0
 
-  # Positions configuration (track what has been read)
-  positions:
-    filename: /run/promtail/positions.yaml
+  scrape_configs:
+    - job_name: kubernetes-pods
+      pipeline_stages:
+        - cri: {} # parses CRI-style log formats automatically
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_name]
+          target_label: __service__
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: __host__
 
-  # Scrape configurations
-  snippets:
-    extraScrapeConfigs: |
-      # Kubernetes pod logs
-      - job_name: kubernetes-pods
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels:
-              - __meta_kubernetes_pod_annotation_kubernetes_io_config_hash
-            action: replace
-            target_label: config_hash
-          - source_labels:
-              - __meta_kubernetes_pod_node_name
-            action: replace
-            target_label: node_name
-          - source_labels:
-              - __meta_kubernetes_namespace
-            action: replace
-            target_label: namespace
-          - source_labels:
-              - __meta_kubernetes_pod_name
-            action: replace
-            target_label: pod
-          - source_labels:
-              - __meta_kubernetes_pod_container_name
-            action: replace
-            target_label: container
-          - action: replace
-            replacement: /var/log/pods/*$1/*.log
-            separator: /
-            source_labels:
-              - __meta_kubernetes_pod_uid
-              - __meta_kubernetes_pod_container_name
-            target_label: __path__
-          - action: labelmap
-            regex: __meta_kubernetes_pod_label_(.+)
-
-      # Talos Linux system logs via journald
-      - job_name: talos-journal
-        journal:
-          path: /var/log/journal
-          max_age: 12h
+    - job_name: kubernetes-nodes
+      static_configs:
+        - targets:
+            - localhost
           labels:
-            job: systemd-journal
-        relabel_configs:
-          - source_labels: ['__journal__hostname']
-            target_label: hostname
-          - source_labels: ['__journal__systemd_unit']
-            target_label: unit
-          - source_labels: ['__journal_priority_keyword']
-            target_label: level
-          - source_labels: ['__journal__boot_id']
-            target_label: boot_id
+            job: varlogs
+            __path__: /var/log/*.log
 
-      # Kubernetes API audit logs
-      - job_name: kubernetes-audit
-        static_configs:
-          - targets:
-              - localhost
-            labels:
-              job: kubernetes-audit
-              __path__: /var/log/audit/kube/*.log
-    pipelineStages:
-      - match:
-          selector: '{namespace=~".+"}'
-          stages:
-            - regex:
-                expression: "traceID=(\\w+)"
-            - labels:
-                traceID:
+    - job_name: kubernetes-system
+      static_configs:
+        - targets:
+            - localhost
+          labels:
+            job: dmesg
+            __path__: /var/log/dmesg
+        - targets:
+            - localhost
+          labels:
+            job: containers
+            __path__: /var/log/containers/*.log
 
-                  # Add extra volume mounts for Talos Linux journald and audit logs
-extraVolumes:
-  # Journal logs from Talos
-  - name: journal
-    hostPath:
-      path: /var/log/journal
-  # Machine ID for journal correlation
-  - name: machine-id
-    hostPath:
-      path: /etc/machine-id
-  # Kubernetes audit logs
-  - name: audit-logs
-    hostPath:
-      path: /var/log/audit/kube
+    - job_name: otel-collector-logs
+      static_configs:
+        - targets:
+            - localhost
+          labels:
+            job: otel-collector
+            __path__: /var/log/otel-collector/*.log
 
-extraVolumeMounts:
-  # Journal logs from Talos
-  - name: journal
-    mountPath: /var/log/journal
-    readOnly: true
-  # Machine ID for journal correlation
-  - name: machine-id
-    mountPath: /etc/machine-id
-    readOnly: true
-  # Kubernetes audit logs
-  - name: audit-logs
-    mountPath: /var/log/audit/kube
-    readOnly: true
+# Use a DaemonSet so logs are gathered from every node
+daemonset:
+  enabled: true
 
-# Resource requirements
 resources:
-  limits:
-    cpu: 200m
-    memory: 256Mi
   requests:
     cpu: 100m
-    memory: 128Mi
+    memory: 200Mi
+  limits:
+    cpu: 300m
+    memory: 400Mi
 
-# Extra arguments for Promtail to enable journal support
-extraArgs:
-  - -config.expand-env
-
-# Security context for Promtail
-containerSecurityContext:
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-    add:
-      - DAC_READ_SEARCH # Required to read journal logs
-
-# Annotations for Promtail
-podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "3101"
-
-# Service monitor for Prometheus
 serviceMonitor:
   enabled: true
-  labels:
+  interval: 15s
+  additionalLabels:
     release: kube-prometheus-stack
 
-# Tolerations for running on all nodes including control plane
+# Persistence (optional, safer)
+persistence:
+  enabled: true
+  storageClassName: ceph-block
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi

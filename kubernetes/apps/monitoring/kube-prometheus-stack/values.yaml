@@ -46,6 +46,34 @@ prometheus:
       memory: 4Gi
       cpu: 2000m
   prometheusSpec:
+    otlpConfig:
+      promoteResourceAttributes:
+        - service.instance.id
+        - service.name
+        - service.namespace
+        - service.version
+        - cloud.availability_zone
+        - cloud.region
+        - container.name
+        - deployment.environment
+        - deployment.environment.name
+        - k8s.cluster.name
+        - k8s.container.name
+        - k8s.cronjob.name
+        - k8s.daemonset.name
+        - k8s.deployment.name
+        - k8s.job.name
+        - k8s.namespace.name
+        - k8s.pod.name
+        - k8s.replicaset.name
+        - k8s.statefulset.name
+      keepIdentifyingResourceAttributes: true
+      translationStrategy: NoUTF8EscapingWithSuffixes
+    additionalArgs:
+      - --web.enable-otlp-receiver # Enable OTLP HTTP ingestion
+      - --enable-feature=otlp-write-receiver # Needed to allow OTLP write path
+      - --enable-feature=otlp-deltatocumulative # Convert delta metrics
+      - --storage.tsdb.out_of_order_time_window=30m # Allow out of order ingestion
     secrets:
       - etcd-certs
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -228,17 +256,6 @@ grafana:
       - ReadWriteOnce
     size: 100Gi
     storageClassName: ceph-block
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Loki
-          type: loki
-          uid: Loki
-          access: proxy
-          editable: true
-          url: http://loki-gateway.monitoring.svc.cluster.local:3100
-          jsonData: {}
 
   additionalDataSources:
     - name: Loki
@@ -250,10 +267,14 @@ grafana:
         maxLines: 1000
         timeout: 30
         derivedFields:
-          - datasourceUid: Tempo # If you add Tempo later for tracing
+          - datasourceUid: Tempo # If you add Tempo later
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
             url: "$${__value.raw}"
+        # 👇 New! Default query settings for Explore
+        explore:
+          defaultQuery: '{namespace="monitoring"} |= ""'
+          defaultLogLevel: info
     - name: Tempo
       type: tempo
       uid: tempo
@@ -307,4 +328,28 @@ grafana:
         datasource: Prometheus
       node-exporter:
         url: https://grafana.com/api/dashboards/1860/revisions/27/download
+        datasource: Prometheus
+      otel-collector:
+        url: https://grafana.com/api/dashboards/21245/revisions/1/download
+        datasource: Prometheus
+      argocd-dashboard:
+        url: https://grafana.com/api/dashboards/14584/revisions/1/download
+        datasource: Prometheus
+      argocd-deployments:
+        url: https://grafana.com/api/dashboards/19993/revisions/3/download
+        datasource: Prometheus
+      argocd-applications:
+        url: https://grafana.com/api/dashboards/19974/revisions/3/download
+        datasource: Prometheus
+      argocd-alerts:
+        url: https://grafana.com/api/dashboards/19975/revisions/3/download
+        datasource: Prometheus
+      rook-osd:
+        url: https://grafana.com/api/dashboards/5336/revisions/9/download
+        datasource: Prometheus
+      rook-cluster:
+        url: https://grafana.com/api/dashboards/7050/revisions/1/download
+        datasource: Prometheus
+      rook-ceph:
+        url: https://grafana.com/api/dashboards/2842/revisions/19/download
         datasource: Prometheus

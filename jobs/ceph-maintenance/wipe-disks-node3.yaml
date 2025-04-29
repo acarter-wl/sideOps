@@ -1,29 +1,26 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: disk-wipe-job-n3
+  name: ceph-disk-wipe-job-n3
 spec:
   template:
     spec:
       restartPolicy: Never
-      nodeName: n3 # Specify the target node here
+      nodeName: n3
       containers:
         - name: disk-wiper
-          image: ubuntu:20.04
+          image: quay.io/ceph/ceph:v19.2.2  # Using same Ceph version as your cluster
           securityContext:
             privileged: true # Required for direct disk access
           command:
             - "/bin/bash"
             - "-c"
             - |
-              # Ensure required utilities are installed
-              apt-get update && apt-get install -y gdisk util-linux
-
               # Define the target disk - this needs to be adjusted based on your environment
               # IMPORTANT: Be extremely careful with this value!
-              DISK="/dev/sdb"  # Replace with the actual disk you want to wipe
+              DISK="/dev/sdb"  # Same disk as in your Ceph config
 
-              echo "Starting disk wipe procedure on $DISK"
+              echo "Starting Ceph disk wipe procedure on $DISK"
 
               # Safety check to prevent accidental wiping of system disk
               if [[ "$DISK" == "/dev/sda" || "$DISK" == "/dev/vda" ]]; then
@@ -31,35 +28,56 @@ spec:
                 exit 1
               fi
 
-              # Zap the disk to a fresh, usable state (zap-all removes GPT and MBR)
-              echo "Removing partition tables with sgdisk"
+              # First use Ceph tools to properly zap the disk
+              echo "Using ceph-volume to zap the disk"
+              ceph-volume lvm zap --destroy $DISK
+
+              # Remove any Ceph data directory
+              echo "Removing Ceph data directory"
+              rm -rf /var/lib/ceph/osd/*
+
+              # Use wipefs to remove all filesystem signatures
+              echo "Removing all filesystem signatures with wipefs"
+              wipefs -a $DISK
+
+              # Remove partition tables
+              echo "Removing partition tables"
               sgdisk --zap-all $DISK
 
-               # Wipe the first 15GB of the disk to remove LVM, RAID, ZFS or other metadata
-              #echo "Wiping first 15GB of the disk to remove storage metadata"
-              #dd if=/dev/zero of="$DISK" bs=1M count=15360 oflag=direct,dsync status=progress
-              dd if=/dev/zero of="$DISK" bs=1M count=15360 oflag=direct,dsync
-              # For SSDs, you might want to use blkdiscard instead
-              # Detect if the device supports discard operations
-              # For SSDs, you might want to use blkdiscard instead
-              # Detect if the device supports discard operations
-              if [ -e /sys/block/$(basename $DISK)/queue/discard_max_bytes ]; then
-                DISCARD_MAX=$(cat /sys/block/$(basename $DISK)/queue/discard_max_bytes)
-                if [ "$DISCARD_MAX" -gt 0 ]; then
-                  echo "SSD detected, performing blkdiscard operation"
-                  blkdiscard $DISK
-                fi
-              fi
+              # Zero out the beginning of the disk to remove any Ceph metadata
+              echo "Zeroing beginning of disk"
+              dd if=/dev/zero of=$DISK bs=1M count=100 oflag=direct
+
+              # Zero out specific Ceph OSD areas
+              echo "Zeroing Ceph metadata areas"
+              # First 10MB
+              dd if=/dev/zero of=$DISK bs=1M count=10 oflag=direct
+              # Last 10MB
+              dd if=/dev/zero of=$DISK bs=1M count=10 seek=$((`blockdev --getsz $DISK` / 2048 - 10)) oflag=direct
+
+              # Zero the superblock at 4k offset (Ceph stores some data here)
+              echo "Zeroing superblock"
+              dd if=/dev/zero of=$DISK bs=1k count=1 seek=4 oflag=direct
+
+              # Additional step for completely wiping LUKS/dmcrypt if used by Ceph
+              echo "Removing any LUKS/dmcrypt headers"
+              dd if=/dev/zero of=$DISK bs=512 count=20480 oflag=direct
 
               # Inform the OS of partition table changes
               echo "Updating kernel partition table"
-              partprobe $DISK
+              partprobe $DISK || true
 
-              echo "Disk wipe completed successfully"
-      volumes:
-        - name: dev
-          hostPath:
-            path: /dev
-        - name: sys
-          hostPath:
-            path: /sys
+              # Handle the fsid area specifically (Ceph stores its fsid here)
+              echo "Removing Ceph fsid area"
+              dd if=/dev/zero of=$DISK bs=4k count=1 seek=1 oflag=direct
+
+              # Verify disk is clean
+              echo "Verifying disk is clean"
+              if wipefs -n $DISK | grep -q "signature"; then
+                echo "WARNING: Disk still has signatures after wiping"
+                wipefs -n $DISK
+              else
+                echo "Disk appears to be clean"
+              fi
+
+              echo "Ceph disk wipe completed successfully"
