@@ -1,6 +1,9 @@
 deploymentMode: SingleBinary
 
 singleBinary:
+  extraPorts:
+    - name: http
+      containerPort: 3100
   replicas: 1
   resources:
     requests:
@@ -91,3 +94,10 @@ persistence:
     - ReadWriteOnce
   storageClassName: ceph-block
   size: 50Gi
+
+service:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3100
+      targetPort: http
