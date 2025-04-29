@@ -1,5 +1,6 @@
 ---
 loki:
+  structuredConfig: false
   config: |
     tracing:
       enabled: true
@@ -14,13 +15,13 @@ loki:
       max_concurrent: 4
     schema_config:
       configs:
-        - from: 2024-04-01
-          store: tsdb
-          object_store: s3
-          schema: v13
-          index:
-            prefix: loki_index_
-            period: 24h
+      - from: 2024-04-01
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
     ingester:
       chunk_encoding: snappy
     common:
