@@ -1,6 +1,5 @@
 ---
-# Values file for k8s-monitoring chart optimized for Talos Linux
-# that utilizes Talos' built-in Loki integration
+# Minimal configuration that avoids any custom log pipelines
 cluster:
   name: "kubernetes"
 
@@ -10,24 +9,19 @@ global:
 
 # Define destinations where telemetry will be sent
 destinations:
-  - name: "lokistack"
+  - name: "loki"
     type: "loki"
     loki:
-      url: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-  - name: "prometheusstack"
+      url: "loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+  - name: "prometheus"
     type: "prometheus"
     prometheus:
-      url: "http://prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+      url: "prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
 
 # Enable cluster metrics collection
 clusterMetrics:
   enabled: true
-  destinations: [ "prometheusstack" ]
-
-# Enable cluster events collection
-clusterEvents:
-  enabled: true
-  destinations: [ "lokistack" ]
+  destinations: [ "prometheus" ]
 
 # DISABLE node logs collection since Talos is already sending logs directly to Loki
 # via the machine configuration
@@ -37,14 +31,14 @@ nodeLogs:
 # Enable pod logs collection
 podLogs:
   enabled: true
-  destinations: [ "lokistack" ]
+  destinations: [ "loki" ]
 
 # Enable Prometheus operator objects integration
 prometheusOperatorObjects:
   enabled: true
-  destinations: [ "prometheusstack" ]
+  destinations: [ "prometheus" ]
 
-# Enable the alloy-metrics collector (required for clusterMetrics)
+# IMPORTANT: Enable the alloy-metrics collector (required for clusterMetrics)
 alloy-metrics:
   enabled: true
   controller:
@@ -62,7 +56,7 @@ alloy-metrics:
         effect: NoSchedule
 
 # Configure the alloy-logs DaemonSet for Talos
-# Focus only on collecting container logs, not host logs
+# Do NOT add any custom extraConfig to avoid configuration conflicts
 alloy-logs:
   enabled: true
   controller:
