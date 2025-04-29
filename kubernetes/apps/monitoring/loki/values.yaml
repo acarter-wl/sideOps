@@ -1,6 +1,6 @@
 ---
 loki:
-  config:
+  config: |
     derived_fields:
       - name: traceID
         regex: 'traceID=(\\w+)'
