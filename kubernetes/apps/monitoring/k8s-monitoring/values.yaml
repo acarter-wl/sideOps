@@ -57,6 +57,24 @@ prometheusOperatorObjects:
   enabled: true
   destinations: [ "prometheusstack" ]
 
+# IMPORTANT: Enable the alloy-metrics collector
+# This is required for clusterMetrics to work
+alloy-metrics:
+  enabled: true
+  controller:
+    type: statefulset
+    replicas: 1
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      # Add Talos control plane tolerations
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+
 # Configure the alloy-logs DaemonSet for Talos
 alloy-logs:
   enabled: true
@@ -65,6 +83,13 @@ alloy-logs:
     tolerations:
       - effect: NoSchedule
         operator: Exists
+      # Add Talos control plane tolerations
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
 
   # Custom configuration for Alloy on Talos Linux
   extraConfig: |
@@ -108,4 +133,37 @@ alloy-logs:
 
     loki.write "lokistack" {
       endpoint {
-        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      }
+    }
+
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+  # Mount locations specific to Talos Linux
+  alloy:
+    mounts:
+      varlog: true
+      dockercontainers: false # Talos uses containerd, not Docker
+
+# Enable other collectors
+alloy-singleton:
+  enabled: true
+  controller:
+    type: deployment
+    replicas: 1
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      # Add Talos control plane tolerations
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+
+# Self-reporting can be disabled if desired
+selfReporting:
+  enabled: false
