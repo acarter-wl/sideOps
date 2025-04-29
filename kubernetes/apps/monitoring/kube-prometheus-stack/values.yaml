@@ -237,7 +237,7 @@ grafana:
           uid: Loki
           access: proxy
           editable: true
-          url: http://loki.monitoring.svc.cluster.local:3100
+          url: http://loki-gateway.monitoring.svc.cluster.local:3100
           jsonData: {}
 
   additionalDataSources:
@@ -245,7 +245,7 @@ grafana:
       type: loki
       uid: Loki
       access: proxy
-      url: http://loki.monitoring.svc.cluster.local:3100
+      url: http://loki-gateway.monitoring.svc.cluster.local:3100
       jsonData:
         maxLines: 1000
         timeout: 30
