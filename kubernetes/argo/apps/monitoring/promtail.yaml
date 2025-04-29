@@ -3,8 +3,7 @@ kind: Application
 metadata:
   name: promtail
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+
 spec:
   project: kubernetes
   sources:
