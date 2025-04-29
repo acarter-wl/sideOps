@@ -1,13 +1,13 @@
 ---
+# Values file for k8s-monitoring chart with journal paths adjusted for Talos Linux
 cluster:
-  name: "kubernetes" # Your cluster name
+  name: "kubernetes"
 
 global:
   scrapeInterval: 30s
   maxCacheSize: 100000
 
 # Define destinations where telemetry will be sent
-# The valid destination types are: "loki", "prometheus", "otlp", or "pyroscope"
 destinations:
   - name: "lokistack"
     type: "loki"
@@ -28,70 +28,36 @@ clusterEvents:
   enabled: true
   destinations: [ "lokistack" ]
 
-# Enable node logs collection (using Promtail functionality)
+# Enable node logs collection (with Talos Linux specific paths)
 nodeLogs:
   enabled: true
   destinations: [ "lokistack" ]
 
-  # Talos Linux specific configuration for node logs
+  # Remove the journal configuration that's causing the error
   config:
+    # Talos doesn't use the standard journal path
     journal:
-      enabled: true
-      maxAge: 12h
-      path: /var/log/journal
+      enabled: false
 
+    # Instead, use direct file paths for Talos logs
     targets:
       talos_logs:
         enabled: true
         paths:
           - /var/log/pods/*/*/*.log
-          - /var/log/journal/*.journal
+          # Do NOT include /var/log/journal/*.journal as it doesn't exist
 
-# Enable pod logs collection
+          # Enable pod logs collection
 podLogs:
   enabled: true
   destinations: [ "lokistack" ]
-
-  # Configure the scrape config for pod logs
-  config:
-    relabelConfigs:
-      - action: replace
-        sourceLabels: [ "__meta_kubernetes_pod_node_name" ]
-        targetLabel: "node_name"
-      - action: replace
-        sourceLabels: [ "__meta_kubernetes_namespace" ]
-        targetLabel: "namespace"
-      - action: replace
-        sourceLabels: [ "__meta_kubernetes_pod_name" ]
-        targetLabel: "pod"
-      - action: replace
-        sourceLabels: [ "__meta_kubernetes_pod_container_name" ]
-        targetLabel: "container"
 
 # Enable Prometheus operator objects integration
 prometheusOperatorObjects:
   enabled: true
   destinations: [ "prometheusstack" ]
 
-# Enable needed collectors
-alloy-metrics:
-  enabled: true
-  controller:
-    type: statefulset
-    replicas: 1
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-
-alloy-singleton:
-  enabled: true
-  controller:
-    type: deployment
-    replicas: 1
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-
+# Configure the alloy-logs DaemonSet for Talos
 alloy-logs:
   enabled: true
   controller:
@@ -100,12 +66,46 @@ alloy-logs:
       - effect: NoSchedule
         operator: Exists
 
-  # Mount locations specific to Talos Linux
-  alloy:
-    mounts:
-      varlog: true
-      dockercontainers: false # Talos uses containerd, not Docker
+  # Custom configuration for Alloy on Talos Linux
+  extraConfig: |
+    loki.relabel "kubernetes_logs" {
+      forward_to = [loki.process.kubernetes_logs.receiver]
 
-# Self-reporting can be disabled if desired
-selfReporting:
-  enabled: false
+      rule {
+        source_labels = ["__meta_kubernetes_pod_node_name"]
+        target_label = "node_name"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label = "container"
+      }
+    }
+
+    loki.process "kubernetes_logs" {
+      forward_to = [loki.write.lokistack.receiver]
+
+      stage.json {
+        expressions = {
+          log = "",
+          stream = "",
+          time = "",
+        }
+      }
+    }
+
+    loki.source.file "kubernetes_logs" {
+      targets = discovery.kubernetes.pods.targets
+      forward_to = [loki.relabel.kubernetes_logs.receiver]
+    }
+
+    loki.write "lokistack" {
+      endpoint {
+        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
