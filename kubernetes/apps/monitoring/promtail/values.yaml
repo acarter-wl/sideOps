@@ -1,53 +1,153 @@
-extraArgs:
-  - -print-config-stderr=true
+# promtail-values.yaml
+# Promtail configuration optimized for Talos Linux and Prometheus integration
+
+# Promtail configuration
 config:
-  logLevel: debug
+  # Clients configuration
   clients:
     - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+  # Server configuration
+  server:
+    http_listen_port: 3101
+    grpc_listen_port: 0
+
+  # Positions configuration (track what has been read)
+  positions:
+    filename: /run/promtail/positions.yaml
+
+  # Scrape configurations
   snippets:
+    extraScrapeConfigs: |
+      # Kubernetes pod logs
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels:
+              - __meta_kubernetes_pod_annotation_kubernetes_io_config_hash
+            action: replace
+            target_label: config_hash
+          - source_labels:
+              - __meta_kubernetes_pod_node_name
+            action: replace
+            target_label: node_name
+          - source_labels:
+              - __meta_kubernetes_namespace
+            action: replace
+            target_label: namespace
+          - source_labels:
+              - __meta_kubernetes_pod_name
+            action: replace
+            target_label: pod
+          - source_labels:
+              - __meta_kubernetes_pod_container_name
+            action: replace
+            target_label: container
+          - action: replace
+            replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+
+      # Talos Linux system logs via journald
+      - job_name: talos-journal
+        journal:
+          path: /var/log/journal
+          max_age: 12h
+          labels:
+            job: systemd-journal
+        relabel_configs:
+          - source_labels: ['__journal__hostname']
+            target_label: hostname
+          - source_labels: ['__journal__systemd_unit']
+            target_label: unit
+          - source_labels: ['__journal_priority_keyword']
+            target_label: level
+          - source_labels: ['__journal__boot_id']
+            target_label: boot_id
+
+      # Kubernetes API audit logs
+      - job_name: kubernetes-audit
+        static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: kubernetes-audit
+              __path__: /var/log/audit/kube/*.log
     pipelineStages:
       - match:
-          selector: '{app!="imageapi"}'
+          selector: '{namespace=~".+"}'
           stages:
-            - tenant:
-                value: admin
-      - match:
-          selector: '{app="imageapi"}'
-          stages:
-            - json:
-                expressions:
-                  output: log
-            - json:
-                source: output
-                expressions:
-                  tenant_id: TENANT_ID
-                  message: message
-                  trace_id: TRACE_ID
-                  request_id: REQUEST_ID
-                  logger_name: logger_name
-                  level: log.level
-                  className: source.className
-                  methodName: source.methodName
-                  error_message: error.message
-                  error_trace: error.stack_trace
+            - regex:
+                expression: "traceID=(\\w+)"
             - labels:
-                tenant_id:
-                message:
-                trace_id:
-                request_id:
-                className:
-                methodName:
-                error_message:
-                error_trace:
-            - tenant:
-                source: tenant_id
-  extraPorts:
-    # Enable syslog support
-    syslog:
-      name: tcp-syslog
-      containerPort: 1514
-      service:
-        port: 80
-        type: LoadBalancer
-        externalTrafficPolicy: Local
-        loadBalancerIP: 192.168.101.2
+                traceID:
+
+# Add extra volume mounts for Talos Linux journald and audit logs
+extraVolumes:
+  # Journal logs from Talos
+  - name: journal
+    hostPath:
+      path: /var/log/journal
+  # Machine ID for journal correlation
+  - name: machine-id
+    hostPath:
+      path: /etc/machine-id
+  # Kubernetes audit logs
+  - name: audit-logs
+    hostPath:
+      path: /var/log/audit/kube
+
+extraVolumeMounts:
+  # Journal logs from Talos
+  - name: journal
+    mountPath: /var/log/journal
+    readOnly: true
+  # Machine ID for journal correlation
+  - name: machine-id
+    mountPath: /etc/machine-id
+    readOnly: true
+  # Kubernetes audit logs
+  - name: audit-logs
+    mountPath: /var/log/audit/kube
+    readOnly: true
+
+# Resource requirements
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Extra arguments for Promtail to enable journal support
+extraArgs:
+  - -config.expand-env
+
+# Security context for Promtail
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - DAC_READ_SEARCH # Required to read journal logs
+
+# Annotations for Promtail
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3101"
+
+# Service monitor for Prometheus
+serviceMonitor:
+  enabled: true
+  labels:
+    release: kube-prometheus-stack
+
+# Tolerations for running on all nodes including control plane

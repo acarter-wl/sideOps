@@ -1,5 +1,11 @@
 ---
 loki:
+  config:
+    derived_fields:
+      - name: traceID
+        regex: 'traceID=(\\w+)'
+        url: $${__value.raw}
+        datasourceUid: 'tempo'
   auth_enabled: false
   commonConfig:
     replication_factor: 1
@@ -17,7 +23,7 @@ loki:
   tracing:
     enabled: true
   pattern_ingester:
-      enabled: true
+    enabled: true
   limits_config:
     allow_structured_metadata: true
     volume_enabled: true
@@ -48,7 +54,6 @@ singleBinary:
 chunksCache:
   # default is 500MB, with limited memory keep this smaller
   writebackSizeLimit: 10MB
-
 
 # Zero out replica counts of other deployment modes
 backend:

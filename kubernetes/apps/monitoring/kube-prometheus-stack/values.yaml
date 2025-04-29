@@ -63,6 +63,29 @@ prometheus:
             requests:
               storage: 100Gi
     replicas: 1
+  additionalServiceMonitors:
+    - name: loki
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: loki
+      namespaceSelector:
+        matchNames:
+          - monitoring
+      endpoints:
+        - port: http-metrics
+          interval: 15s
+          path: /metrics
+    - name: promtail
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: promtail
+      namespaceSelector:
+        matchNames:
+          - monitoring
+      endpoints:
+        - port: http-metrics
+          interval: 15s
+          path: /metrics
 
   ingress:
     enabled: true
@@ -217,4 +240,71 @@ grafana:
           url: http://loki.monitoring.svc.cluster.local:3100
           jsonData: {}
 
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: Loki
+      access: proxy
+      url: http://loki.monitoring.svc.cluster.local:3100
+      jsonData:
+        maxLines: 1000
+        timeout: 30
+        derivedFields:
+          - datasourceUid: Tempo # If you add Tempo later for tracing
+            matcherRegex: "traceID=(\\w+)"
+            name: TraceID
+            url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3100
+      jsonData:
+        httpMethod: GET
+        tracesToLogs:
+          datasourceUid: 'Loki'
+          tags: [ 'instance', 'pod', 'namespace' ]
+          mappedTags: [ { key: 'service.name', value: 'service' } ]
+          mapTagNamesEnabled: false
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+          filterByTraceID: true
+          filterBySpanID: false
+        serviceMap:
+          datasourceUid: 'prometheus'
+        search:
+          hide: false
+        nodeGraph:
+          enabled: true
+        lokiSearch:
+          datasourceUid: 'Loki'
 
+  # Add pre-configured dashboards for Loki
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  # Define dashboards
+  dashboards:
+    default:
+      loki-logs:
+        url: https://grafana.com/api/dashboards/13639/revisions/1/download
+        datasource: Loki
+      kubernetes-pod-logs:
+        url: https://grafana.com/api/dashboards/15141/revisions/1/download
+        datasource: Loki
+      talos-monitoring:
+        url: https://grafana.com/api/dashboards/14058/revisions/1/download
+        datasource: Prometheus
+      node-exporter:
+        url: https://grafana.com/api/dashboards/1860/revisions/27/download
+        datasource: Prometheus
