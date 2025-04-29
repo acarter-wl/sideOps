@@ -2,7 +2,6 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  # You can name this 'loki-promtail', 'logging-stack', or similar
   name: loki
   namespace: argo-system
   finalizers:
@@ -12,32 +11,26 @@ metadata:
 spec:
   project: kubernetes
   sources:
-    # Source definition for your local values file and potentially overrides
-    # yamllint disable-line rule:line-length
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/loki
       targetRevision: main
       ref: repo
 
-    # Source definition for the official Helm chart
     - repoURL: https://grafana.github.io/helm-charts
       chart: loki
       targetRevision: 6.29.0
       helm:
         releaseName: loki
-        # valueFiles:
-        #   - $repo/kubernetes/apps/monitoring/loki/values.yaml
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/loki/values.yaml
 
   destination:
     server: https://kubernetes.default.svc
-    # As per the README, these manifests should go into the 'logging' namespace
     namespace: monitoring
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      # This will create the 'logging' namespace if it doesn't exist
       - CreateNamespace=true
-      # Apply manifest changes on the server-side
       - ServerSideApply=true
