@@ -42,8 +42,18 @@ bloomGateway:
 loki:
   auth_enabled: false
 
-  storage:
-    type: filesystem
+  commonConfig:
+    replication_factor: 1
+    path_prefix: /var/loki
+
+  server:
+    http_listen_port: 3100
+
+  storageConfig:
+    boltdb_shipper:
+      active_index_directory: /var/loki/index
+      cache_location: /var/loki/cache
+      shared_store: filesystem
     filesystem:
       directory: /var/loki/chunks
 
@@ -57,17 +67,17 @@ loki:
           prefix: index_
           period: 24h
 
-  config: |
-    server:
-      http_listen_port: 3100
-    common:
-      replication_factor: 1
-      path_prefix: /var/loki
-    chunk_store_config:
-      max_look_back_period: 0s
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 168h # 7 days
+  limitsConfig:
+    enforce_metric_name: false
+    reject_old_samples: true
+    reject_old_samples_max_age: 168h
+    max_look_back_period: 24h
+    ingestion_rate_mb: 10
+    ingestion_burst_size_mb: 20
+
+  tableManager:
+    retention_deletes_enabled: true
+    retention_period: 168h # 7 days
 
 serviceMonitor:
   enabled: true
