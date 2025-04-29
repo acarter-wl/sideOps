@@ -1,5 +1,6 @@
 ---
-# Values file for k8s-monitoring chart with journal paths adjusted for Talos Linux
+# Values file for k8s-monitoring chart optimized for Talos Linux
+# that utilizes Talos' built-in Loki integration
 cluster:
   name: "kubernetes"
 
@@ -28,26 +29,12 @@ clusterEvents:
   enabled: true
   destinations: [ "lokistack" ]
 
-# Enable node logs collection (with Talos Linux specific paths)
+# DISABLE node logs collection since Talos is already sending logs directly to Loki
+# via the machine configuration
 nodeLogs:
-  enabled: true
-  destinations: [ "lokistack" ]
+  enabled: false
 
-  # Remove the journal configuration that's causing the error
-  config:
-    # Talos doesn't use the standard journal path
-    journal:
-      enabled: false
-
-    # Instead, use direct file paths for Talos logs
-    targets:
-      talos_logs:
-        enabled: true
-        paths:
-          - /var/log/pods/*/*/*.log
-          # Do NOT include /var/log/journal/*.journal as it doesn't exist
-
-          # Enable pod logs collection
+# Enable pod logs collection
 podLogs:
   enabled: true
   destinations: [ "lokistack" ]
@@ -57,8 +44,7 @@ prometheusOperatorObjects:
   enabled: true
   destinations: [ "prometheusstack" ]
 
-# IMPORTANT: Enable the alloy-metrics collector
-# This is required for clusterMetrics to work
+# Enable the alloy-metrics collector (required for clusterMetrics)
 alloy-metrics:
   enabled: true
   controller:
@@ -76,6 +62,7 @@ alloy-metrics:
         effect: NoSchedule
 
 # Configure the alloy-logs DaemonSet for Talos
+# Focus only on collecting container logs, not host logs
 alloy-logs:
   enabled: true
   controller:
@@ -91,63 +78,13 @@ alloy-logs:
         operator: Exists
         effect: NoSchedule
 
-  # Custom configuration for Alloy on Talos Linux
-  extraConfig: |
-    loki.relabel "kubernetes_logs" {
-      forward_to = [loki.process.kubernetes_logs.receiver]
-
-      rule {
-        source_labels = ["__meta_kubernetes_pod_node_name"]
-        target_label = "node_name"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_namespace"]
-        target_label = "namespace"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label = "pod"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label = "container"
-      }
-    }
-
-    loki.process "kubernetes_logs" {
-      forward_to = [loki.write.lokistack.receiver]
-
-      stage.json {
-        expressions = {
-          log = "",
-          stream = "",
-          time = "",
-        }
-      }
-    }
-
-    loki.source.file "kubernetes_logs" {
-      targets = discovery.kubernetes.pods.targets
-      forward_to = [loki.relabel.kubernetes_logs.receiver]
-    }
-
-    loki.write "lokistack" {
-      endpoint {
-        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-      }
-    }
-
-    discovery.kubernetes "pods" {
-      role = "pod"
-    }
-
   # Mount locations specific to Talos Linux
   alloy:
     mounts:
       varlog: true
       dockercontainers: false # Talos uses containerd, not Docker
 
-# Enable other collectors
+# Enable singleton for other features
 alloy-singleton:
   enabled: true
   controller:
