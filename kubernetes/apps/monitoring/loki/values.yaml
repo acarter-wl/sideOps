@@ -1,83 +1,80 @@
 deploymentMode: SingleBinary
 
-loki:
-  auth_enabled: false
-
-  commonConfig:
-    replication_factor: 1
-
-  storage:
-    type: filesystem
-    filesystem:
-      directory: /var/loki
-
-  schemaConfig:
-    configs:
-      - from: "2024-01-01"
-        store: boltdb-shipper
-        object_store: filesystem
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
-
-  server:
-    http_listen_port: 3100
-    grpc_listen_port: 9095
-
-  ingester:
-    wal:
-      enabled: true
-    chunk_idle_period: 5m
-    chunk_retain_period: 30s
-    max_chunk_age: 1h
-
-  limits_config:
-    enforce_metric_name: false
-    reject_old_samples: true
-    reject_old_samples_max_age: 168h
-    ingestion_rate_mb: 4
-    ingestion_burst_size_mb: 6
-    max_entries_limit_per_query: 5000
-
 singleBinary:
   replicas: 1
-  persistence:
-    enabled: true
-    storageClassName: ceph-block
-    accessModes:
-      - ReadWriteOnce
-    size: 100Gi
   resources:
     requests:
-      cpu: 500m
-      memory: 1Gi
-    limits:
       cpu: 1000m
       memory: 2Gi
-  extraArgs:
-    - -config.expand-env=true
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+  extraEnv:
+    - name: GOMEMLIMIT
+      value: 3750MiB
+  storageClass: ceph-block
 
-service:
-  type: ClusterIP
-  ports:
-    - name: http
-      port: 3100
-    - name: grpc
-      port: 9095
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+bloomCompactor:
+  replicas: 0
+bloomGateway:
+  replicas: 0
 
-gateway:
+loki:
+  config: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    common:
+      replication_factor: 1
+      path_prefix: /var/loki
+      storage:
+        type: filesystem
+        filesystem:
+          directory: /var/loki/chunks
+    schema_config:
+      configs:
+        - from: 2024-04-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+    chunk_store_config:
+      max_look_back_period: 0s
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h # 7 days
+
+serviceMonitor:
   enabled: true
-  replicas: 1
-  ingress:
-    enabled: false # enable this if you expose Loki externally
-  service:
-    type: ClusterIP
+  interval: 30s
+  additionalLabels:
+    release: kube-prometheus-stack
 
-monitoring:
-  dashboards:
-    enabled: true
-  rules:
-    enabled: true
-  serviceMonitor:
-    enabled: true
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ceph-block
+  size: 50Gi
