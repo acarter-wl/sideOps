@@ -1,18 +1,21 @@
+daemonset:
+  enabled: true
+
 config:
-  clients:
-    - url: http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push
-
-  positions:
-    filename: /var/log/positions.yaml
-
   server:
     http_listen_port: 3101
     grpc_listen_port: 0
 
+  positions:
+    filename: /var/promtail/positions.yaml # 🔥 writable location inside container!
+
+  clients:
+    - url: http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
   scrape_configs:
     - job_name: kubernetes-pods
       pipeline_stages:
-        - cri: {} # parses CRI-style log formats automatically
+        - cri: {}
       kubernetes_sd_configs:
         - role: pod
       relabel_configs:
@@ -56,9 +59,16 @@ config:
             job: otel-collector
             __path__: /var/log/otel-collector/*.log
 
-# Use a DaemonSet so logs are gathered from every node
-daemonset:
-  enabled: true
+persistence:
+  enabled: true # ⚠️ You can make it persistent later if needed
+
+extraVolumes:
+  - name: promtail-writable
+    emptyDir: {} # 🔥 temporary writable storage
+
+extraVolumeMounts:
+  - name: promtail-writable
+    mountPath: /var/promtail # 🔥 matches the positions file path
 
 resources:
   requests:
@@ -73,11 +83,3 @@ serviceMonitor:
   interval: 15s
   additionalLabels:
     release: kube-prometheus-stack
-
-# Persistence (optional, safer)
-persistence:
-  enabled: true
-  storageClassName: ceph-block
-  accessModes:
-    - ReadWriteOnce
-  size: 10Gi
