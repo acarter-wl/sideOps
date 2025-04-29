@@ -12,7 +12,7 @@ spec:
       path: kubernetes/apps/monitoring/k8s-monitoring
       targetRevision: main
       ref: repo
-    - repoURL: https://prometheus-community.github.io/helm-charts
+    - repoURL: https://grafana.github.io/helm-charts
       chart: k8s-monitoring
       targetRevision: 2.0.26
       helm:
@@ -27,6 +27,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+      - CreateNamespace=true
       - CreateNamespace=true
 
 # cat >> grafana-k8s-monitoring.yaml <<'EOF'
