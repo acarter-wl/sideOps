@@ -1,0 +1,81 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-k8s-monitoring
+  namespace: argo-system
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/k8s-monitoring
+      targetRevision: main
+      ref: repo
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: k8s-monitoring
+      targetRevision: 2.0.26
+      helm:
+        releaseName: k8s-monitoring
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/k8s-monitoring/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring # This namespace will be created automatically
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+# cat >> grafana-k8s-monitoring.yaml <<'EOF'
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#     name: grafana-k8s-monitoring
+#     namespace: {argocd-namespace}
+# finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+# destination:
+#     name: ''
+#     namespace:{namespace}
+#     server: 'https://kubernetes.default.svc'
+# source:
+#     path: ''
+#     repoURL: 'https://grafana.github.io/helm-charts'
+#     targetRevision: ''
+#     chart: k8s-monitoring
+#     helm:
+#         values: |-
+#             cluster:
+#                 name: "kubernetes"
+#             externalServices:
+#                 prometheus:
+#                     host: "prometheus.monitoring.svc.cluster.local"
+#                     port: 9090
+#                 loki:
+#                     host: "loki-gateway.monitoring.svc.cluster.local"
+#             opencost:
+#                 opencost:
+#                     exporter:
+#                         defaultClusterId: "kubernetes"
+#                     prometheus:
+#                         external:
+#                             url: "prometheus.monitoring.svc.cluster.local/api/prom"
+# sources: []
+# project: default
+# syncPolicy:
+#     automated:
+#         prune: true
+#         selfHeal: true
+#     retry:
+#         limit: 2
+#         backoff:
+#             duration: 5s
+#             maxDuration: 3m0s
+#             factor: 2
+#     syncOptions:
+#         - CreateNamespace=true
+# EOF

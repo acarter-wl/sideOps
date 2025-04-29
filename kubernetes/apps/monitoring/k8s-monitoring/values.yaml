@@ -1,0 +1,120 @@
+---
+cluster:
+  name: "kubernetesr" # Your cluster name
+
+global:
+  scrapeInterval: 30s
+  maxCacheSize: 100000
+
+# Define destinations where telemetry will be sent
+destinations:
+  - name: "loki"
+    type: "logs"
+    loki:
+      endpoints:
+        - url: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+  - name: "prometheus"
+    type: "metrics"
+    prometheus:
+      url: "http://prometheus.monitoring.svc.cluster.local:9090/api/v1/push"
+
+# Enable cluster metrics collection
+clusterMetrics:
+  enabled: true
+  destinations: [ "prometheus" ]
+
+# Enable cluster events collection
+clusterEvents:
+  enabled: true
+  destinations: [ "loki" ]
+
+# Enable node logs collection (using Promtail functionality)
+nodeLogs:
+  enabled: true
+  destinations: [ "loki" ]
+
+  # Talos Linux specific configuration for node logs
+  config:
+    journal:
+      enabled: true
+      maxAge: 12h
+      path: /var/log/journal
+      labels:
+        job: systemd-journal
+
+    targets:
+      talos_logs:
+        enabled: true
+        selector:
+          matchLabels:
+            instance: ${HOSTNAME}
+        paths:
+          - /var/log/pods/*/*/*.log
+          - /var/log/journal/*.journal
+
+# Enable pod logs collection
+podLogs:
+  enabled: true
+  destinations: [ "loki" ]
+
+  # Configure the scrape config for pod logs
+  config:
+    relabelConfigs:
+      - action: replace
+        sourceLabels: [ "__meta_kubernetes_pod_node_name" ]
+        targetLabel: "node_name"
+      - action: replace
+        sourceLabels: [ "__meta_kubernetes_namespace" ]
+        targetLabel: "namespace"
+      - action: replace
+        sourceLabels: [ "__meta_kubernetes_pod_name" ]
+        targetLabel: "pod"
+      - action: replace
+        sourceLabels: [ "__meta_kubernetes_pod_container_name" ]
+        targetLabel: "container"
+
+# Enable Prometheus operator objects integration
+prometheusOperatorObjects:
+  enabled: true
+  destinations: [ "prometheus" ]
+
+# Enable needed collectors
+alloy-metrics:
+  enabled: true
+  controller:
+    type: statefulset
+    replicas: 1
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+
+alloy-singleton:
+  enabled: true
+  controller:
+    type: deployment
+    replicas: 1
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+
+alloy-logs:
+  enabled: true
+  controller:
+    type: daemonset
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+
+  # Mount locations specific to Talos Linux
+  alloy:
+    mounts:
+      varlog: true
+      dockercontainers: false # Talos uses containerd, not Docker
+
+# Extra service for Promtail-like functionality (used by Node Logs feature)
+alloy-receiver:
+  enabled: false # Not needed for basic setup
+
+# Self-reporting can be disabled if desired
+selfReporting:
+  enabled: false

@@ -2,15 +2,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: loki
-  namespace: argo-system
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  name: loki
+  namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: '6'
 spec:
   project: kubernetes
   sources:
+    # yamllint disable-line rule:line-length
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/loki
       targetRevision: main
@@ -25,8 +26,9 @@ spec:
           - $repo/kubernetes/apps/monitoring/loki/values.yaml
 
   destination:
-    server: https://kubernetes.default.svc
     namespace: monitoring
+    server: https://kubernetes.default.svc
+
   syncPolicy:
     automated:
       prune: true
