@@ -11,11 +11,11 @@ global:
 destinations:
   - name: prometheus
     type: prometheus
-    url: http://prometheus.prometheus.svc:9090/api/v1/write
+    url: http://prometheus.monitoring.svc:9090/api/v1/write
 
   - name: loki
     type: loki
-    url: http://loki.loki.svc:3100/loki/api/v1/push
+    url: http://loki.monitoring.svc:3100/loki/api/v1/push
 
 # Enable cluster metrics collection
 clusterMetrics:
@@ -40,36 +40,11 @@ prometheusOperatorObjects:
 # IMPORTANT: Enable the alloy-metrics collector (required for clusterMetrics)
 alloy-metrics:
   enabled: true
-  controller:
-    type: statefulset
-    replicas: 1
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-      # Add Talos control plane tolerations
-      - key: node-role.kubernetes.io/control-plane
-        operator: Exists
-        effect: NoSchedule
-      - key: node-role.kubernetes.io/master
-        operator: Exists
-        effect: NoSchedule
 
 # Configure the alloy-logs DaemonSet for Talos
 # Do NOT add any custom extraConfig to avoid configuration conflicts
 alloy-logs:
   enabled: true
-  controller:
-    type: daemonset
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-      # Add Talos control plane tolerations
-      - key: node-role.kubernetes.io/control-plane
-        operator: Exists
-        effect: NoSchedule
-      - key: node-role.kubernetes.io/master
-        operator: Exists
-        effect: NoSchedule
 
   # Mount locations specific to Talos Linux
   alloy:
@@ -79,20 +54,7 @@ alloy-logs:
 
 # Enable singleton for other features
 alloy-singleton:
-  enabled: true
-  controller:
-    type: deployment
-    replicas: 1
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-      # Add Talos control plane tolerations
-      - key: node-role.kubernetes.io/control-plane
-        operator: Exists
-        effect: NoSchedule
-      - key: node-role.kubernetes.io/master
-        operator: Exists
-        effect: NoSchedule
+  enabled: false
 
 # Self-reporting can be disabled if desired
 selfReporting:
