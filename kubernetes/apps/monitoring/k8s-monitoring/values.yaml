@@ -9,14 +9,13 @@ global:
 
 # Define destinations where telemetry will be sent
 destinations:
-  - name: "loki"
-    type: "loki"
-    loki:
-      url: "loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-  - name: "prometheus"
-    type: "prometheus"
-    prometheus:
-      url: "prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+  - name: prometheus
+    type: prometheus
+    url: http://prometheus.prometheus.svc:9090/api/v1/write
+
+  - name: loki
+    type: loki
+    url: http://loki.loki.svc:3100/loki/api/v1/push
 
 # Enable cluster metrics collection
 clusterMetrics:
