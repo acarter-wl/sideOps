@@ -15,7 +15,7 @@ spec:
 
     - repoURL: https://grafana.github.io/helm-charts
       chart: promtail
-      targetRevision: 6.15.5
+      targetRevision: 6.16.6
       helm:
         releaseName: promtail
         valueFiles:
