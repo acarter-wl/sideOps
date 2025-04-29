@@ -1,32 +1,32 @@
-# ---
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: promtail
-#   namespace: argo-system
-#   annotations:
-#     argocd.argoproj.io/sync-wave: '1'
-# spec:
-#   project: kubernetes
-#   sources:
-#     - repoURL: "https://github.com/grafana/helm-charts"
-#       chart: promtail
-#       targetRevision: 6.15.0
-#       helm:
-#         releaseName: promtail
-#         valueFiles:
-#           - $repo/kubernetes/apps/monitoring/promtail/values.yaml
-#     - repoURL: "https://github.com/acarter-wl/sideops.git"
-#       path: kubernetes/apps/monitoring/promtail
-#       targetRevision: main
-#       ref: repo
-#   destination:
-#     name: in-cluster
-#     namespace: monitoring
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#       - CreateNamespace=true
-#       - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promtail
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/grafana/helm-charts"
+      chart: promtail
+      targetRevision: 6.15.0
+      helm:
+        releaseName: promtail
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/promtail/values.yaml
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/promtail
+      targetRevision: main
+      ref: repo
+  destination:
+    name: in-cluster
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
