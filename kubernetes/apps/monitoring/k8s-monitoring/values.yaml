@@ -1,6 +1,6 @@
 ---
 cluster:
-  name: "talos-cluster" # Your cluster name
+  name: "kubernetes" # Your cluster name
 
 global:
   scrapeInterval: 30s
