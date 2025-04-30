@@ -9,9 +9,9 @@ metadata:
 spec:
   project: kubernetes
   sources:
-    - repoURL: "https://github.com/open-telemetry/opentelemetry-helm-charts"
+    - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
       chart: opentelemetry-collector
-      targetRevision: 0.122.0
+      targetRevision: 0.122.4
       helm:
         releaseName: otel-collector
         valueFiles:
