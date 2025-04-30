@@ -1,37 +1,37 @@
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  # Added finalizers to match loki.yaml
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-  name: otel-collector
-  namespace: argo-system
-spec:
-  project: infrastructure
-  sources:
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   # Added finalizers to match loki.yaml
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+#   name: otel-collector
+#   namespace: argo-system
+# spec:
+#   project: infrastructure
+#   sources:
 
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/otel-collector
-      targetRevision: main
+#     - repoURL: "https://github.com/acarter-wl/sideops.git"
+#       path: kubernetes/apps/monitoring/otel-collector
+#       targetRevision: main
 
-      ref: repo
-    # Helm source second
-    - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
-      chart: opentelemetry-collector
-      # Updated targetRevision based on your previous selection
-      targetRevision: 0.122.4
-      helm:
-        releaseName: otel-collector
-        valueFiles:
-          - $repo/kubernetes/apps/monitoring/otel-collector/values.yaml
-  destination:
-    namespace: monitoring
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+#       ref: repo
+#     # Helm source second
+#     - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+#       chart: opentelemetry-collector
+#       # Updated targetRevision based on your previous selection
+#       targetRevision: 0.122.4
+#       helm:
+#         releaseName: otel-collector
+#         valueFiles:
+#           - $repo/kubernetes/apps/monitoring/otel-collector/values.yaml
+#   destination:
+#     namespace: monitoring
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
