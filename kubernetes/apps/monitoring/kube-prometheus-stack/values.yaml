@@ -247,17 +247,17 @@ grafana:
           - grafana.wakkalabs.com
   datasources:
     datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Loki
-          type: loki
-          uid: Loki
-          access: proxy
-          editable: true
-          url: http://loki.monitoring.svc.cluster.local:3100
-          jsonData: {}
-          maxLines: 1000
-          timeout: 30
+      # apiVersion: 1
+      # datasources:
+      #   - name: Loki
+      #     type: loki
+      #     uid: Loki
+      #     access: proxy
+      #     editable: true
+      #     url: http://loki.monitoring.svc.cluster.local:3100
+      #     jsonData: {}
+      #     maxLines: 1000
+      #     timeout: 30
 
   additionalDataSources:
     - name: Tempo
@@ -283,12 +283,12 @@ grafana:
   # Define dashboards
   dashboards:
     default:
-      loki-logs:
-        url: https://grafana.com/api/dashboards/13639/revisions/1/download
-        datasource: Loki
-      kubernetes-pod-logs:
-        url: https://grafana.com/api/dashboards/15141/revisions/1/download
-        datasource: Loki
+      # loki-logs:
+      #   url: https://grafana.com/api/dashboards/13639/revisions/1/download
+      #   datasource: Loki
+      # kubernetes-pod-logs:
+      #   url: https://grafana.com/api/dashboards/15141/revisions/1/download
+      #   datasource: Loki
       talos-monitoring:
         url: https://grafana.com/api/dashboards/14058/revisions/1/download
         datasource: Prometheus
