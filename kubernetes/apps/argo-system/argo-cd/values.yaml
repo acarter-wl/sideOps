@@ -61,7 +61,6 @@ configs:
       enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -78,7 +77,6 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -86,7 +84,6 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -102,7 +99,6 @@ server:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 notifications:
@@ -111,7 +107,6 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
-      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
