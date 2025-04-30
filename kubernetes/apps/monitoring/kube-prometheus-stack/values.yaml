@@ -209,6 +209,10 @@ kubeScheduler:
 # Grafana Configuration
 # ================================
 grafana:
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
   enabled: true
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: "America/Chicago"
