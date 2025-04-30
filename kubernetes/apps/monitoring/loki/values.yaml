@@ -1,27 +1,24 @@
-Based on the error message, it seems there's an issue with the storage configuration in the Loki values file. The error indicates a nil pointer when trying to access `$.Values.loki.storage.bucketNames.chunks`. Let me rewrite the configuration to fix this issue:
-
-deploymentMode: SingleBinary
-
-singleBinary:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 1000m
-      memory: 2Gi
-    limits:
-      cpu: 2000m
-      memory: 4Gi
-  extraEnv:
-    - name: GOMEMLIMIT
-      value: 3750MiB
-  storageClass: ceph-block
-  persistence:
-    # Moved persistence under singleBinary as per chart structure
-    enabled: true
-    accessModes:
-      - ReadWriteOnce
-    storageClassName: ceph-block # Matches top-level storageClass
-    size: 50Gi
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+    path_prefix: /var/loki
+  server:
+    http_listen_port: 3100
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: boltdb-shipper
+        object_store: filesystem
+        schema: v12
+        index:
+          prefix: index_
+          period: 24h
 
 backend:
   replicas: 0
