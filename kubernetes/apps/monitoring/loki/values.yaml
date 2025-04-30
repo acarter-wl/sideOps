@@ -49,6 +49,10 @@ bloomGateway:
   replicas: 0
 
 loki:
+  # Add this top-level storage block
+  storage:
+    type: filesystem
+
   # Use structuredConfig for main Loki settings
   structuredConfig:
     auth_enabled: false
