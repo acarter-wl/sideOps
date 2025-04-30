@@ -19,7 +19,7 @@ config:
     filename: /var/promtail/positions.yaml
 
   clients:
-    - url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+    - url: http://loki.monitoring.svc.cluster.local/loki/api/v1/push
       # Add backoff_config to handle connection issues
       backoff_config:
         min_period: 100ms
