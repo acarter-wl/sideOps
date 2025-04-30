@@ -48,6 +48,14 @@ prometheus:
   prometheusSpec:
     secrets:
       - etcd-certs
+    additionalArgs:
+      - name: web.enable-otlp-receiver
+      - name: enable-feature
+        value: otlp-write-receiver
+      - name: enable-feature
+        value: otlp-deltatocumulative
+      - name: storage.tsdb.out_of_order_time_window
+        value: 30m
 
     otlpConfig:
       promoteResourceAttributes:
@@ -72,14 +80,6 @@ prometheus:
         - k8s.statefulset.name
       keepIdentifyingResourceAttributes: true
       translationStrategy: NoUTF8EscapingWithSuffixes
-    additionalArgs:
-      - name: web.enable-otlp-receiver # Changed from just the string value
-      - name: enable-feature
-        value: otlp-write-receiver # Separated name and value
-      - name: enable-feature
-        value: otlp-deltatocumulative # Separated name and value
-      - name: storage.tsdb.out_of_order_time_window
-        value: 30m
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector:
       matchLabels:
