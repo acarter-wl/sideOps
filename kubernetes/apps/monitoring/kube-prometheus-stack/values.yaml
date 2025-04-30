@@ -274,7 +274,7 @@ grafana:
       type: tempo
       uid: tempo
       access: proxy
-      url: http://tempo.monitoring.svc.cluster.local:3100
+      url: http://tempo.monitoring.svc.cluster.local:4317
 
   # Add pre-configured dashboards for Loki
   dashboardProviders:
@@ -326,3 +326,6 @@ grafana:
       rook-cluster:
         url: https://grafana.com/api/dashboards/7050/revisions/1/download
         datasource: Prometheus
+      # rook-ceph:
+      #   url: https://grafana.com/api/dashboards/2842/revisions/19/download
+      #   datasource: Prometheus
