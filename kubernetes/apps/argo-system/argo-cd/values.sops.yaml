@@ -23,7 +23,14 @@ configs:
               - groups
             getUserInfo: true
     exec.enabled: true
-    accounts.readonly: apiKey
+    accounts.readonly: |
+      enabled: true
+      apiKey: true
+      capabilities: ["read"]
+    accounts.admin: |
+      enabled: true
+      apiKey: true
+      capabilities: ["*"]
     statusbadge.enabled: true
     kustomize.buildOptions: --enable-alpha-plugins --enable-exec
     helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
