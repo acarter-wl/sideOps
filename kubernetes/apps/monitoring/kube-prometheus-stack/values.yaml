@@ -326,6 +326,3 @@ grafana:
       rook-cluster:
         url: https://grafana.com/api/dashboards/7050/revisions/1/download
         datasource: Prometheus
-      rook-ceph:
-        url: https://grafana.com/api/dashboards/2842/revisions/19/download
-        datasource: Prometheus
