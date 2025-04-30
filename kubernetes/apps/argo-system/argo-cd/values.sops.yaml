@@ -31,6 +31,7 @@ configs:
       enabled: true
       apiKey: true
       capabilities: ["*"]
+    accounts.serviceaccounts: apiKey
     statusbadge.enabled: true
     kustomize.buildOptions: --enable-alpha-plugins --enable-exec
     helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
@@ -41,6 +42,19 @@ configs:
           - CiliumIdentity
         clusters:
           - '*'
+  rbac:
+    scopes: '[groups]'
+    groupClaim: groups
+    policy.default: role:readonly
+    policy.rules: |
+      p, role:admin, *, *, *, allow
+      g, ArgoCD Admins, role:admin
+  secret:
+    argocdServerAdminPassword: ENC[AES256_GCM,data:i+hlsJEnzDos2zNV0GF9y6gMpPmOUOHLB/MNSpxWmWklNK/+RIn5IPKex1mctKPMf58R9HY8Iy8+Enc=,iv:20mRTB0F31WBuaR3BAJYsZJuG8zoYm2p6sG8cb9KgkE=,tag:Xxnrr/3BoShAVgzfiE+dDg==,type:str]
+    webhook.github.secret: ENC[AES256_GCM,data:sx3ZQVwF4DD/GtRzNtxv8eTeoMwAdoa9NVqjoEhISTc=,iv:iq7cylQiS1C/WGXyyYfiTkQCKlN0paU1dbCXp3j8HIo=,tag:bzCGqsK4cx54qNbxqPxx7Q==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:GYxIxDxVvvhNrPFsQwZg1guT0NfQJ46ulflm4218N+oMcnh1s1WoPEQQ7L9zn4w+HYKSYJhfKRU/uAbdoaqWpJtYyOffO1K/8PdVNgb8uXoHjA5x9+9/RQvyhwK22sKkJWhjAMc6i9kyqfYO2HDI9I5PNTTgFj5kAGJtNfSMjU4=,iv:o0TBV8LLAafDncc5jYhOk16ml18L9dygvsVpsX2zAE4=,tag:ZWdlz+nbdfMQHzyHxS0S6g==,type:str]
+    argocdServerAdminPasswordMtime: 2025-04-27T17:17:54
+    githubSecret: ENC[AES256_GCM,data:YCGpvFf0b0Ko+aq9BwK2YjOgLczxa3euRaR3PRegcjzU7lFJMfgJLJvFC3tkWpzhGqBTTtDddNWECXsCzWrSqjeVrq8GuV6JwxTWoQJOzyoQk4a59TPEV/vhVPUnFP1+A4dtkxV5IIprHfTwBLMO547fLwszY1VkTgNZEhbqhgkHdjZiXdzOEDtOmuMSjZzFhDuNm6epSw==,iv:p2k1ByEe3yhXAC/VNlrDfGz6dkTWi5sW00BNPzTJ/Hs=,tag:1zJIu3fJDGN3z6SJyYOAag==,type:str]
   metrics:
     enabled: true
     applicationLabels:
@@ -174,13 +188,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBmbUNnNGtpS29ibWxsYUp3
-        RVZveFM2NFRLcDQ1SGJZNklXczlYU2RlejJjCkZoUEFWazFVWWdaSURGQUNIUEEv
-        cTF2cTVBY1J5bGovUlFmVkRXdXY4YWsKLS0tIE9QcEhjbUx3R0xiV0NQT0d6SDBU
-        dkVPcUZyem1JdlF0Z1RqOEowZ0xHczQKcvoFdFL5g7LmxMmZNuhKiCxrtXAFUxOK
-        M0hO8edzugdbdrc5G1u4jDKGrYCDUDAZgVU4hE/4aF9lLuYZFLxoJA==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBxRUFCSVVDamdtK28vTnBs
+        dzBRVnU4VkI5eGM0YlBOcS85Vyt5MXdYZGlZCjUzV1NLdit4TkptMEFiSGI4TlRH
+        aGxnMG9ja2tRY3BSZWFOc2Y1M0lmM3MKLS0tIGVDYWZuejhJSjRLYkdMVElza1Qy
+        VXNQY3dwNWsxdENRaG5ZdHlLcXBHcDgKQ2laq88xz06ATT5KLNlfiSICeiS/JCXh
+        pujAtR4ObZ+iiW/E7vkiXhCsf3J/5X6Dc2MN0OO34USH/dxnLE2exA==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-30T01:40:39Z"
-  mac: ENC[AES256_GCM,data:px21JbPPZVpl//mRvd297c0hPr6fIq4w0+/TVGbgJczpZhQx/aLKmxGH/Gs40Z2sg+FBOwPUnx6D5FR+IIKIwBaKWK2fpRBHcClZUVXe1YNyxd2jBa4R8OaqnnbxbmSQ3bUPvKILkodaYQMNnmr5hu5R4bXg+u8cWrcJD7PDuAw=,iv:vEOZFHhzF05w/8ItijLPpXg//RJdP+Vh1aifkdAj9Rk=,tag:xw7KF99OU5fBz5MSwHZrpQ==,type:str]
+  lastmodified: "2025-04-30T06:55:34Z"
+  mac: ENC[AES256_GCM,data:UTrRGst9po7cJOlQPbZ1vBr06BoaxeEC/Uzu453dtbkJ6AO1yH4ED9y9iaHOiNOAGHZHb0afrM/b3GjemLjh0SCcxhZEwQyJRVxwhlJa2fa7zjIys+OD2APfT2vLhgJgZtW7d3xbCOohZ2LCVhbJqxEZXrNbRCcnTJZ7V0p6EYs=,iv:qquWoY/fAuKultuDLm1kS6bSl9uKvKET7rjZEqXwNMU=,tag:CryCtyHxF+UG3RwiD56Tqg==,type:str]
   encrypted_regex: ^(data|stringData|argocdServerAdminPassword|webhook\.github\.secret|dex\.authentik\.clientSecret|githubSecret)$
   version: 3.10.2
