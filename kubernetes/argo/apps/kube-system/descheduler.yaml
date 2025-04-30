@@ -4,9 +4,6 @@ kind: Application
 metadata:
   name: descheduler
   namespace: argo-system
-
-  annotations:
-    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: kubernetest
 
