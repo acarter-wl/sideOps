@@ -73,10 +73,13 @@ prometheus:
       keepIdentifyingResourceAttributes: true
       translationStrategy: NoUTF8EscapingWithSuffixes
     additionalArgs:
-      - --web.enable-otlp-receiver # Enable OTLP HTTP ingestion
-      - --enable-feature=otlp-write-receiver # Needed to allow OTLP write path
-      - --enable-feature=otlp-deltatocumulative # Convert delta metrics
-      - --storage.tsdb.out_of_order_time_window=30m # Allow out of order ingestion
+      - name: web.enable-otlp-receiver # Changed from just the string value
+      - name: enable-feature
+        value: otlp-write-receiver # Separated name and value
+      - name: enable-feature
+        value: otlp-deltatocumulative # Separated name and value
+      - name: storage.tsdb.out_of_order_time_window
+        value: 30m
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector:
       matchLabels:
