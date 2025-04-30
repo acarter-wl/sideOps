@@ -34,26 +34,13 @@ configs:
           - CiliumIdentity
         clusters:
           - '*'
-  rbac:
-    scopes: '[groups]'
-    groupClaim: groups
-    policy.default: role:readonly
-    policy.rules: |
-      p, role:admin, *, *, *, allow
-      g, ArgoCD Admins, role:admin
-  secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:1C8exiAJ3MLElqu7VrXk85osvMiA2l/ZgAYT5gA0PhmLltlnQQZfM8jsD10BK58ts5dM16vrZzQFWNQ0,iv:5Zxybsz5VsaKKryoleTJHWL1ocvXiUduETU5O75Dq80=,tag:+r6e1uyZklhieLAVP0WFpw==,type:str]
-    webhook.github.secret: ENC[AES256_GCM,data:CYMY6BANPXFsv9fSjZvP10939bQTBivcLzYiNTVQmzI=,iv:zbM2gYRVkzu9btAuIf9Qfp4lhp26hybNXUhVqkzc7Qk=,tag:1glv2JVnAnGZX42yswQsoQ==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:TPpt0M4VTrB9wlt6h+ehwQYJQFfMjK1a2J8yA2+ujIhAhUJP/BDji9vh8NfrDfjJdRyUrggbNW/gUIjcS/x3IbO+Ozw7/WKGaXJwJEDfnW3XzOXDJ5OzRiJqWlHTxdY+2+YNJ+R+WVLElNoR3fgO6xogokEymnvXEjA3M0zFSj8=,iv:LHtDubtdpv/a9nyLurckvVLwR3I3Z9NL3D4QPEy1I54=,tag:DH7B5CuxpP9JGCZ6t6lUXA==,type:str]
-    argocdServerAdminPasswordMtime: 2025-04-27T17:17:54
-    githubSecret: ENC[AES256_GCM,data:xAdXYCtmIkmQa9QfJ03X9vIniVRtPnA7hIewjvGGwmI=,iv:HcCKznoUu3eAxtBz10hQiTodZiRf2D4HDWK58e9frss=,tag:EdF+p5+iYVXfq/rQP9lmYg==,type:str]
-  replicas: 2
   metrics:
     enabled: true
     applicationLabels:
       enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 dex:
@@ -62,6 +49,7 @@ dex:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 redis:
@@ -69,6 +57,7 @@ redis:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 server:
@@ -84,6 +73,7 @@ server:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 notifications:
@@ -92,6 +82,7 @@ notifications:
     enabled: true
     serviceMonitor:
       enabled: true
+      namespace: monitoring
       additionalLabels:
         release: kube-prometheus-stack
 repoServer:
