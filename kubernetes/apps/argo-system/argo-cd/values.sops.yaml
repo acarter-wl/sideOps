@@ -42,12 +42,11 @@ configs:
       p, role:admin, *, *, *, allow
       g, ArgoCD Admins, role:admin
   secret:
-    argocdServerAdminPassword: ENC[AES256_GCM,data:cr0Fh8dMB5dJF/uS6LyInjI6MulDTANMB16sqbfPBP2wKrf6P5UjyZ/yAd9qd1v5DnpSR8kWJM65vuRG,iv:BiT6PjSDLzsRAXjkGW535SXD/iFjIe/iZXQ6wFFWYyk=,tag:0DXbyPij02LwP2VmHUJuQQ==,type:str]
-    webhook.github.secret: ENC[AES256_GCM,data:cfDJgKQSswgHkb4SnqBJGY/JQHPDEsyh7F+4KT21bWesa7a3,iv:Nud8rQox57caN5B81GsJc0FvnwUPqBWOyzqUTkmh4mM=,tag:v/79J4+Ghtel4qa55s4QXw==,type:str]
-    dex.authentik.clientSecret: ENC[AES256_GCM,data:uyuWetsLwoI7dI96syMD7R+gOnd+LU6qO5XEwg1Y8xGbanIEwRbDRENTpgbG0hFKxb7kfB4tNGZhLbWoT28JBvce4nOYGg0YLT6x0LEj99AjxSK9rgH51wU+YOeWx6q09hB4k6IGDT0uWUfguuNh5L6bn7LEEO7rGxsFG7FtgCw=,iv:VKldoMNLF2wHeNhCsLYSyOOj9362GfJW6yATzzKWNnE=,tag:wYIDY2/Q47usauzKgWv/Gw==,type:str]
+    argocdServerAdminPassword: ENC[AES256_GCM,data:1C8exiAJ3MLElqu7VrXk85osvMiA2l/ZgAYT5gA0PhmLltlnQQZfM8jsD10BK58ts5dM16vrZzQFWNQ0,iv:5Zxybsz5VsaKKryoleTJHWL1ocvXiUduETU5O75Dq80=,tag:+r6e1uyZklhieLAVP0WFpw==,type:str]
+    webhook.github.secret: ENC[AES256_GCM,data:CYMY6BANPXFsv9fSjZvP10939bQTBivcLzYiNTVQmzI=,iv:zbM2gYRVkzu9btAuIf9Qfp4lhp26hybNXUhVqkzc7Qk=,tag:1glv2JVnAnGZX42yswQsoQ==,type:str]
+    dex.authentik.clientSecret: ENC[AES256_GCM,data:TPpt0M4VTrB9wlt6h+ehwQYJQFfMjK1a2J8yA2+ujIhAhUJP/BDji9vh8NfrDfjJdRyUrggbNW/gUIjcS/x3IbO+Ozw7/WKGaXJwJEDfnW3XzOXDJ5OzRiJqWlHTxdY+2+YNJ+R+WVLElNoR3fgO6xogokEymnvXEjA3M0zFSj8=,iv:LHtDubtdpv/a9nyLurckvVLwR3I3Z9NL3D4QPEy1I54=,tag:DH7B5CuxpP9JGCZ6t6lUXA==,type:str]
     argocdServerAdminPasswordMtime: 2025-04-27T17:17:54
-    githubSecret: ENC[AES256_GCM,data:zGdDx248ZqVoyIOGYyM8SpW/k0YsJsb/+bHw+ZXWI3o=,iv:0jOrDI5yvfTKkeMxReRksvNq1CPglnOwTgtheRmpEnY=,tag:cbLMh/IY17M0OqHMjU2aBQ==,type:str]
-controller:
+    githubSecret: ENC[AES256_GCM,data:xAdXYCtmIkmQa9QfJ03X9vIniVRtPnA7hIewjvGGwmI=,iv:HcCKznoUu3eAxtBz10hQiTodZiRf2D4HDWK58e9frss=,tag:EdF+p5+iYVXfq/rQP9lmYg==,type:str]
   replicas: 2
   metrics:
     enabled: true
@@ -177,13 +176,13 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBBM0tGY250WTZ5eWJBRHdp
-        Z3NabW15am90Y0pMY1BuZTR6azZQTWdsdFdRClN2SE5KRU9RNVI2MEVmazE3UHRS
-        MjVQSldZSFd2bGR2VUgrNm9NdzVSNVEKLS0tIHNkWG1lZEh5THZ5SWxLeVhGREQy
-        bmd5enk3S1BMeVZFZHZUQVFLTGxiRHMKAvGpDufITp2C90GbM2f7Oj4sCpaiKxZ6
-        j3Y9+BHz68moqSp2E3NludInNF3bjEGWeBmcsjQNGU9rVjmmyE7BIQ==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBmbUNnNGtpS29ibWxsYUp3
+        RVZveFM2NFRLcDQ1SGJZNklXczlYU2RlejJjCkZoUEFWazFVWWdaSURGQUNIUEEv
+        cTF2cTVBY1J5bGovUlFmVkRXdXY4YWsKLS0tIE9QcEhjbUx3R0xiV0NQT0d6SDBU
+        dkVPcUZyem1JdlF0Z1RqOEowZ0xHczQKcvoFdFL5g7LmxMmZNuhKiCxrtXAFUxOK
+        M0hO8edzugdbdrc5G1u4jDKGrYCDUDAZgVU4hE/4aF9lLuYZFLxoJA==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-04-27T23:30:29Z"
-  mac: ENC[AES256_GCM,data:r13fJBe3F7+5DQygmgXerYHC4J75DULngIisK3MCSs3TBnXKxOMOAUumFQsC/qe72qPwxbvxZ/qjcl357/4x4KnEJwMxfh/VMS+tEw/OZ3/RTeS8Zk/HGO5f8tZpUEDpZcYeoK1rxcFCIizXCorwJ1VWN53kZj0EAjHqJFAZlfU=,iv:onWRNSrfdEjJ2x5mDuKbE/fA5+a8V3HbF7dZfTC9R0k=,tag:VbTr1JENyXj4F01ka0rTrA==,type:str]
-  encrypted_regex: ^(argocdServerAdminPassword|webhook\.github\.secret|dex\.authentik\.clientSecret|githubSecret)$
+  lastmodified: "2025-04-30T01:40:39Z"
+  mac: ENC[AES256_GCM,data:px21JbPPZVpl//mRvd297c0hPr6fIq4w0+/TVGbgJczpZhQx/aLKmxGH/Gs40Z2sg+FBOwPUnx6D5FR+IIKIwBaKWK2fpRBHcClZUVXe1YNyxd2jBa4R8OaqnnbxbmSQ3bUPvKILkodaYQMNnmr5hu5R4bXg+u8cWrcJD7PDuAw=,iv:vEOZFHhzF05w/8ItijLPpXg//RJdP+Vh1aifkdAj9Rk=,tag:xw7KF99OU5fBz5MSwHZrpQ==,type:str]
+  encrypted_regex: ^(data|stringData|argocdServerAdminPassword|webhook\.github\.secret|dex\.authentik\.clientSecret|githubSecret)$
   version: 3.10.2
