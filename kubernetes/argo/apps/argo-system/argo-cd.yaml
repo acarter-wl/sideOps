@@ -21,7 +21,7 @@ spec:
       helm:
         releaseName: argo-cd
         valueFiles:
-          - $repo/kubernetes/apps/argo-system/argo-cd/values.sops.yaml
+          - $repo/kubernetes/apps/argo-system/argo-cd/values.yaml
   destination:
     name: in-cluster
     namespace: argo-system
@@ -31,5 +31,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
+      - CreateNamespace=true
+      - ServerSideApply=true
