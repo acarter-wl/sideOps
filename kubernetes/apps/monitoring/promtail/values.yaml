@@ -1,29 +1,4 @@
-I can see you've shared some Promtail logs showing errors and a Promtail configuration. There appears to be an issue with Promtail not being able to write to its positions file and having connection problems to Loki. Let me analyze the logs and configuration to help you resolve these issues.
-Problems Identified
-
-Positions file errors:
-level=error ts=2025-04-30T02:30:03.89762984Z caller=positions.go:179 msg="error writing positions file" error="open /var/promtail/.positions.yaml5967167861180215665: no such file or directory"
-
-Connection errors to Loki:
-level=warn ts=2025-04-30T02:29:59.075539794Z caller=client.go:419 component=client host=loki-gateway.monitoring.svc.cluster.local msg="error sending batch, will retry" status=-1 tenant= error="Post \"http:/
-
-
-Root Causes and Solutions
-
-Positions File Path Mismatch:
-
-Your config specifies /var/promtail/positions.yaml but the logs show errors trying to write to /var/promtail/.positions.yaml<random-numbers>
-There's a directory or permission issue with /var/promtail/
-
-
-Loki Gateway Connection Issues:
-
-Promtail cannot successfully connect to the Loki gateway service
-
-
-
-Here's a revised configuration with fixes:
-yamldaemonset:
+daemonset:
   enabled: true
   # Add volume configuration
   volumes:
@@ -94,5 +69,5 @@ serviceMonitor:
 
 # Add security context to ensure proper permissions
 securityContext:
-  runAsUser: 0  # Run as root to ensure access to log files
+  runAsUser: 0 # Run as root to ensure access to log files
   privileged: true
