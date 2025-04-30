@@ -16,6 +16,8 @@ tempo:
       memory: 2Gi
 
   tempoConfig:
+    usage_report:
+      reporting_enabled: false
     search_enabled: true
     metrics_generator:
       registry:
