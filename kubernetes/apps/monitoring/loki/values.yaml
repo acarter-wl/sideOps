@@ -1,9 +1,8 @@
+Based on the error message, it seems there's an issue with the storage configuration in the Loki values file. The error indicates a nil pointer when trying to access `$.Values.loki.storage.bucketNames.chunks`. Let me rewrite the configuration to fix this issue:
+
 deploymentMode: SingleBinary
 
 singleBinary:
-  extraPorts:
-    - name: http
-      containerPort: 3100
   replicas: 1
   resources:
     requests:
@@ -16,8 +15,14 @@ singleBinary:
     - name: GOMEMLIMIT
       value: 3750MiB
   storageClass: ceph-block
+  persistence:
+    # Moved persistence under singleBinary as per chart structure
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: ceph-block # Matches top-level storageClass
+    size: 50Gi
 
-# Disable other components as we're using SingleBinary mode
 backend:
   replicas: 0
 read:
@@ -44,44 +49,37 @@ bloomGateway:
   replicas: 0
 
 loki:
-  auth_enabled: false
+  # Use structuredConfig for main Loki settings
+  structuredConfig:
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    common:
+      replication_factor: 1
+      path_prefix: /var/loki
+      storage:
+        filesystem:
+          # Using filesystem backend
+          directory: /var/loki/chunks # Directory for filesystem storage
+    schema_config:
+      configs:
+        - from: "2024-04-01"
+          store: boltdb-shipper
+          object_store: filesystem # Matches storage type
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+    chunk_store_config:
+      max_look_back_period: 0s
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h # 7 days
 
-  commonConfig:
-    replication_factor: 1
-    path_prefix: /var/loki
-
-  server:
-    http_listen_port: 3100
-
-  storageConfig:
-    boltdb_shipper:
-      active_index_directory: /var/loki/index
-      cache_location: /var/loki/cache
-      shared_store: filesystem
-    filesystem:
-      directory: /var/loki/chunks
-
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: boltdb-shipper
-        object_store: filesystem
-        schema: v11
-        index:
-          prefix: index_
-          period: 24h
-
-  limitsConfig:
-    enforce_metric_name: false
-    reject_old_samples: true
-    reject_old_samples_max_age: 168h
-    max_look_back_period: 24h
-    ingestion_rate_mb: 10
-    ingestion_burst_size_mb: 20
-
-  tableManager:
-    retention_deletes_enabled: true
-    retention_period: 168h # 7 days
+# Keep the raw config block minimal or remove if everything is in structuredConfig
+# config: |
+#   # Any settings not covered by structuredConfig can go here,
+#   # but it's better to use structuredConfig if possible.
 
 serviceMonitor:
   enabled: true
@@ -89,16 +87,14 @@ serviceMonitor:
   additionalLabels:
     release: kube-prometheus-stack
 
-persistence:
-  enabled: true
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ceph-block
-  size: 50Gi
+# Remove top-level persistence as it's now under singleBinary
+# persistence:
+#   enabled: true
+#   accessModes:
+#     - ReadWriteOnce
+#   storageClassName: ceph-block
+#   size: 50Gi
 
-service:
-  type: ClusterIP
-  ports:
-    - name: http
-      port: 3100
-      targetPort: http
+# Ensure MinIO is disabled if using external storage (even filesystem for persistence)
+minio:
+  enabled: false
