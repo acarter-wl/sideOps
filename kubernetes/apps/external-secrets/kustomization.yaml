@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - initialsecretStore.yaml
   - minioEs.yaml
+  - external-secret-dex.yaml
