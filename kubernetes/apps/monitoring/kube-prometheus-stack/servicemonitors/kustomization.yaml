@@ -1,8 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  # - ./truenas/service-monitor.yaml
-  # - ./rook-ceph/rook-ceph-sm.yaml
-  - ./argocd/service-monitor.yaml
-  # - ./cilium/cilium.yaml

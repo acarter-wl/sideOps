@@ -1,5 +1,13 @@
 daemonset:
   enabled: true
+  # Make sure it's deployed on all nodes including control plane if you want to collect all logs
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
 
 config:
   server:
@@ -7,29 +15,125 @@ config:
     grpc_listen_port: 0
 
   positions:
-    filename: /var/promtail/positions.yaml # 🔥 writable location inside container!
+    filename: /var/promtail/positions.yaml
 
   clients:
     - url: http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
   scrape_configs:
+    # Standard Kubernetes pods scraping
     - job_name: kubernetes-pods
       pipeline_stages:
         - cri: {}
       kubernetes_sd_configs:
         - role: pod
       relabel_configs:
-        - source_labels: [ __meta_kubernetes_pod_label_name ]
+        - source_labels: [__meta_kubernetes_pod_controller_name]
+          regex: ([0-9a-z-.]+?)(-[0-9a-f]{8,10})?
+          action: replace
           target_label: __service__
-        - source_labels: [ __meta_kubernetes_namespace ]
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          regex: (.+)
+          action: replace
+          target_label: __service__
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          regex: (.+)
+          action: replace
+          target_label: __service__
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
           target_label: namespace
-        - source_labels: [ __meta_kubernetes_pod_name ]
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          action: replace
+          target_label: container
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: node_name
+
+    # AWS Load Balancer Controller specific logs
+    - job_name: aws-load-balancer-controller
+      pipeline_stages:
+        - cri: {}
+        - json:
+            expressions:
+              level: level
+              msg: msg
+              controller: controller
+              service: service
+              namespace: namespace
+              error: error
+        - labels:
+            level:
+            controller:
+            service:
+            namespace:
+            error:
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        # This matches both the controller deployed via Helm or directly
+        # We use a regex that matches either app.kubernetes.io/name or app label
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name, __meta_kubernetes_pod_label_app]
+          regex: aws-load-balancer-controller|aws-alb-ingress-controller
+          action: keep
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
           target_label: pod
         - action: labelmap
           regex: __meta_kubernetes_pod_label_(.+)
-        - source_labels: [ __meta_kubernetes_pod_node_name ]
-          target_label: __host__
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: node_name
 
+    # Ingress Nginx Controller logs (if you're using it with AWS ALB)
+    - job_name: ingress-nginx
+      pipeline_stages:
+        - cri: {}
+        - json:
+            expressions:
+              log: log
+              stream: stream
+              time: time
+              req_id: req_id
+              remote_addr: remote_addr
+              host: host
+              request_method: request_method
+              status: status
+              latency_seconds: latency_seconds
+        - labels:
+            stream:
+            req_id:
+            remote_addr:
+            host:
+            request_method:
+            status:
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          regex: ingress-nginx
+          action: keep
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: node_name
+
+    # Node logs for system-level issues
     - job_name: kubernetes-nodes
       static_configs:
         - targets:
@@ -38,37 +142,39 @@ config:
             job: varlogs
             __path__: /var/log/*.log
 
+    # System logs that might contain load balancer related information
     - job_name: kubernetes-system
       static_configs:
-        - targets:
-            - localhost
-          labels:
-            job: dmesg
-            __path__: /var/log/dmesg
         - targets:
             - localhost
           labels:
             job: containers
             __path__: /var/log/containers/*.log
 
-    - job_name: otel-collector-logs
-      static_configs:
-        - targets:
-            - localhost
-          labels:
-            job: otel-collector
-            __path__: /var/log/otel-collector/*.log
-
 persistence:
-  enabled: true # ⚠️ You can make it persistent later if needed
+  enabled: true
+  size: 10Gi
+  storageClass: ceph-block
 
 extraVolumes:
   - name: promtail-writable
-    emptyDir: {} # 🔥 temporary writable storage
+    emptyDir: {}
+  - name: varlog
+    hostPath:
+      path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
 
 extraVolumeMounts:
   - name: promtail-writable
-    mountPath: /var/promtail # 🔥 matches the positions file path
+    mountPath: /var/promtail
+  - name: varlog
+    mountPath: /var/log
+    readOnly: true
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
 
 resources:
   requests:
