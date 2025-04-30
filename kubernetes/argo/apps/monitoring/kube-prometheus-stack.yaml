@@ -5,8 +5,6 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   name: kube-prometheus-stack
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: '5'
 spec:
   project: infrastructure
   sources:

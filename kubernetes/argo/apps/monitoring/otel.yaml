@@ -8,7 +8,7 @@ metadata:
   name: otel-collector
   namespace: argo-system
 spec:
-  project: kubernetes
+  project: infrastructure
   sources:
 
     - repoURL: "https://github.com/acarter-wl/sideops.git"

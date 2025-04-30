@@ -6,10 +6,8 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   name: loki
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: '6'
 spec:
-  project: kubernetes
+  project: infrastructure
   sources:
     # yamllint disable-line rule:line-length
     - repoURL: "https://github.com/acarter-wl/sideops.git"

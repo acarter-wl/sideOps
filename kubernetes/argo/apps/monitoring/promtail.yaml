@@ -5,7 +5,7 @@ metadata:
   namespace: argo-system
 
 spec:
-  project: kubernetes
+  project: infrastructure
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/promtail

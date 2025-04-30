@@ -4,10 +4,8 @@ kind: Application
 metadata:
   name: tempo
   namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-wave: '0'
 spec:
-  project: kubernetes
+  project: infrastructure
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/tempo
