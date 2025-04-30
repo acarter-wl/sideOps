@@ -1,25 +1,37 @@
+# Use single unified configuration for Loki
 loki:
-  auth_enabled: false
-  commonConfig:
-    replication_factor: 1
-    path_prefix: /var/loki
-  server:
-    http_listen_port: 3100
-  storage:
-    type: filesystem
-    filesystem:
-      chunks_directory: /var/loki/chunks
-      rules_directory: /var/loki/rules
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: boltdb-shipper
-        object_store: filesystem
-        schema: v12
-        index:
-          prefix: index_
-          period: 24h
+  # Remove duplicate settings - only use structuredConfig
+  structuredConfig:
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    common:
+      replication_factor: 1
+      path_prefix: /var/loki
+      storage:
+        filesystem:
+          directory: /var/loki/chunks
+    schema_config:
+      configs:
+        - from: "2024-04-01"
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h # 7 days
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      max_look_back_period: 24h
+      ingestion_rate_mb: 10
+      ingestion_burst_size_mb: 20
 
+# Set these all to 0 for SingleBinary mode
 backend:
   replicas: 0
 read:
@@ -45,42 +57,52 @@ bloomCompactor:
 bloomGateway:
   replicas: 0
 
-loki:
-  # Add this top-level storage block
-  storage:
-    type: filesystem
+# Make sure singleBinary mode is properly configured
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi # Reduced from 4Gi to prevent OOM issues
+  extraPorts:
+    - name: http
+      containerPort: 3100
+  extraEnv:
+    - name: GOMEMLIMIT
+      value: 1750MiB # Reduced from 3750MiB
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClassName: ceph-block
 
-  # Use structuredConfig for main Loki settings
-  structuredConfig:
-    auth_enabled: false
-    server:
-      http_listen_port: 3100
-    common:
-      replication_factor: 1
-      path_prefix: /var/loki
-      storage:
-        filesystem:
-          # Using filesystem backend
-          directory: /var/loki/chunks # Directory for filesystem storage
-    schema_config:
-      configs:
-        - from: "2024-04-01"
-          store: boltdb-shipper
-          object_store: filesystem # Matches storage type
-          schema: v11
-          index:
-            prefix: index_
-            period: 24h
-    chunk_store_config:
-      max_look_back_period: 0s
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 168h # 7 days
+# Configure the gateway properly for SingleBinary mode
+gateway:
+  enabled: true
+  replicas: 1
+  nginxConfig:
+    file: |
+      worker_processes  1;
+      events {
+        worker_connections 1024;
+      }
+      http {
+        server {
+          listen 80;
+          # Direct all traffic to the single binary Loki
+          location ~ /loki/api/.* {
+            proxy_pass http://loki.monitoring.svc.cluster.local:3100$request_uri;
+          }
+        }
+      }
 
-# Keep the raw config block minimal or remove if everything is in structuredConfig
-# config: |
-#   # Any settings not covered by structuredConfig can go here,
-#   # but it's better to use structuredConfig if possible.
+# Ensure Service is properly defined
+service:
+  name: loki
+  type: ClusterIP
+  port: 3100
 
 serviceMonitor:
   enabled: true
@@ -88,14 +110,6 @@ serviceMonitor:
   additionalLabels:
     release: kube-prometheus-stack
 
-# Remove top-level persistence as it's now under singleBinary
-# persistence:
-#   enabled: true
-#   accessModes:
-#     - ReadWriteOnce
-#   storageClassName: ceph-block
-#   size: 50Gi
-
-# Ensure MinIO is disabled if using external storage (even filesystem for persistence)
+# Disable MinIO as we're using filesystem storage
 minio:
   enabled: false
