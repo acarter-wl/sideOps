@@ -1,3 +1,6 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
 mode: deployment
 
 config:
@@ -6,6 +9,7 @@ config:
       protocols:
         grpc:
         http:
+
 
   processors:
     batch:
@@ -39,14 +43,14 @@ config:
   service:
     pipelines:
       metrics:
-        receivers: [otlp]
-        processors: [memory_limiter, batch, resource]
-        exporters: [prometheusremotewrite]
+        receivers: [ otlp ]
+        processors: [ memory_limiter, batch, resource ]
+        exporters: [ prometheusremotewrite ]
       traces:
-        receivers: [otlp]
-        processors: [memory_limiter, batch]
-        exporters: [otlp/tempo]
+        receivers: [ otlp ]
+        processors: [ memory_limiter, batch ]
+        exporters: [ otlp/tempo ]
       logs:
-        receivers: [otlp]
-        processors: [memory_limiter, batch]
-        exporters: [loki]
+        receivers: [ otlp ]
+        processors: [ memory_limiter, batch ]
+        exporters: [ loki ]
