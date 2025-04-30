@@ -1,6 +1,5 @@
 mode: deployment
 
-
 config:
   receivers:
     otlp:

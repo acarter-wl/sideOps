@@ -17,6 +17,7 @@ singleBinary:
       value: 3750MiB
   storageClass: ceph-block
 
+# Disable other components as we're using SingleBinary mode
 backend:
   replicas: 0
 read:

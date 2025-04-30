@@ -46,6 +46,9 @@ prometheus:
       memory: 4Gi
       cpu: 2000m
   prometheusSpec:
+    secrets:
+      - etcd-certs
+
     otlpConfig:
       promoteResourceAttributes:
         - service.instance.id
@@ -74,23 +77,10 @@ prometheus:
       - --enable-feature=otlp-write-receiver # Needed to allow OTLP write path
       - --enable-feature=otlp-deltatocumulative # Convert delta metrics
       - --storage.tsdb.out_of_order_time_window=30m # Allow out of order ingestion
-    secrets:
-      - etcd-certs
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
-    retentionDuration: "90d"
-    retentionSize: "90GB"
-    storageSpec:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: ceph-block
-          accessModes: [ "ReadWriteOnce" ]
-          resources:
-            requests:
-              storage: 100Gi
-    replicas: 1
   additionalServiceMonitors:
     - name: loki
       selector:
@@ -114,7 +104,6 @@ prometheus:
         - port: http-metrics
           interval: 15s
           path: /metrics
-
   ingress:
     enabled: true
     ingressClassName: internal
@@ -221,10 +210,6 @@ kubeScheduler:
 # ================================
 grafana:
   enabled: true
-  admin:
-    existingSecret: grafana-admin-credentials
-    userKey: admin-user
-    passwordKey: admin-password
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: "America/Chicago"
   defaultDashboardsEditable: true
@@ -234,6 +219,13 @@ grafana:
       label: grafana_dashboard
       folder: /tmp/dashboards
       searchNamespace: ALL
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes:
+      - ReadWriteOnce
+    size: 100Gi
+    storageClassName: ceph-block
   ingress:
     enabled: true
     ingressClassName: internal
@@ -249,13 +241,17 @@ grafana:
       - secretName: grafana-wakkalabs-tls
         hosts:
           - grafana.wakkalabs.com
-  persistence:
-    enabled: true
-    type: pvc
-    accessModes:
-      - ReadWriteOnce
-    size: 100Gi
-    storageClassName: ceph-block
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          type: loki
+          uid: Loki
+          access: proxy
+          editable: true
+          url: http://loki-gateway.monitoring.svc.cluster.local:3100
+          jsonData: {}
 
   additionalDataSources:
     - name: Loki
@@ -267,11 +263,10 @@ grafana:
         maxLines: 1000
         timeout: 30
         derivedFields:
-          - datasourceUid: Tempo # If you add Tempo later
+          - datasourceUid: Tempo
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
             url: "$${__value.raw}"
-        # 👇 New! Default query settings for Explore
         explore:
           defaultQuery: '{namespace="monitoring"} |= ""'
           defaultLogLevel: info
@@ -280,25 +275,6 @@ grafana:
       uid: tempo
       access: proxy
       url: http://tempo.monitoring.svc.cluster.local:3100
-      jsonData:
-        httpMethod: GET
-        tracesToLogs:
-          datasourceUid: 'Loki'
-          tags: [ 'instance', 'pod', 'namespace' ]
-          mappedTags: [ { key: 'service.name', value: 'service' } ]
-          mapTagNamesEnabled: false
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-          filterByTraceID: true
-          filterBySpanID: false
-        serviceMap:
-          datasourceUid: 'prometheus'
-        search:
-          hide: false
-        nodeGraph:
-          enabled: true
-        lokiSearch:
-          datasourceUid: 'Loki'
 
   # Add pre-configured dashboards for Loki
   dashboardProviders:
