@@ -1,1 +1,308 @@
-Based on the error message, it appears there's an issue with the Grafana configuration structure. The error indicates that a map[string]interface{} is expected but an interface{} is being provided. Let me help fix the configuration structure.
+namespaceOverride: monitoring
+nameOverride: kube-prometheus-stack
+fullnameOverride: kube-prometheus-stack
+
+global:
+  rbac:
+    create: true
+
+crds:
+  enabled: true
+  upgradeJob:
+    enabled: false
+
+# ================================
+# ETCD Scraping for Talos
+# ======================
+kubeEtcd:
+  enabled: true
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+  service:
+    enabled: true
+    port: 2379
+    targetPort: 2379
+    ipDualStack:
+      enabled: false
+  serviceMonitor:
+    scheme: https
+    insecureSkipVerify: false
+    serverName: localhost
+    caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
+    certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
+    keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
+
+prometheus:
+  enabled: true
+  scrapeInterval: 30s
+  evaluationInterval: 30s
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1000m
+    limits:
+      memory: 4Gi
+      cpu: 2000m
+  prometheusSpec:
+    secrets:
+      - etcd-certs
+
+    otlpConfig:
+      promoteResourceAttributes:
+        - service.instance.id
+        - service.name
+        - service.namespace
+        - service.version
+        - cloud.availability_zone
+        - cloud.region
+        - container.name
+        - deployment.environment
+        - deployment.environment.name
+        - k8s.cluster.name
+        - k8s.container.name
+        - k8s.cronjob.name
+        - k8s.daemonset.name
+        - k8s.deployment.name
+        - k8s.job.name
+        - k8s.namespace.name
+        - k8s.pod.name
+        - k8s.replicaset.name
+        - k8s.statefulset.name
+      keepIdentifyingResourceAttributes: true
+      translationStrategy: NoUTF8EscapingWithSuffixes
+    additionalArgs:
+      - --web.enable-otlp-receiver # Enable OTLP HTTP ingestion
+      - --enable-feature=otlp-write-receiver # Needed to allow OTLP write path
+      - --enable-feature=otlp-deltatocumulative # Convert delta metrics
+      - --storage.tsdb.out_of_order_time_window=30m # Allow out of order ingestion
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector:
+      matchLabels:
+        release: kube-prometheus-stack
+  additionalServiceMonitors:
+    - name: loki
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: loki
+      namespaceSelector:
+        matchNames:
+          - monitoring
+      endpoints:
+        - port: http-metrics
+          interval: 15s
+          path: /metrics
+    - name: promtail
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: promtail
+      namespaceSelector:
+        matchNames:
+          - monitoring
+      endpoints:
+        - port: http-metrics
+          interval: 15s
+          path: /metrics
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - prometheus.wakkalabs.com
+    path: /
+    tls:
+      - secretName: prometheus-wakkalabs-tls
+        hosts:
+          - prometheus.wakkalabs.com
+
+# ================================
+# Alertmanager Configuration
+# ================================
+alertmanager:
+  replicas: 2
+  service:
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: [ 'job', 'alertname', 'namespace' ]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+        - match:
+            alertname: Watchdog
+          receiver: 'null'
+        - match:
+            severity: critical
+          receiver: 'discord-critical'
+          continue: true
+        - match:
+            severity: warning
+          receiver: 'discord-warnings'
+    receivers:
+      - name: 'discord-critical'
+        webhook_configs:
+          - url: >-
+              https://discord.com/api/webhooks/1355431526891786240/5KSnlY0KPdx7dRsSL0yJDaZYNzVktheQz1PXNoX9-eCIlZP2MFZcM67PtFRTRa4ZwJ_a
+            send_resolved: true
+      - name: 'discord-warnings'
+        webhook_configs:
+          - url: >-
+              https://discord.com/api/webhooks/1355379117692027012/y6Sxl2G-D4hqr8TQVL8rT1HRb1n_h2e8x7nQoNbSDZz_8cGYII2ZVeziLxujkFjkm89X
+            send_resolved: true
+    templates:
+      - '/etc/alertmanager/config/*.tmpl'
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - alertmanager.wakkalabs.com
+    path: /
+    tls:
+      - secretName: alertmanager-wakkalabs-tls
+        hosts:
+          - alertmanager.wakkalabs.com
+
+  defaultRules:
+    create: true
+    rules:
+      alertmanager: true
+      etcd: true
+      kubeApiserver: true
+      kubePrometheusNodeAlerting: true
+      kubePrometheusNodeRecording: true
+      kubernetesSystem: true
+      kubernetesResources: true
+      kubeControllerManager: true
+      kubeScheduler: true
+      kubernetesStorage: true
+      prometheusOperator: true
+
+kubeControllerManager:
+  service:
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+
+kubeScheduler:
+  service:
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+
+# ================================
+# Grafana Configuration
+# ================================
+grafana:
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+  enabled: true
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: "America/Chicago"
+  defaultDashboardsEditable: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /tmp/dashboards
+      searchNamespace: ALL
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes:
+      - ReadWriteOnce
+    size: 100Gi
+    storageClassName: ceph-block
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+    hosts:
+      - grafana.wakkalabs.com
+    path: /
+    tls:
+      - secretName: grafana-wakkalabs-tls
+        hosts:
+          - grafana.wakkalabs.com
+
+  additionalDataSources:
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:4317
+
+  # Add pre-configured dashboards for Loki
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  # Define dashboards
+  dashboards:
+    default:
+      # loki-logs:
+      #   url: https://grafana.com/api/dashboards/13639/revisions/1/download
+      #   datasource: Loki
+      # kubernetes-pod-logs:
+      #   url: https://grafana.com/api/dashboards/15141/revisions/1/download
+      #   datasource: Loki
+      talos-monitoring:
+        url: https://grafana.com/api/dashboards/14058/revisions/1/download
+        datasource: Prometheus
+      node-exporter:
+        url: https://grafana.com/api/dashboards/1860/revisions/27/download
+        datasource: Prometheus
+      otel-collector:
+        url: https://grafana.com/api/dashboards/21245/revisions/1/download
+        datasource: Prometheus
+      argocd-dashboard:
+        url: https://grafana.com/api/dashboards/14584/revisions/1/download
+        datasource: Prometheus
+      argocd-deployments:
+        url: https://grafana.com/api/dashboards/19993/revisions/3/download
+        datasource: Prometheus
+      argocd-applications:
+        url: https://grafana.com/api/dashboards/19974/revisions/3/download
+        datasource: Prometheus
+      argocd-alerts:
+        url: https://grafana.com/api/dashboards/19975/revisions/3/download
+        datasource: Prometheus
+      rook-osd:
+        url: https://grafana.com/api/dashboards/5336/revisions/9/download
+        datasource: Prometheus
+      rook-cluster:
+        url: https://grafana.com/api/dashboards/7050/revisions/1/download
+        datasource: Prometheus
+      # rook-ceph:
+      #   url: https://grafana.com/api/dashboards/2842/revisions/19/download
+      #   datasource: Prometheus
