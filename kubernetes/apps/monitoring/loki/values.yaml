@@ -1,37 +1,20 @@
-# Use single unified configuration for Loki
-loki:
-  # Remove duplicate settings - only use structuredConfig
-  structuredConfig:
-    auth_enabled: false
-    server:
-      http_listen_port: 3100
-    common:
-      replication_factor: 1
-      path_prefix: /var/loki
-      storage:
-        filesystem:
-          directory: /var/loki/chunks
-    schema_config:
-      configs:
-        - from: "2024-04-01"
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v11
-          index:
-            prefix: index_
-            period: 24h
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 168h # 7 days
-    limits_config:
-      enforce_metric_name: false
-      reject_old_samples: true
-      reject_old_samples_max_age: 168h
-      max_look_back_period: 24h
-      ingestion_rate_mb: 10
-      ingestion_burst_size_mb: 20
+deploymentMode: SingleBinary
 
-# Set these all to 0 for SingleBinary mode
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClassName: ceph-block
+
+# Disable all distributed components
 backend:
   replicas: 0
 read:
@@ -57,28 +40,33 @@ bloomCompactor:
 bloomGateway:
   replicas: 0
 
-# Make sure singleBinary mode is properly configured
-singleBinary:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
-    limits:
-      cpu: 1000m
-      memory: 2Gi # Reduced from 4Gi to prevent OOM issues
-  extraPorts:
-    - name: http
-      containerPort: 3100
-  extraEnv:
-    - name: GOMEMLIMIT
-      value: 1750MiB # Reduced from 3750MiB
-  persistence:
-    enabled: true
-    size: 50Gi
-    storageClassName: ceph-block
+# Core Loki configuration
+loki:
+  auth_enabled: false
+  commonConfig:
+    path_prefix: /var/loki
+    replication_factor: 1
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: boltdb-shipper
+        object_store: filesystem
+        schema: v12
+        index:
+          prefix: index_
+          period: 24h
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /var/loki/index
+      cache_location: /var/loki/cache
+      shared_store: filesystem
+    filesystem:
+      directory: /var/loki/chunks
+  tableManager:
+    retention_deletes_enabled: true
+    retention_period: 168h
 
-# Configure the gateway properly for SingleBinary mode
+# Gateway configuration that works with SingleBinary mode
 gateway:
   enabled: true
   replicas: 1
@@ -91,25 +79,28 @@ gateway:
       http {
         server {
           listen 80;
-          # Direct all traffic to the single binary Loki
-          location ~ /loki/api/.* {
-            proxy_pass http://loki.monitoring.svc.cluster.local:3100$request_uri;
+          # Single endpoint for all Loki API requests
+          location ~ /loki/api/ {
+            proxy_pass http://loki-0.loki-headless.monitoring.svc.cluster.local:3100$request_uri;
+            proxy_set_header Host $host;
           }
         }
       }
 
-# Ensure Service is properly defined
+# Services configuration
 service:
-  name: loki
   type: ClusterIP
-  port: 3100
 
+# Headless service for StatefulSet direct access
+headless:
+  enabled: true
+
+# Monitoring integration
 serviceMonitor:
   enabled: true
-  interval: 30s
   additionalLabels:
     release: kube-prometheus-stack
 
-# Disable MinIO as we're using filesystem storage
+# Disable MinIO
 minio:
   enabled: false
