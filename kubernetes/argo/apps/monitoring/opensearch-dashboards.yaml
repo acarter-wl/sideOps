@@ -1,24 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: opensearch
+  name: opensearch-dashboards
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/sync-wave: "7" # Run after OpenSearch is deployed
 spec:
   project: infrastructure
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/opensearch
+      path: kubernetes/apps/monitoring/opensearch-dashboards
       targetRevision: main
       ref: repo
     - repoURL: https://opensearch-project.github.io/helm-charts
-      chart: opensearch
-      targetRevision: 2.33.0
+      chart: opensearch-dashboards
+      targetRevision: 2.29.0
       helm:
-        releaseName: opensearch
+        releaseName: opensearch-dashboards
         valueFiles:
-          - $repo/kubernetes/apps/monitoring/opensearch/values.yaml
+          - $repo/kubernetes/apps/monitoring/opensearch-dashboards/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

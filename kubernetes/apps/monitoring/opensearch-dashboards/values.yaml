@@ -1,0 +1,54 @@
+opensearchHosts: "https://opensearch-cluster-master:9200"
+
+# For homelab usage, we set basic resources
+resources:
+  requests:
+    cpu: "0.3"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+service:
+  type: ClusterIP
+  port: 5601
+
+# Configure dashboard security to work with the OpenSearch security settings
+opensearchAccount:
+  secret: opensearch-cluster-master-credentials
+
+# Basic environment variables
+extraEnvs:
+  - name: "OPENSEARCH_HOSTS"
+    value: "https://opensearch-cluster-master:9200"
+  - name: "SERVER_BASEPATH"
+    value: ""
+
+# For ingress configuration
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - opensearch-dashboards.cluster.local # Change to your domain
+
+# Configure server settings
+config:
+  opensearch_dashboards.yml: |
+    server.name: opensearch-dashboards
+    server.host: "0.0.0.0"
+    opensearch.ssl.verificationMode: none
+    opensearch.username: admin
+    opensearch.password: admin  # Change to match your OpenSearch admin password
+    opensearch.requestHeadersAllowlist: ["Authorization", "securitytenant"]
+    server.ssl.enabled: false
+
+# Add dashboards to have pre-configured upon deployment
+dashboardImport:
+  enabled: false
+  # Uncomment and add dashboard IDs if you want to import dashboards
+  # dashboards:
+  #  - title: "Kubernetes Logs Overview"
+  #    file: "dashboards/kubernetes-logs.ndjson"
+
+  # Set replicaCount to 1 for homelab environments
+replicaCount: 1

@@ -1,10 +1,11 @@
+# kubernetes/apps/monitoring/opensearch/values.yaml
 clusterName: "opensearch-cluster"
 nodeGroup: "master"
 
 # For a homelab environment, a single replica is often sufficient
 replicas: 1
 
-# Set resources based on your available capacity
+# Set resources based on your available capacity - adjust as needed
 resources:
   requests:
     cpu: "1"
@@ -13,15 +14,16 @@ resources:
     cpu: "2"
     memory: "2Gi"
 
-# Configure persistence - adjust storage size as needed
+# Configure persistence
 persistence:
   enabled: true
-  storageClass: "ceph-block" # Replace with your storage class
+  # Use your default storage class or specify one
+  storageClass: "ceph-block"
   accessModes:
     - ReadWriteOnce
   size: 30Gi
 
-# Set Java heap size
+# Set Java heap size - adjust based on your available memory
 opensearchJavaOpts: "-Xmx1g -Xms1g"
 
 # Important for single-node deployments
@@ -30,5 +32,43 @@ singleNode: true
 securityConfig:
   enabled: true
   adminCredentials:
+    # For a production environment, use a secret manager
+    # such as Kubernetes secrets or external secret provider
     username: admin
     password: "admin" # Change this to a secure password
+
+# Network settings
+networkHost: "0.0.0.0"
+
+# For homelab environments, we can disable some production features
+extraEnvs:
+  - name: "DISABLE_INSTALL_DEMO_CONFIG"
+    value: "true"
+  - name: "DISABLE_SECURITY_PLUGIN"
+    value: "false"
+
+# Dashboard settings - set to false since we're deploying separate dashboards
+dashboards:
+  enabled: false
+
+# Add basic anti-affinity to improve reliability
+antiAffinity: "soft"
+
+# Prometheus metrics support
+prometheus:
+  enabled: true
+
+# Ensure service is accessible from other pods
+service:
+  type: ClusterIP
+  httpPort: 9200
+  transportPort: 9300
+
+# Add necessary environment variables for Kubernetes
+extraInitContainers: []
+extraContainers: []
+
+# Security context for running in K8s
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
