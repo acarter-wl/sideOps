@@ -1,14 +1,9 @@
 # Copyright (c) Tailscale Inc & AUTHORS
 # SPDX-License-Identifier: BSD-3-Clause
 
-oauth: {}
-
-oauthSecretVolume:
-  csi:
-    driver: secrets-store.csi.k8s.io
-    readOnly: true
-    volumeAttributes:
-      secretProviderClass: tailscale-oauth
+oauth:
+  client_id: {{ .Values.operatorAuth.clientId }}
+  client_secret: {{ .Values.operatorAuth.clientSecret }}
 
 # installCRDs determines whether tailscale.com CRDs should be installed as part
 # of chart installation. We do not use Helm's CRD installation mechanism as that

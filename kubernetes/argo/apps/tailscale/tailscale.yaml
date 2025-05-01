@@ -18,10 +18,12 @@ spec:
       chart: tailscale-operator
       targetRevision: v1.82.0
       helm:
-        releaseName: tailscale-operator # Added release name for clarity
-        # Reference the values file from the git repo source defined above
-        valueFiles:
-          - $repo/kubernetes/apps/tailscale/values.yaml # Assumes values are in kubernetes/apps/tailscale/tailscale-operator/values.yaml
+        values: |
+        oauthSecretVolume:
+          secret:
+            secretName: operator-oauth
+        apiServerProxyConfig:
+          mode: "noauth"
   destination:
     name: in-cluster # Changed from server URL
     namespace: tailscale # Kept the target namespace
