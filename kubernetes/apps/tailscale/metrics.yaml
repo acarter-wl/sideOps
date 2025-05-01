@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tailscale-metrics
+  namespace: tailscale # Service should be in the tailscale namespace
+  labels:
+    app: tailscale-metrics
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 5252
+      targetPort: 5252
+      protocol: TCP
+  selector: {} # Empty selector since this is a headless service for external targets
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: tailscale-metrics
+  namespace: tailscale # Endpoints should be in the tailscale namespace
+  labels:
+    app: tailscale-metrics
+subsets:
+  - addresses:
+      - ip: brookside.taildb6675.ts.net
+    ports:
+      - name: metrics
+        port: 5252
+        protocol: TCP

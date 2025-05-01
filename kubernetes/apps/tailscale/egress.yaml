@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tailscale-egress
+  namespace: tailscale
+  annotations:
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: "brookside-egress"
+spec:
+  selector:
+    app: tailscale-egress
+  ports:
+    - port: 443
+      targetPort: 443
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-egress
+  namespace: tailscale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale-egress
+  template:
+    metadata:
+      labels:
+        app: tailscale-egress
+    spec:
+      containers:
+        - name: tailscale
+          image: tailscale/tailscale:latest
+          env:
+            - name: TS_KUBE_SECRET
+              value: "tailscale-auth"
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_HOSTNAME
+              value: "k8s-egress"
+            - name: TS_ROUTES
+              value: "10.42.0.0/15" # Adjust this to match your cluster's pod CIDR
+            - name: TS_AUTH_ONCE
+              value: "true"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+            privileged: true
+          volumeMounts:
+            - name: devnet
+              mountPath: /dev/net/tun
+      volumes:
+        - name: devnet
+          hostPath:
+            path: /dev/net/tun
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  tailscale.server: |
+   taildb6675.ts.net {
+   forward . 100.100.100.100
+   }
+   wakkalabs.com {
+   forward . 100.100.100.100
+   }
+

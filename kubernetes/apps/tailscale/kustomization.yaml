@@ -3,3 +3,6 @@ kind: Kustomization
 resources:
   - external-secret-oauth.yaml
   - connector.yaml
+  - metrics.yaml
+  - egress.yaml
+  - rbac.yaml
