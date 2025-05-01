@@ -68,7 +68,9 @@ service:
 extraInitContainers: []
 extraContainers: []
 
-# Security context for running in K8s
+podSecurityContext:
+  fsGroup: 1000
+
+# Security context for container level (no fsGroup here)
 securityContext:
   runAsUser: 1000
-  fsGroup: 1000
