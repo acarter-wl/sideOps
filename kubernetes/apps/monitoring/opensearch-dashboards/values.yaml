@@ -27,15 +27,9 @@ extraEnvs:
   - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
     value: "none"
 
-# For ingress configuration with your actual domain
+# For ingress configuration - fixed format for the chart
 ingress:
   enabled: true
-  path: /
-  hosts:
-    - host: opensearch-dashboards.wakkalabs.com
-      paths:
-        - path: /
-          pathType: Prefix
   annotations:
     kubernetes.io/ingress.class: internal
     internal-dns.alpha.kubernetes.io/enabled: "true"
@@ -45,12 +39,17 @@ ingress:
       more_set_headers "X-Frame-Options: SAMEORIGIN";
       more_set_headers "X-Content-Type-Options: nosniff";
       more_set_headers "X-XSS-Protection: 1; mode=block";
+  # Simple string format for hosts
+  hosts:
+    - opensearch-dashboards.wakkalabs.com
+  path: /
+  pathType: Prefix
   tls:
     - secretName: opensearch-dashboards-wakkalabs-tls
       hosts:
         - opensearch-dashboards.wakkalabs.com
 
-# Configure server settings with credentials from external secret
+# Configure server settings
 config:
   opensearch_dashboards.yml: |
     server.name: opensearch-dashboards
@@ -58,7 +57,9 @@ config:
     opensearch.ssl.verificationMode: none
     opensearch.requestHeadersAllowlist: ["Authorization", "securitytenant"]
     server.ssl.enabled: false
-    # Credentials now come from environment variables set by the secret
+    # Reading credentials from environment variables
+    opensearch.username: "${OPENSEARCH_DASHBOARDS_USERNAME}"
+    opensearch.password: "${OPENSEARCH_DASHBOARDS_PASSWORD}"
 
     # Add CORS settings if needed
     server.cors.enabled: true
@@ -71,15 +72,14 @@ config:
 
 # Add custom dashboards to have pre-configured upon deployment
 dashboardImport:
-  enabled: true
-  timeout: 60
-  dashboards:
-    - title: "Kubernetes Logs Overview"
-      file: "/dashboards/kubernetes-logs.ndjson"
-    - title: "Application Performance"
-      file: "/dashboards/application-performance.ndjson"
+  enabled: false
+  # We'll enable this after getting the basic setup working
+  # timeout: 60
+  # dashboards:
+  #   - title: "Kubernetes Logs Overview"
+  #     file: "/dashboards/kubernetes-logs.ndjson"
 
-# Set replicaCount to 1 for homelab environments
+  # Set replicaCount to 1 for homelab environments
 replicaCount: 1
 
 # Configure persistent storage to save dashboard configurations
@@ -101,40 +101,22 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Health checks - updated to use credentials from mounted secret
-readinessProbe:
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
-  exec:
-    command:
-      - bash
-      - -c
-      - |
-        #!/usr/bin/env bash
-        set -e
-        http_proxy="" https_proxy="" curl -k -I -s https://localhost:5601 | grep -E "HTTP/[0-9].[0-9] [23][0-9][0-9]"
+# Set up env vars from the secret
+extraEnvVars:
+  - name: "OPENSEARCH_DASHBOARDS_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: username
+  - name: "OPENSEARCH_DASHBOARDS_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: password
 
-livenessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
-  exec:
-    command:
-      - bash
-      - -c
-      - |
-        #!/usr/bin/env bash
-        set -e
-        http_proxy="" https_proxy="" curl -k -I -s https://localhost:5601 | grep -E "HTTP/[0-9].[0-9] [23][0-9][0-9]"
-
-# Node selector to control where the pod is deployed
-nodeSelector: {}
-
-# Tolerations for node taints
-tolerations: []
+# Use default probes
+readinessProbe: {}
+livenessProbe: {}
 
 # Service account settings
 serviceAccount:
@@ -153,14 +135,3 @@ serviceMonitor:
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "5601"
-
-# Mount the external secret credentials
-extraVolumes:
-  - name: admin-credentials
-    secret:
-      secretName: opensearch-cluster-master-credentials
-
-extraVolumeMounts:
-  - name: admin-credentials
-    mountPath: /usr/share/opensearch-dashboards/config/opensearch-security/admin-creds
-    readOnly: true
