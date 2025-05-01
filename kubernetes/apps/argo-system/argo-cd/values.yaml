@@ -57,25 +57,25 @@ configs:
     # githubSecret: ENC[AES256_GCM,data:YCGpvFf0b0Ko+aq9BwK2YjOgLczxa3euRaR3PRegcjzU7lFJMfgJLJvFC3tkWpzhGqBTTtDddNWECXsCzWrSqjeVrq8GuV6JwxTWoQJOzyoQk4a59TPEV/vhVPUnFP1+A4dtkxV5IIprHfTwBLMO547fLwszY1VkTgNZEhbqhgkHdjZiXdzOEDtOmuMSjZzFhDuNm6epSw==,iv:p2k1ByEe3yhXAC/VNlrDfGz6dkTWi5sW00BNPzTJ/Hs=,tag:1zJIu3fJDGN3z6SJyYOAag==,type:str]
   metrics:
     enabled: true
-    # applicationLabels:
-    #   enabled: true
-    # serviceMonitor:
-    #   enabled: true
+    applicationLabels:
+      enabled: true
+    serviceMonitor:
+      enabled: true
     additionalLabels:
       release: kube-prometheus-stack
 dex:
   replicas: 2
   metrics:
     enabled: true
-    # serviceMonitor:
-    #   enabled: true
+    serviceMonitor:
+      enabled: true
     additionalLabels:
       release: kube-prometheus-stack
 redis:
   metrics:
     enabled: true
-    # serviceMonitor:
-    #   enabled: true
+    serviceMonitor:
+      enabled: true
     additionalLabels:
       release: kube-prometheus-stack
 server:
