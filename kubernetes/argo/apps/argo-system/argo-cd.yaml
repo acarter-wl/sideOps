@@ -15,7 +15,7 @@ spec:
       path: kubernetes/apps/argo-system/argo-cd
       targetRevision: main
       ref: repo
-    - repoURL: oci://ghcr.io/argoproj/argo-helm
+    - repoURL: oci://argoproj.github.io/argo-helm
       chart: argo-cd
       targetRevision: 7.9.0
       helm:
