@@ -30,23 +30,17 @@ extraEnvs:
 # For ingress configuration - fixed format for the chart
 ingress:
   enabled: true
-  annotations:
-    kubernetes.io/ingress.class: internal
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "X-Frame-Options: SAMEORIGIN";
-      more_set_headers "X-Content-Type-Options: nosniff";
-      more_set_headers "X-XSS-Protection: 1; mode=block";
-  ingressClassName: internal
-  # Simple string format for hosts
+  className: "internal"
   hosts:
-    - opensearch-dashboards.wakkalabs.com
-  path: /
-  pathType: Prefix
-  tls:
-    - secretName: opensearch-dashboards-wakkalabs-tls
-      hosts:
-        - opensearch-dashboards.wakkalabs.com
+    - host: dashboards.wakkalabs.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: opensearch-dashboards
+              port:
+                number: 5601
 
 # Configure server settings
 config:

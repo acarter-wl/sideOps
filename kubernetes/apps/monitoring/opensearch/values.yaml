@@ -91,18 +91,7 @@ service:
 
 # Fix the ingress configuration - proper format for the chart
 ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: internal
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-  path: /
-  # Fix: Use simple string for hosts
-  hosts:
-    - opensearch.wakkalabs.com
-  tls:
-    - secretName: opensearch-wakkalabs-tls
-      hosts:
-        - opensearch.wakkalabs.com
+  enabled: false
 
 # Add necessary environment variables for Kubernetes
 extraInitContainers: []
