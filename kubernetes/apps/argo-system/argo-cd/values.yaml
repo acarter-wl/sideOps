@@ -55,12 +55,11 @@ configs:
     # dex.authentik.clientSecret: ENC[AES256_GCM,data:GYxIxDxVvvhNrPFsQwZg1guT0NfQJ46ulflm4218N+oMcnh1s1WoPEQQ7L9zn4w+HYKSYJhfKRU/uAbdoaqWpJtYyOffO1K/8PdVNgb8uXoHjA5x9+9/RQvyhwK22sKkJWhjAMc6i9kyqfYO2HDI9I5PNTTgFj5kAGJtNfSMjU4=,iv:o0TBV8LLAafDncc5jYhOk16ml18L9dygvsVpsX2zAE4=,tag:ZWdlz+nbdfMQHzyHxS0S6g==,type:str]
     # argocdServerAdminPasswordMtime: 2025-04-27T17:17:54
     # githubSecret: ENC[AES256_GCM,data:YCGpvFf0b0Ko+aq9BwK2YjOgLczxa3euRaR3PRegcjzU7lFJMfgJLJvFC3tkWpzhGqBTTtDddNWECXsCzWrSqjeVrq8GuV6JwxTWoQJOzyoQk4a59TPEV/vhVPUnFP1+A4dtkxV5IIprHfTwBLMO547fLwszY1VkTgNZEhbqhgkHdjZiXdzOEDtOmuMSjZzFhDuNm6epSw==,iv:p2k1ByEe3yhXAC/VNlrDfGz6dkTWi5sW00BNPzTJ/Hs=,tag:1zJIu3fJDGN3z6SJyYOAag==,type:str]
-  metrics:
+metrics:
+  enabled: true
+  serviceMonitor:
     enabled: true
-    applicationLabels:
-      enabled: true
-    serviceMonitor:
-      enabled: true
+    namespace: monitoring # explicitly reference monitoring namespace
     additionalLabels:
       release: kube-prometheus-stack
 dex:
