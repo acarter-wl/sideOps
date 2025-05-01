@@ -55,7 +55,6 @@ securityConfig:
 networkHost: "0.0.0.0"
 
 # For homelab environments, we can disable some production features
-# IMPORTANT: Remove duplicate discovery.type from here
 extraEnvs:
   - name: "DISABLE_INSTALL_DEMO_CONFIG"
     value: "true"
@@ -126,40 +125,10 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Add liveness and readiness probes - reference credentials from mounted secret
-readinessProbe:
-  initialDelaySeconds: 90
-  periodSeconds: 10
-  timeoutSeconds: 5
-  successThreshold: 1
-  failureThreshold: 3
-  exec:
-    command:
-      - bash
-      - -c
-      - |
-        #!/usr/bin/env bash
-        set -e
-        USERNAME=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/username)
-        PASSWORD=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/password)
-        curl -k -u "$USERNAME:$PASSWORD" https://localhost:9200/_cluster/health?local=true | grep -v '"status":"red"'
-
-livenessProbe:
-  initialDelaySeconds: 120
-  periodSeconds: 10
-  timeoutSeconds: 5
-  successThreshold: 1
-  failureThreshold: 3
-  exec:
-    command:
-      - bash
-      - -c
-      - |
-        #!/usr/bin/env bash
-        set -e
-        USERNAME=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/username)
-        PASSWORD=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/password)
-        curl -k -u "$USERNAME:$PASSWORD" https://localhost:9200/_cluster/health?local=true | grep -v '"status":"red"'
+# Use the default probes from the chart
+# REMOVE custom probes to avoid conflicts
+readinessProbe: {}
+livenessProbe: {}
 
 # Lifecycle hooks
 lifecycle:
@@ -169,7 +138,8 @@ lifecycle:
         - bash
         - -c
         - >
-          set -e sleep 5
+          set -e
+          sleep 5
 
 # Mount the external secret as environment variables
 extraVolumes:
