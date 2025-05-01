@@ -89,7 +89,7 @@ service:
   httpPort: 9200
   transportPort: 9300
 
-# Configure ingress
+# Fix the ingress configuration - proper format for the chart
 ingress:
   enabled: true
   annotations:
@@ -98,11 +98,9 @@ ingress:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     secret.reloader.stakater.com/reload: gateway-monitor
   path: /
+  # Fix: Use simple string for hosts
   hosts:
-    - host: opensearch.wakkalabs.com
-      paths:
-        - path: /
-          pathType: Prefix
+    - opensearch.wakkalabs.com
   tls:
     - secretName: opensearch-wakkalabs-tls
       hosts:
@@ -126,7 +124,6 @@ securityContext:
   runAsUser: 1000
 
 # Use the default probes from the chart
-# REMOVE custom probes to avoid conflicts
 readinessProbe: {}
 livenessProbe: {}
 
@@ -138,8 +135,7 @@ lifecycle:
         - bash
         - -c
         - >
-          set -e
-          sleep 5
+          set -e sleep 5
 
 # Mount the external secret as environment variables
 extraVolumes:
