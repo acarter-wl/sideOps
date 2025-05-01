@@ -10,7 +10,7 @@ spec:
   sources:
     # Source for the Git repository containing configuration (values file)
     - repoURL: "https://github.com/acarter-wl/sideops.git" # Your repo URL
-      path: kubernetes/apps/tailcale # Path to the directory containing the values file
+      path: kubernetes/apps/tailscale # Path to the directory containing the values file
       targetRevision: main # Or your desired branch/tag
       ref: repo # Reference name for this source
     # Source for the Helm chart
@@ -21,7 +21,7 @@ spec:
         releaseName: tailscale-operator # Added release name for clarity
         # Reference the values file from the git repo source defined above
         valueFiles:
-          - $repo/values.yaml # Assumes values are in kubernetes/apps/tailscale/tailscale-operator/values.yaml
+          - $repo/kubernetes/apps/tailscale/values.yaml # Assumes values are in kubernetes/apps/tailscale/tailscale-operator/values.yaml
   destination:
     name: in-cluster # Changed from server URL
     namespace: tailscale # Kept the target namespace
