@@ -108,8 +108,8 @@ extraEnvVars:
         key: password
 
 # Use default probes
-readinessProbe: {}
-livenessProbe: {}
+# readinessProbe: {}
+# livenessProbe: {}
 
 # Service account settings
 serviceAccount:

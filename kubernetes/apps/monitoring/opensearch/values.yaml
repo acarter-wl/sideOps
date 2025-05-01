@@ -110,9 +110,9 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Use the default probes from the chart
-readinessProbe: {}
-livenessProbe: {}
+# # Use the default probes from the chart
+# readinessProbe: {}
+# livenessProbe: {}
 
 # Lifecycle hooks
 lifecycle:
