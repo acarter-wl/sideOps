@@ -6,22 +6,22 @@ configs:
   params:
     server.insecure: true
   cm:
-    dex.config: |
-      connectors:
-        - type: oidc
-          id: authentik
-          name: authentik
-          config:
-            issuer: https://auth.wakkalabs.com/application/o/argocd/
-            clientID: GHFrNg3pZTxyoxvzuut0q0Kr2HSkBBqX0rqINETT
-            clientSecretEnv: DEX_AUTHENTIK_CLIENT_SECRET # ADD this line - tells Dex to use env var
-            insecureEnableGroups: true
-            scopes:
-              - openid
-              - profile
-              - email
-              - groups
-            getUserInfo: true
+    # dex.config: |
+    #   connectors:
+    #     - type: oidc
+    #       id: authentik
+    #       name: authentik
+    #       config:
+    #         issuer: https://auth.wakkalabs.com/application/o/argocd/
+    #         clientID: GHFrNg3pZTxyoxvzuut0q0Kr2HSkBBqX0rqINETT
+    #         clientSecretEnv: DEX_AUTHENTIK_CLIENT_SECRET
+    #         insecureEnableGroups: true
+    #         scopes:
+    #           - openid
+    #           - profile
+    #           - email
+    #           - groups
+    #         getUserInfo: true
     exec.enabled: true
     accounts.readonly: |
       apiKey: true
@@ -43,13 +43,13 @@ configs:
           - CiliumIdentity
         clusters:
           - '*'
-  rbac:
-    scopes: '[groups]'
-    groupClaim: groups
-    policy.default: role:readonly
-    policy.rules: |
-      p, role:admin, *, *, *, allow
-      g, ArgoCD Admins, role:admin
+    # rbac:
+    #   scopes: '[groups]'
+    #   groupClaim: groups
+    #   policy.default: role:readonly
+    #   policy.rules: |
+    #     p, role:admin, *, *, *, allow
+    #     g, ArgoCD Admins, role:admin
     # argocdServerAdminPassword: ENC[AES256_GCM,data:i+hlsJEnzDos2zNV0GF9y6gMpPmOUOHLB/MNSpxWmWklNK/+RIn5IPKex1mctKPMf58R9HY8Iy8+Enc=,iv:20mRTB0F31WBuaR3BAJYsZJuG8zoYm2p6sG8cb9KgkE=,tag:Xxnrr/3BoShAVgzfiE+dDg==,type:str]
     # webhook.github.secret: ENC[AES256_GCM,data:sx3ZQVwF4DD/GtRzNtxv8eTeoMwAdoa9NVqjoEhISTc=,iv:iq7cylQiS1C/WGXyyYfiTkQCKlN0paU1dbCXp3j8HIo=,tag:bzCGqsK4cx54qNbxqPxx7Q==,type:str]
     # dex.authentik.clientSecret: ENC[AES256_GCM,data:GYxIxDxVvvhNrPFsQwZg1guT0NfQJ46ulflm4218N+oMcnh1s1WoPEQQ7L9zn4w+HYKSYJhfKRU/uAbdoaqWpJtYyOffO1K/8PdVNgb8uXoHjA5x9+9/RQvyhwK22sKkJWhjAMc6i9kyqfYO2HDI9I5PNTTgFj5kAGJtNfSMjU4=,iv:o0TBV8LLAafDncc5jYhOk16ml18L9dygvsVpsX2zAE4=,tag:ZWdlz+nbdfMQHzyHxS0S6g==,type:str]
@@ -59,19 +59,11 @@ configs:
     enabled: true
     # applicationLabels:
     #   enabled: true
-      # serviceMonitor:
-      #   enabled: true
+    # serviceMonitor:
+    #   enabled: true
     additionalLabels:
       release: kube-prometheus-stack
 dex:
-  extraEnv:
-    - name: DEX_AUTHENTIK_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          # Name of the K8s secret created by ExternalSecret
-          name: dex-authentik-secret
-          # Key within that K8s secret containing the client secret value
-          key: client-secret
   replicas: 2
   metrics:
     enabled: true
