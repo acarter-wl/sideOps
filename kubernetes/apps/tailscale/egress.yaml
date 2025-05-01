@@ -35,7 +35,7 @@ spec:
           image: tailscale/tailscale:latest
           env:
             - name: TS_KUBE_SECRET
-              value: "tailscale-auth"
+              value: "tailscale-ssh-auth"
             - name: TS_USERSPACE
               value: "false"
             - name: TS_HOSTNAME
