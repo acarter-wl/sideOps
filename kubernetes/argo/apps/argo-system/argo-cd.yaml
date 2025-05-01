@@ -11,9 +11,9 @@ metadata:
 spec:
   project: kubernetes
   sources:
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
+    - repoURL: "oci://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/argo-system/argo-cd
-      targetRevision: main
+      targetRevision: main``
       ref: repo
     - repoURL: oci://argoproj.github.io/argo-helm
       chart: argo-cd
