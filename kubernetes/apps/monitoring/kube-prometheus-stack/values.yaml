@@ -49,14 +49,12 @@ prometheus:
     secrets:
       - etcd-certs
     additionalArgs:
+      # Removed problematic flag
       - name: web.enable-otlp-receiver
       - name: enable-feature
         value: otlp-write-receiver
       - name: enable-feature
         value: otlp-deltatocumulative
-      - name: storage.tsdb.out_of_order_time_window
-        value: 30m
-
     otlpConfig:
       promoteResourceAttributes:
         - service.instance.id
