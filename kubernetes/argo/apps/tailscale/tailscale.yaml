@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argo-system # Changed from 'argocd'
+  annotations:
+    argocd.argoproj.io/sync-wave: '1' # Added sync-wave annotation
+spec:
+  project: kubernetes # Changed from 'default'
+  sources:
+    # Source for the Git repository containing configuration (values file)
+    - repoURL: "https://github.com/acarter-wl/sideops.git" # Your repo URL
+      path: kubernetes/apps/tailcale # Path to the directory containing the values file
+      targetRevision: main # Or your desired branch/tag
+      ref: repo # Reference name for this source
+    # Source for the Helm chart
+    - repoURL: https://pkgs.tailscale.com/helmcharts
+      chart: tailscale-operator
+      targetRevision: v1.80.3
+      helm:
+        releaseName: tailscale-operator # Added release name for clarity
+        # Reference the values file from the git repo source defined above
+        valueFiles:
+          - $repo/values.yaml # Assumes values are in kubernetes/apps/tailscale/tailscale-operator/values.yaml
+  destination:
+    name: in-cluster # Changed from server URL
+    namespace: tailscale # Kept the target namespace
+  syncPolicy:
+    automated:
+      allowEmpty: true # Added allowEmpty
+      prune: true
+      selfHeal: true
+    syncOptions:
+      # Added syncOptions
+      - CreateNamespace=true
+      - ServerSideApply=true
