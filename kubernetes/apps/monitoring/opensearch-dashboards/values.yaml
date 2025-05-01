@@ -32,13 +32,12 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: internal
-    internal-dns.alpha.kubernetes.io/enabled: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-production"
-    secret.reloader.stakater.com/reload: gateway-monitor
     nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers "X-Frame-Options: SAMEORIGIN";
       more_set_headers "X-Content-Type-Options: nosniff";
       more_set_headers "X-XSS-Protection: 1; mode=block";
+  ingressClassName: internal
   # Simple string format for hosts
   hosts:
     - opensearch-dashboards.wakkalabs.com

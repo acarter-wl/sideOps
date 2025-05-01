@@ -94,9 +94,7 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: internal
-    internal-dns.alpha.kubernetes.io/enabled: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-production"
-    secret.reloader.stakater.com/reload: gateway-monitor
   path: /
   # Fix: Use simple string for hosts
   hosts:
