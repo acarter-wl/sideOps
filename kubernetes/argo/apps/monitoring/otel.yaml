@@ -1,33 +1,33 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io/background
-  name: otel-collector
-  namespace: argo-system
-spec:
-  project: infrastructure
-  sources:
-    # Git repo with values
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      targetRevision: main
-      ref: repo
-      path: kubernetes/apps/monitoring/otel-collector
-    # Helm chart from helm repository
-    - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
-      targetRevision: 0.122.4
-      chart: opentelemetry-collector
-      helm:
-        releaseName: otel-collector
-        valueFiles:
-          - $repo/kubernetes/apps/monitoring/otel-collector/values.yaml
-  destination:
-    namespace: monitoring
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io/background
+#   name: otel-collector
+#   namespace: argo-system
+# spec:
+#   project: infrastructure
+#   sources:
+#     # Git repo with values
+#     - repoURL: "https://github.com/acarter-wl/sideops.git"
+#       targetRevision: main
+#       ref: repo
+#       path: kubernetes/apps/monitoring/otel-collector
+#     # Helm chart from helm repository
+#     - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+#       targetRevision: 0.122.4
+#       chart: opentelemetry-collector
+#       helm:
+#         releaseName: otel-collector
+#         valueFiles:
+#           - $repo/kubernetes/apps/monitoring/otel-collector/values.yaml
+#   destination:
+#     namespace: monitoring
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
