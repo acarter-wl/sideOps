@@ -1,4 +1,3 @@
-# kubernetes/apps/monitoring/opensearch/values.yaml
 clusterName: "opensearch-cluster"
 nodeGroup: "master"
 
@@ -29,13 +28,28 @@ opensearchJavaOpts: "-Xmx1g -Xms1g"
 # Important for single-node deployments
 singleNode: true
 
+# Security configuration - reference external secrets
 securityConfig:
   enabled: true
+  actionGroupsSecret:
+    enabled: false
+  configSecret:
+    enabled: false
+  internalUsersSecret:
+    enabled: false
+  rolesSecret:
+    enabled: false
+  rolesMappingSecret:
+    enabled: false
+  tenantConfigSecret:
+    enabled: false
   adminCredentials:
-    # For a production environment, use a secret manager
-    # such as Kubernetes secrets or external secret provider
+    # Reference the existing external secret instead of creating one
     username: admin
-    password: "admin" # Change this to a secure password
+    password: admin
+    createSecret: false
+    secret:
+      name: "opensearch-cluster-master-credentials"
 
 # Network settings
 networkHost: "0.0.0.0"
@@ -46,6 +60,10 @@ extraEnvs:
     value: "true"
   - name: "DISABLE_SECURITY_PLUGIN"
     value: "false"
+  - name: "discovery.type"
+    value: "single-node"
+  - name: "bootstrap.memory_lock"
+    value: "true"
 
 # Dashboard settings - set to false since we're deploying separate dashboards
 dashboards:
@@ -57,20 +75,105 @@ antiAffinity: "soft"
 # Prometheus metrics support
 prometheus:
   enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
 
-# Ensure service is accessible from other pods
+# Configure service
 service:
   type: ClusterIP
   httpPort: 9200
   transportPort: 9300
 
+# Configure ingress
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: internal
+    internal-dns.alpha.kubernetes.io/enabled: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    secret.reloader.stakater.com/reload: gateway-monitor
+  path: /
+  hosts:
+    - host: opensearch.wakkalabs.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: opensearch-wakkalabs-tls
+      hosts:
+        - opensearch.wakkalabs.com
+
 # Add necessary environment variables for Kubernetes
 extraInitContainers: []
 extraContainers: []
 
+# Security context settings
 podSecurityContext:
   fsGroup: 1000
-
-# Security context for container level (no fsGroup here)
-securityContext:
   runAsUser: 1000
+
+# Security context for container level
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Add liveness and readiness probes - reference credentials from mounted secret
+readinessProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+  exec:
+    command:
+      - bash
+      - -c
+      - |
+        #!/usr/bin/env bash
+        set -e
+        USERNAME=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/username)
+        PASSWORD=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/password)
+        curl -k -u "$USERNAME:$PASSWORD" https://localhost:9200/_cluster/health?local=true | grep -v '"status":"red"'
+
+livenessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+  exec:
+    command:
+      - bash
+      - -c
+      - |
+        #!/usr/bin/env bash
+        set -e
+        USERNAME=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/username)
+        PASSWORD=$(cat /usr/share/opensearch/config/opensearch-security/admin-creds/password)
+        curl -k -u "$USERNAME:$PASSWORD" https://localhost:9200/_cluster/health?local=true | grep -v '"status":"red"'
+
+# Lifecycle hooks
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - bash
+        - -c
+        - >
+          set -e sleep 5
+
+# Mount the external secret as environment variables
+extraVolumes:
+  - name: admin-credentials
+    secret:
+      secretName: opensearch-cluster-master-credentials
+
+extraVolumeMounts:
+  - name: admin-credentials
+    mountPath: /usr/share/opensearch/config/opensearch-security/admin-creds
+    readOnly: true
