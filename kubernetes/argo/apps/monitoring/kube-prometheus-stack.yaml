@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: kube-prometheus-stack
   namespace: argo-system
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io/background
 spec:
   project: infrastructure
   sources:

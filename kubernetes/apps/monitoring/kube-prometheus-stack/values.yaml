@@ -84,29 +84,29 @@ prometheus:
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
-  additionalServiceMonitors:
-    - name: loki
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: loki
-      namespaceSelector:
-        matchNames:
-          - monitoring
-      endpoints:
-        - port: http-metrics
-          interval: 15s
-          path: /metrics
-    - name: promtail
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: promtail
-      namespaceSelector:
-        matchNames:
-          - monitoring
-      endpoints:
-        - port: http-metrics
-          interval: 15s
-          path: /metrics
+  # additionalServiceMonitors:
+  #   - name: loki
+  #     selector:
+  #       matchLabels:
+  #         app.kubernetes.io/name: loki
+  #     namespaceSelector:
+  #       matchNames:
+  #         - monitoring
+      # endpoints:
+      #   - port: http-metrics
+      #     interval: 15s
+      #     path: /metrics
+    # - name: promtail
+    #   selector:
+    #     matchLabels:
+    #       app.kubernetes.io/name: promtail
+    #   namespaceSelector:
+    #     matchNames:
+    #       - monitoring
+      # endpoints:
+      #   - port: http-metrics
+      #     interval: 15s
+      #     path: /metrics
   ingress:
     enabled: true
     ingressClassName: internal
@@ -127,7 +127,7 @@ prometheus:
 # Alertmanager Configuration
 # ================================
 alertmanager:
-  replicas: 2
+  replicas: 1
   service:
     ipFamilyPolicy: SingleStack
     ipFamilies:
