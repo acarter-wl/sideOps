@@ -1,0 +1,26 @@
+# opensearch-dashboards-values.yaml
+opensearchHosts: "https://opensearch-cluster-master:9200"
+
+# For homelab usage, we set basic resources
+resources:
+  requests:
+    cpu: "0.3"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+service:
+  type: ClusterIP
+  port: 5601
+
+# Configure dashboard security to work with the OpenSearch security settings
+opensearchAccount:
+  secret: opensearch-cluster-master-credentials
+
+# For simple ingress setup
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - opensearch-dashboards.cluster.local # Change to your domain

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/fluent-bit
+      targetRevision: main
+      ref: repo
+    - repoURL: https://fluent.github.io/helm-charts
+      chart: fluent-bit
+      targetRevision: 0.48.9
+      helm:
+        releaseName: fluent-bit
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/fluent-bit/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

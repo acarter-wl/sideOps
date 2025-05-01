@@ -1,0 +1,34 @@
+clusterName: "opensearch-cluster"
+nodeGroup: "master"
+
+# For a homelab environment, a single replica is often sufficient
+replicas: 1
+
+# Set resources based on your available capacity
+resources:
+  requests:
+    cpu: "1"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+
+# Configure persistence - adjust storage size as needed
+persistence:
+  enabled: true
+  storageClass: "ceph-block" # Replace with your storage class
+  accessModes:
+    - ReadWriteOnce
+  size: 30Gi
+
+# Set Java heap size
+opensearchJavaOpts: "-Xmx1g -Xms1g"
+
+# Important for single-node deployments
+singleNode: true
+
+securityConfig:
+  enabled: true
+  adminCredentials:
+    username: admin
+    password: "admin" # Change this to a secure password

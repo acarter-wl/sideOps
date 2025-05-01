@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: default
 
 resources:
-  - ./config
+  # - ./config
   - ingress.yaml
-  - configmap.yaml
+
+# - configmap.yaml
