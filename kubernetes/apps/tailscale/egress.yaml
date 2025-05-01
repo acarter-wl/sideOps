@@ -6,6 +6,7 @@ metadata:
   annotations:
     tailscale.com/expose: "true"
     tailscale.com/hostname: "brookside-egress"
+    tailscale.com/tags: "tag:k8s,tag:egress"  # Using your existing tags
 spec:
   selector:
     app: tailscale-egress
@@ -39,11 +40,13 @@ spec:
             - name: TS_USERSPACE
               value: "false"
             - name: TS_HOSTNAME
-              value: "brookside-egress" # Changed to match the hostname in annotations
+              value: "brookside-egress"
             - name: TS_ROUTES
-              value: "10.42.0.0/15" # Your cluster's pod CIDR
+              value: "10.42.0.0/15"
             - name: TS_AUTH_ONCE
               value: "true"
+            - name: TS_AUTHKEY_TAGS
+              value: "tag:k8s,tag:egress"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -52,7 +55,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
-            # Using settings based on your paste.txt file
             - name: TS_STATE_DIR
               value: "/var/lib/tailscale"
             - name: TS_EXTRA_ARGS
@@ -81,17 +83,3 @@ spec:
         - name: tailscale-state
           persistentVolumeClaim:
             claimName: tailscale-egress-pvc
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: coredns-custom
-  namespace: kube-system
-data:
-  tailscale.server: |
-    taildb6675.ts.net {
-    forward . 100.100.100.100
-    }
-    wakkalabs.com {
-    forward . 100.100.100.100
-    }
