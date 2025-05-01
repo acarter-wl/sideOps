@@ -29,6 +29,7 @@ spec:
       labels:
         app: tailscale-egress
     spec:
+      serviceAccountName: tailscale-egress-user
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
@@ -38,11 +39,24 @@ spec:
             - name: TS_USERSPACE
               value: "false"
             - name: TS_HOSTNAME
-              value: "k8s-egress"
+              value: "brookside-egress" # Changed to match the hostname in annotations
             - name: TS_ROUTES
-              value: "10.42.0.0/15" # Adjust this to match your cluster's pod CIDR
+              value: "10.42.0.0/15" # Your cluster's pod CIDR
             - name: TS_AUTH_ONCE
               value: "true"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            # Using settings based on your paste.txt file
+            - name: TS_STATE_DIR
+              value: "/var/lib/tailscale"
+            - name: TS_EXTRA_ARGS
+              value: "--advertise-routes=10.42.0.0/15 --accept-dns=false --netfilter-mode=nodivert --no-stateful-filtering"
           securityContext:
             capabilities:
               add:
@@ -51,10 +65,22 @@ spec:
           volumeMounts:
             - name: devnet
               mountPath: /dev/net/tun
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
       volumes:
         - name: devnet
           hostPath:
             path: /dev/net/tun
+        - name: tailscale-state
+          persistentVolumeClaim:
+            claimName: tailscale-egress-pvc
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -63,10 +89,9 @@ metadata:
   namespace: kube-system
 data:
   tailscale.server: |
-   taildb6675.ts.net {
-   forward . 100.100.100.100
-   }
-   wakkalabs.com {
-   forward . 100.100.100.100
-   }
-
+    taildb6675.ts.net {
+    forward . 100.100.100.100
+    }
+    wakkalabs.com {
+    forward . 100.100.100.100
+    }

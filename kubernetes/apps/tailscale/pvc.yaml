@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tailscale-egress-pvc # Matches claimName in the Deployment
+  namespace: tailscale # Must be in the same namespace as the Deployment
+spec:
+  accessModes:
+    - ReadWriteOnce # Suitable for a single pod needing state
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ceph-block

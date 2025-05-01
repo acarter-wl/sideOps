@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-ssh
+  namespace: tailscale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale-ssh
+  template:
+    metadata:
+      labels:
+        app: tailscale-ssh
+    spec:
+      serviceAccountName: tailscale-ssh-user
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:latest
+        env:
+        - name: TS_KUBE_SECRET
+          value: "operator-oauth"
+        - name: TS_USERSPACE
+          value: "false"
+        - name: TS_HOSTNAME
+          value: "brookside-ssh-server"
+        - name: TS_SSH
+          value: "true"
+        - name: TS_AUTH_ONCE
+          value: "true"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+        volumeMounts:
+        - name: devnet
+          mountPath: /dev/net/tun
+        - name: tailscale-state
+          mountPath: /var/lib/tailscale
+      volumes:
+      - name: devnet
+        hostPath:
+          path: /dev/net/tun
+      - name: tailscale-state
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale-ssh-user
+  namespace: tailscale
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale-ssh-user
+  namespace: tailscale
+rules:
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale-ssh-user
+  namespace: tailscale
+subjects:
+- kind: ServiceAccount
+  name: tailscale-ssh-user
+  namespace: tailscale
+roleRef:
+  kind: Role
+  name: tailscale-ssh-user
+  apiGroup: rbac.authorization.k8s.io
