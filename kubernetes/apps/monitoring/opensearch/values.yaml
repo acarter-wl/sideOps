@@ -55,15 +55,19 @@ securityConfig:
 networkHost: "0.0.0.0"
 
 # For homelab environments, we can disable some production features
+# IMPORTANT: Remove duplicate discovery.type from here
 extraEnvs:
   - name: "DISABLE_INSTALL_DEMO_CONFIG"
     value: "true"
   - name: "DISABLE_SECURITY_PLUGIN"
     value: "false"
-  - name: "discovery.type"
-    value: "single-node"
   - name: "bootstrap.memory_lock"
     value: "true"
+
+# Settings that take precedence over opensearch.yml
+config:
+  opensearch.yml: |
+    discovery.type: single-node
 
 # Dashboard settings - set to false since we're deploying separate dashboards
 dashboards:
