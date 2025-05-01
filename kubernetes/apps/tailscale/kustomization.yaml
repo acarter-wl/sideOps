@@ -6,5 +6,5 @@ resources:
   - metrics.yaml
   - egress.yaml
   - rbac.yaml
-  - pvc.yaml
+  #- pvc.yaml
   - tailscale-admin-ssh.yaml
