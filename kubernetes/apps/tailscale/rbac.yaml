@@ -48,4 +48,4 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "secrets" ]
     verbs: [ "get", "update" ]
-    resourceNames: [ "tailscale-ssh-auth" ]
+    resourceNames: [ "tailscale-ssh" ]
