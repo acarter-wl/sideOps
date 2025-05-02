@@ -1,0 +1,44 @@
+site_name: Wakkalabs Docs
+site_description: Documentation for Kubernetes, GitOps, and Infrastructure
+site_author: Austin Carter
+site_url: https://docs.wakkalabs.com
+
+nav:
+- Home: index.md
+- Architecture:
+  - Kubernetes Cluster: architecture/k8s-cluster.md
+- Guides:
+  - Set Up EKS: guides/setup-eks.md
+  - Deploy with Helm: guides/deploy-helm.md
+- Reference:
+  - Custom Resources: reference/crd-example.md
+  - Helm Values Schema: reference/values-schema.md
+
+theme:
+  name: material
+  features:
+  - navigation.tabs
+  - navigation.top
+  - content.code.copy
+  - search.suggest
+  - search.highlight
+
+plugins:
+- search
+- awesome-pages
+- markdownextradata
+- macros
+- git-revision-date-localized:
+    fallback_to_build_date: true
+
+markdown_extensions:
+- admonition
+- codehilite
+- toc:
+    permalink: true
+- pymdownx.superfences
+- pymdownx.details
+- pymdownx.inlinehilite
+- pymdownx.emoji
+- pymdownx.tasklist
+- pymdownx.tabbed
