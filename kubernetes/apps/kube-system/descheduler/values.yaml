@@ -2,6 +2,7 @@ resources:
   requests:
     cpu: 10m
     memory: 20Mi
+
 deschedulerPolicy:
   profiles:
     - name: default
@@ -10,7 +11,6 @@ deschedulerPolicy:
           args:
             ignorePvcPods: true
             evictLocalStoragePods: true
-        - name: RemoveDuplicates
         - name: RemovePodsHavingTooManyRestarts
           args:
             podRestartThreshold: 100
@@ -19,9 +19,6 @@ deschedulerPolicy:
           args:
             nodeAffinityType:
               - requiredDuringSchedulingIgnoredDuringExecution
-        - name: RemovePodsViolatingNodeTaints
-        - name: RemovePodsViolatingInterPodAntiAffinity
-        - name: RemovePodsViolatingTopologySpreadConstraint
         - name: LowNodeUtilization
           args:
             thresholds:
@@ -35,12 +32,12 @@ deschedulerPolicy:
       plugins:
         balance:
           enabled:
-            - RemoveDuplicates
-            - RemovePodsViolatingTopologySpreadConstraint
             - LowNodeUtilization
         deschedule:
           enabled:
             - RemovePodsHavingTooManyRestarts
-            - RemovePodsViolatingNodeTaints
             - RemovePodsViolatingNodeAffinity
+            - RemovePodsViolatingNodeTaints
             - RemovePodsViolatingInterPodAntiAffinity
+            - RemovePodsViolatingTopologySpreadConstraint
+            - RemoveDuplicates
