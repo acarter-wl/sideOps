@@ -203,7 +203,7 @@ ingress:
           - ceph.wakkalabs.com
         secretName: ceph-dashboard-tls
 
-cephBlockPools:
+ccephBlockPools:
   - name: ceph-blockpool
     spec:
       failureDomain: host
@@ -232,7 +232,7 @@ cephBlockPools:
         csi.storage.k8s.io/fstype: xfs
 
 cephFileSystems:
-  - name: ceph-block
+  - name: cephfs
     spec:
       metadataPool:
         replicated:
@@ -254,8 +254,8 @@ cephFileSystems:
         priorityClassName: system-cluster-critical
     storageClass:
       enabled: true
-      isDefault: true
-      name: ceph-block
+      isDefault: false
+      name: cephfs
       pool: data0
       reclaimPolicy: Delete
       allowVolumeExpansion: true
