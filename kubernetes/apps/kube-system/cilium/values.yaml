@@ -20,7 +20,7 @@ envoy:
 dashboards:
   enabled: true
 hubble:
-  enabled: false
+  enabled: true
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
@@ -41,6 +41,17 @@ operator:
     enabled: true
     serviceMonitor:
       enabled: true
+    # scrape interval
+    interval: "10s"
+    # -- Relabeling configs for the ServiceMonitor hubble
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_pod_node_name
+      targetLabel: node
+      replacement: ${1}
+    trustCRDsExist: true
+
   replicas: 1
   rollOutPods: true
 prometheus:
@@ -53,22 +64,22 @@ routingMode: native
 securityContext:
   capabilities:
     ciliumAgent:
-      - CHOWN
-      - KILL
-      - NET_ADMIN
-      - NET_RAW
-      - IPC_LOCK
-      - SYS_ADMIN
-      - SYS_RESOURCE
-      - PERFMON
-      - BPF
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETGID
-      - SETUID
+    - CHOWN
+    - KILL
+    - NET_ADMIN
+    - NET_RAW
+    - IPC_LOCK
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - PERFMON
+    - BPF
+    - DAC_OVERRIDE
+    - FOWNER
+    - SETGID
+    - SETUID
     cleanCiliumState:
-      - NET_ADMIN
-      - SYS_ADMIN
-      - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_ADMIN
+    - SYS_RESOURCE
 socketLB:
   hostNamespaceOnly: true
