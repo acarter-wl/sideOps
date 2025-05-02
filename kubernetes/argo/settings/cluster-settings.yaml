@@ -8,11 +8,47 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   destinations:
-    - name: "*"
-      namespace: "*"
-      server: "*"
+  - name: "*"
+    namespace: "*"
+    server: "*"
   sourceRepos:
-    - "*"
+  - "*"
   clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+  - group: "*"
+    kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  destinations:
+  - name: "*"
+    namespace: "*"
+    server: "*"
+  sourceRepos:
+  - "*"
+  clusterResourceWhitelist:
+  - group: "*"
+    kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: media
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  destinations:
+  - name: "*"
+    namespace: "*"
+    server: "*"
+  sourceRepos:
+  - "*"
+  clusterResourceWhitelist:
+  - group: "*"
+    kind: "*"
