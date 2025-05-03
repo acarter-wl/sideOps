@@ -164,7 +164,7 @@ sidecarResources: {}
 networkHost: "0.0.0.0"
 
 rbac:
-  create: false
+  create: true
   serviceAccountAnnotations: {}
   serviceAccountName: ""
 
@@ -207,9 +207,7 @@ persistence:
   #   GKE, AWS & OpenStack)
   #
   # storageClass: "-"
-  accessModes:
-    - ReadWriteOnce
-  size: 25Gi
+
   annotations: {}
 
 extraVolumes: []
