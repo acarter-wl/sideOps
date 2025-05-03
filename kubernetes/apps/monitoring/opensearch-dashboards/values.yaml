@@ -1,0 +1,130 @@
+opensearchHosts: "https://opensearch-cluster-master:9200"
+
+# For homelab usage, we set basic resources
+resources:
+  requests:
+    cpu: "0.3"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+# Configure network settings
+service:
+  type: ClusterIP
+  port: 5601
+
+# Configure dashboard security to work with the OpenSearch security settings
+opensearchAccount:
+  secret: opensearch-cluster-master-credentials
+
+# Basic environment variables
+extraEnvs:
+  - name: "OPENSEARCH_HOSTS"
+    value: "https://opensearch-cluster-master:9200"
+  - name: "SERVER_BASEPATH"
+    value: ""
+  - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
+    value: "none"
+
+# For ingress configuration - fixed format for the chart
+ingress:
+  enabled: true
+  className: "internal"
+  hosts:
+    - host: dashboards.wakkalabs.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: opensearch-dashboards
+              port:
+                number: 5601
+
+# Configure server settings
+config:
+  opensearch_dashboards.yml: |
+    server.name: opensearch-dashboards
+    server.host: "0.0.0.0"
+    opensearch.ssl.verificationMode: none
+    opensearch.requestHeadersAllowlist: ["Authorization", "securitytenant"]
+    server.ssl.enabled: false
+    # Reading credentials from environment variables
+    opensearch.username: "${OPENSEARCH_DASHBOARDS_USERNAME}"
+    opensearch.password: "${OPENSEARCH_DASHBOARDS_PASSWORD}"
+
+    # Add CORS settings if needed
+    server.cors.enabled: true
+    server.cors.allow_origin: '*'
+
+    # Improve security
+    opensearch.ignoreVersionMismatch: true
+    telemetry.optIn: false
+    telemetry.enabled: false
+
+# Add custom dashboards to have pre-configured upon deployment
+dashboardImport:
+  enabled: false
+  # We'll enable this after getting the basic setup working
+  # timeout: 60
+  # dashboards:
+  #   - title: "Kubernetes Logs Overview"
+  #     file: "/dashboards/kubernetes-logs.ndjson"
+
+  # Set replicaCount to 1 for homelab environments
+replicaCount: 1
+
+# Configure persistent storage to save dashboard configurations
+persistence:
+  enabled: true
+  storageClass: "ceph-block"
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+
+# Security context for better pod security
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Set up env vars from the secret
+extraEnvVars:
+  - name: "OPENSEARCH_DASHBOARDS_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: username
+  - name: "OPENSEARCH_DASHBOARDS_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: password
+
+# Use default probes
+# readinessProbe: {}
+# livenessProbe: {}
+
+# Service account settings
+serviceAccount:
+  create: true
+  annotations: {}
+
+# Enable Prometheus metrics
+serviceMonitor:
+  enabled: true
+  labels:
+    release: kube-prometheus-stack
+  interval: 1m
+  scrapeTimeout: 30s
+
+# Pod annotations for better integration
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "5601"

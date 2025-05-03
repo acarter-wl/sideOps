@@ -19,40 +19,34 @@ crds:
 # ================================
 # ETCD Scraping for Talos
 # ======================
-kubeControllerManager:
-  endpoints:
-    - 192.168.101.120
-    - 192.168.101.121
-    - 192.168.101.122
-
 kubeEtcd:
+  enabled: true
   endpoints:
     - 192.168.101.120
     - 192.168.101.121
     - 192.168.101.122
-  service:
-    selector:
-      component: etcd
   serviceMonitor:
     scheme: https
     insecureSkipVerify: false
-    serverName: "localhost"
-    caFile: "/etc/prometheus/secrets/etcd-client-cert/etcd-ca.crt"
-    certFile: "/etc/prometheus/secrets/etcd-client-cert/etcd-client.crt"
-    keyFile: "/etc/prometheus/secrets/etcd-client-cert/etcd-client-key.key"
+    serverName: localhost
+    caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
+    certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
+    keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
     # Add RBAC to ensure etcd scraping works properly
+    relabelings:
+      - sourceLabels: [ __meta_kubernetes_pod_node_name ]
+        targetLabel: node
+        action: replace
 
-kubeScheduler:
-  endpoints:
-    - 192.168.101.120
-    - 192.168.101.121
-    - 192.168.101.122
 prometheus:
   enabled: true
-  scrapeInterval: 15s
-  evaluationInterval: 15s
+  scrapeInterval: 30s
+  evaluationInterval: 30s
   # Properly scale with pod resources and add PodDisruptionBudget
-  replicas: 1 # For high availability
+  replicas: 2 # For high availability
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
   resources:
     requests:
       memory: 2Gi
@@ -62,7 +56,7 @@ prometheus:
       cpu: 2000m
   prometheusSpec:
     secrets:
-      - etcd-client-cert
+      - etcd-certs
     # Improve retention settings
     retention: 15d
     retentionSize: 90GB
@@ -94,8 +88,14 @@ prometheus:
     ingressClassName: internal
     annotations:
       kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
       # Add security headers
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Frame-Options: SAMEORIGIN";
+        more_set_headers "X-Content-Type-Options: nosniff";
+        more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
       - prometheus.wakkalabs.com
     path: /
@@ -191,7 +191,12 @@ alertmanager:
       kubernetes.io/ingress.class: internal
       internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
       # Add security headers
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Frame-Options: SAMEORIGIN";
+        more_set_headers "X-Content-Type-Options: nosniff";
+        more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
       - alertmanager.wakkalabs.com
     path: /
@@ -256,11 +261,11 @@ grafana:
     fsGroup: 472
   # Configure SMTP for Grafana alerts
   smtp:
-    enabled: true # Change to true and configure when ready
-    host: "smtp.mailgun.org"
-    user: "grafana@mg.wakkalabs.com"
-    password: "5bca64409f461e689e5e87da319936a2-67bd41c2-db34bd0b" # Use existingSecret instead in production
-    from_address: "alerts@wakkalabs.com"
+    enabled: false # Change to true and configure when ready
+    host: "smtp.example.com:587"
+    user: "alerts@example.com"
+    password: "password" # Use existingSecret instead in production
+    from_address: "alerts@example.com"
     from_name: "Grafana Alerts"
   # Enable metrics
   serviceMonitor:
@@ -292,7 +297,12 @@ grafana:
       kubernetes.io/ingress.class: internal
       internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
-
+      secret.reloader.stakater.com/reload: gateway-monitor
+      # Add security headers
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Frame-Options: SAMEORIGIN";
+        more_set_headers "X-Content-Type-Options: nosniff";
+        more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
       - grafana.wakkalabs.com
     path: /
@@ -438,6 +448,11 @@ tempo:
       kubernetes.io/ingress.class: internal
       internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
+      secret.reloader.stakater.com/reload: gateway-monitor
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Frame-Options: SAMEORIGIN";
+        more_set_headers "X-Content-Type-Options: nosniff";
+        more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
       - tempo.wakkalabs.com
     path: /
@@ -448,6 +463,8 @@ tempo:
           - tempo.wakkalabs.com
   tempoQuery:
     enabled: true
+    service:
+      port: 16686
   # Storage configuration for Tempo
   storage:
     trace:
