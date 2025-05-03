@@ -111,16 +111,20 @@ service:
 
 ingress:
   enabled: true
+  annotations:
+    kubernetes.io/ingress.class: internal
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
     - host: opensearch.wakkalabs.com
       paths:
         - path: /
-          pathType: Prefix
           backend:
-            service:
-              name: opensearch-cluster-master
-              port:
-                number: 9200
+            serviceName: opensearch-cluster-master # Note: serviceName, not service.name
+            servicePort: 9200 # Note: servicePort, not port.number
+  tls:
+    - secretName: tls-for-opensearch-key-pair # You should add TLS configuration
+      hosts:
+        - opensearch.wakkalabs.com
 
 podSecurityContext:
   fsGroup: 1000
