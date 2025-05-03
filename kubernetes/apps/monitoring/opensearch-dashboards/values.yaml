@@ -40,13 +40,18 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: internal
-    cert-manager.io/cluster-issuer: "letsencrypt-production" # Your issuer name
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS" # If using HTTPS backend
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
     - host: dashboards.wakkalabs.com
       paths:
         - path: /
           pathType: Prefix
+          backend:
+            service:
+              name: opensearch-dashboards
+              port:
+                number: 5601
   tls:
     - secretName: opensearch-dashboards-tls
       hosts:
