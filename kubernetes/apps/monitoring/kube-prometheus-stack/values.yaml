@@ -11,7 +11,7 @@ crds:
   enabled: true
   # Enable upgrade job for better CRD management during upgrades
   upgradeJob:
-    enabled: false
+    enabled: true
 
 # ================================
 # ETCD Scraping for Talos
@@ -63,9 +63,6 @@ prometheus:
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
-      labelSelector:
-        matchLabels:
-          app: kube-prometheus-stack
     securityContext:
       fsGroup: 2000
       runAsNonRoot: true
