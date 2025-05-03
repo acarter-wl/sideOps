@@ -1,39 +1,39 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: opensearch-dashboards
-  namespace: argo-system
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-spec:
-  project: infrastructure
-  sources:
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/opensearch-dashboards
-      targetRevision: main
-      ref: repo
-    - repoURL: https://opensearch-project.github.io/helm-charts
-      chart: opensearch-dashboards
-      targetRevision: 2.29.0
-      helm:
-        releaseName: opensearch-dashboards
-        valueFiles:
-          - $repo/kubernetes/apps/monitoring/opensearch-dashboards/values.yaml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-  # Add health check to ensure OpenSearch is ready before trying to connect Dashboards
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      name: opensearch-dashboards
-      jsonPointers:
-        - /spec/template/spec/containers/0/resources
-  revisionHistoryLimit: 3
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: opensearch-dashboards
+#   namespace: argo-system
+#   annotations:
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+# spec:
+#   project: infrastructure
+#   sources:
+#     - repoURL: "https://github.com/acarter-wl/sideops.git"
+#       path: kubernetes/apps/monitoring/opensearch-dashboards
+#       targetRevision: main
+#       ref: repo
+#     - repoURL: https://opensearch-project.github.io/helm-charts
+#       chart: opensearch-dashboards
+#       targetRevision: 2.29.0
+#       helm:
+#         releaseName: opensearch-dashboards
+#         valueFiles:
+#           - $repo/kubernetes/apps/monitoring/opensearch-dashboards/values.yaml
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: monitoring
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
+#   # Add health check to ensure OpenSearch is ready before trying to connect Dashboards
+#   ignoreDifferences:
+#     - group: apps
+#       kind: Deployment
+#       name: opensearch-dashboards
+#       jsonPointers:
+#         - /spec/template/spec/containers/0/resources
+#   revisionHistoryLimit: 3
