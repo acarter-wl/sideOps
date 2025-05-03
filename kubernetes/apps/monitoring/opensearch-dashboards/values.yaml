@@ -34,11 +34,6 @@ extraEnvs:
       secretKeyRef:
         name: opensearch-cluster-master-credentials
         key: password
-  - name: OPENSEARCH_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: opensearch-cluster-master-credentials
-        key: password
 
 # For ingress configuration - fixed format for the chart
 ingress:
