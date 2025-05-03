@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argo-system
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki-stack
+      targetRevision: 2.9.11
+      helm:
+        releaseName: loki
+        valueFiles: []
+        parameters:
+          - name: grafana.enabled
+            value: "false"
+          - name: prometheus.enabled
+            value: "false"
+          - name: prometheus.alertmanager.persistentVolume.enabled
+            value: "false"
+          - name: prometheus.server.persistentVolume.enabled
+            value: "false"
+          - name: loki.persistence.enabled
+            value: "true"
+          - name: loki.persistence.storageClassName
+            value: "ceph-block"
+          - name: loki.persistence.size
+            value: "50Gi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
