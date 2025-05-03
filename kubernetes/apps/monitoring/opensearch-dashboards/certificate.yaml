@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-dashboards-tls
+  namespace: monitoring
+spec:
+  secretName: opensearch-dashboards-tls
+  issuerRef:
+    name: letsencrypt-production # Replace with your issuer name
+    kind: ClusterIssuer
+  commonName: opensearch-dashboards.monitoring.svc.cluster.local
+  dnsNames:
+    - opensearch-dashboards.monitoring.svc.cluster.local
+    - opensearch-dashboards
+    - dashboards.wakkalabs.com # Your external domain if

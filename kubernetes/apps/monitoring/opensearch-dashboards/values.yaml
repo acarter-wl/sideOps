@@ -38,26 +38,43 @@ extraEnvs:
 # For ingress configuration - fixed format for the chart
 ingress:
   enabled: true
-  className: "internal"
+  annotations:
+    kubernetes.io/ingress.class: internal
+    cert-manager.io/cluster-issuer: "letsencrypt-production" # Your issuer name
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS" # If using HTTPS backend
   hosts:
     - host: dashboards.wakkalabs.com
       paths:
         - path: /
           pathType: Prefix
-          backend:
-            service:
-              name: opensearch-dashboards
-              port:
-                number: 5601
+  tls:
+    - secretName: opensearch-dashboards-tls
+      hosts:
+        - dashboards.wakkalabs.com
 
 config:
   opensearch_dashboards.yml: |
     server.host: "0.0.0.0"
     opensearch.hosts: ["https://opensearch-cluster-master:9200"]
     opensearch.username: "admin"
-    opensearch.password: "admin"
+    opensearch.password: "${OPENSEARCH_PASSWORD}"
+    opensearch.ssl.verificationMode: certificate
     opensearch.ignoreVersionMismatch: true
+    telemetry.optIn: false
+    telemetry.enabled: false
+    # If you want HTTPS for the dashboard itself
+    server.ssl.enabled: true
+    server.ssl.certificate: "/usr/share/opensearch-dashboards/config/certs/tls.crt"
+    server.ssl.key: "/usr/share/opensearch-dashboards/config/certs/tls.key"
 
+extraVolumes:
+  - name: dashboards-certs
+    secret:
+      secretName: opensearch-dashboards-tls
+extraVolumeMounts:
+  - name: dashboards-certs
+    mountPath: /usr/share/opensearch-dashboards/config/certs
+    readOnly: true
 # Add custom dashboards to have pre-configured upon deployment
 dashboardImport:
   enabled: false
@@ -76,7 +93,7 @@ persistence:
   storageClass: "ceph-block"
   accessModes:
     - ReadWriteOnce
-  size: 2Gi
+  size: 20Gi
 
 # Security context for better pod security
 podSecurityContext:
