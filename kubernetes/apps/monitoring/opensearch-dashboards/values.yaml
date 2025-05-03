@@ -43,14 +43,18 @@ ingress:
 # Configure server settings
 config:
   opensearch_dashboards.yml: |
-    server.name: opensearch-dashboards
     server.host: "0.0.0.0"
-    opensearch.ssl.verificationMode: none
-    opensearch.requestHeadersAllowlist: ["Authorization", "securitytenant"]
-    server.ssl.enabled: false
-    # Reading credentials from environment variables
-    opensearch.username: "${OPENSEARCH_DASHBOARDS_USERNAME}"
-    opensearch.password: "${OPENSEARCH_DASHBOARDS_PASSWORD}"
+    opensearch.hosts: ["https://opensearch-cluster-master:9200"]
+    opensearch.username: "admin"  # Use a static value instead of env var
+    opensearch.password: "${OPENSEARCH_PASSWORD}"  # Keep this as env var for security
+    # server.name: opensearch-dashboards
+    # server.host: "0.0.0.0"
+    # opensearch.ssl.verificationMode: none
+    # opensearch.requestHeadersAllowlist: ["Authorization", "securitytenant"]
+    # server.ssl.enabled: false
+    # # Reading credentials from environment variables
+    # opensearch.username: "${OPENSEARCH_DASHBOARDS_USERNAME}"
+    # opensearch.password: "${OPENSEARCH_DASHBOARDS_PASSWORD}"
 
     # Add CORS settings if needed
     server.cors.enabled: true
