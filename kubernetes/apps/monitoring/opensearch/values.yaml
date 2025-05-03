@@ -198,7 +198,7 @@ persistence:
   labels:
     # Add default labels for the volumeClaimTemplate of the StatefulSet
     enabled: false
-  storageClassName: "ceph-block"
+
   # OpenSearch Persistent Volume Storage Class
   # If defined, storageClassName: <storageClass>
   # If set to "-", storageClassName: "", which disables dynamic provisioning
