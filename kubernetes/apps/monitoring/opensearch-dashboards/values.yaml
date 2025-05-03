@@ -56,7 +56,7 @@ config:
     opensearch.hosts: ["https://opensearch-cluster-master:9200"]
     opensearch.username: "admin"
     opensearch.password: "${OPENSEARCH_PASSWORD}"
-    server.cors: "true"
+    server.cors: 1
     server.cors.origin: ["*"]
     opensearch.ignoreVersionMismatch: true
     telemetry.optIn: false
