@@ -350,6 +350,7 @@ grafana:
         matcherRegex: "traceID=(\\w+)"
         name: TraceID
         url: "$${__value.raw}"
+
   # Add pre-configured dashboards for Loki and additional monitoring
   dashboardProviders:
     dashboardproviders.yaml:
