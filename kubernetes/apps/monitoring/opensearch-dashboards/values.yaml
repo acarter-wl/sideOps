@@ -58,7 +58,6 @@ config:
     opensearch.password: "admin"
     opensearch.ignoreVersionMismatch: true
 
-
 # Add custom dashboards to have pre-configured upon deployment
 dashboardImport:
   enabled: false
@@ -90,36 +89,6 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Set up env vars from the secret
-extraEnvs:
-  - name: "SERVER_BASEPATH"
-    value: ""
-  - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
-    value: "none"
-  - name: "OPENSEARCH_DASHBOARDS_USERNAME"
-    valueFrom:
-      secretKeyRef:
-        name: opensearch-cluster-master-credentials
-        key: username
-  - name: "OPENSEARCH_DASHBOARDS_PASSWORD"
-    valueFrom:
-      secretKeyRef:
-        name: opensearch-cluster-master-credentials
-        key: password
-# - name: OPENSEARCH_COOKIE_SECURE
-#   value: "true"
-# - name: OPENSEARCH_COOKIE_PASSWORD
-#   valueFrom:
-#     secretKeyRef:
-#       name: opensearch-dashboards-cookie
-#       key: cookie
-# Use default probes
-# readinessProbe: {}
-# livenessProbe: {}
-#COOKIE_KEY=$(openssl rand -hex 32)
-
-# Patch the existing secret
-#kubectl patch secret opensearch-cluster-master-credentials -n monitoring --type=json -p='[{"op": "add", "path": "/data/cookie", "value": "'$(echo -n "$COOKIE_KEY" | base64 -w 0)'"}]'
 # Service account settings
 serviceAccount:
   create: true
