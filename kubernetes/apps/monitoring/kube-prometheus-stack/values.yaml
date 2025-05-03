@@ -22,9 +22,9 @@ crds:
 kubeEtcd:
   enabled: true
   endpoints:
-    - 192.168.101.120
-    - 192.168.101.121
-    - 192.168.101.122
+  - 192.168.101.120
+  - 192.168.101.121
+  - 192.168.101.122
   serviceMonitor:
     scheme: https
     insecureSkipVerify: false
@@ -34,9 +34,9 @@ kubeEtcd:
     keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
     # Add RBAC to ensure etcd scraping works properly
     relabelings:
-      - sourceLabels: [ __meta_kubernetes_pod_node_name ]
-        targetLabel: node
-        action: replace
+    - sourceLabels: [ __meta_kubernetes_pod_node_name ]
+      targetLabel: node
+      action: replace
 
 prometheus:
   enabled: true
@@ -56,7 +56,7 @@ prometheus:
       cpu: 2000m
   prometheusSpec:
     secrets:
-      - etcd-certs
+    - etcd-client-certs
     # Improve retention settings
     retention: 15d
     retentionSize: 90GB
@@ -65,12 +65,12 @@ prometheus:
       matchLabels:
         release: kube-prometheus-stack
     topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: kube-prometheus-stack
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: kube-prometheus-stack
     securityContext:
       fsGroup: 2000
       runAsNonRoot: true
@@ -97,13 +97,13 @@ prometheus:
         more_set_headers "X-Content-Type-Options: nosniff";
         more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
-      - prometheus.wakkalabs.com
+    - prometheus.wakkalabs.com
     path: /
     pathType: Prefix
     tls:
-      - secretName: prometheus-wakkalabs-tls
-        hosts:
-          - prometheus.wakkalabs.com
+    - secretName: prometheus-wakkalabs-tls
+      hosts:
+      - prometheus.wakkalabs.com
 
 # ================================
 # Alertmanager Configuration
@@ -116,7 +116,7 @@ alertmanager:
   service:
     ipFamilyPolicy: SingleStack
     ipFamilies:
-      - IPv4
+    - IPv4
   # Configure Alertmanager to reduce alert noise
   config:
     global:
@@ -130,45 +130,45 @@ alertmanager:
       repeat_interval: 12h
       receiver: 'null'
       routes:
-        - match:
-            alertname: Watchdog
-          receiver: 'null'
-        # Add inhibition rules to reduce alert noise
-        - match:
-            severity: critical
-          receiver: 'discord-critical'
-          continue: true
-        - match:
-            severity: warning
-          receiver: 'discord-warnings'
-          # Only send warnings if they persist for 10 minutes
-          group_wait: 10m
-          # Throttle warnings more aggressively
-          repeat_interval: 24h
+      - match:
+          alertname: Watchdog
+        receiver: 'null'
+      # Add inhibition rules to reduce alert noise
+      - match:
+          severity: critical
+        receiver: 'discord-critical'
+        continue: true
+      - match:
+          severity: warning
+        receiver: 'discord-warnings'
+        # Only send warnings if they persist for 10 minutes
+        group_wait: 10m
+        # Throttle warnings more aggressively
+        repeat_interval: 24h
     # Add inhibition rules
     inhibit_rules:
-      # If a critical alert exists, don't send related warnings
-      - source_match:
-          severity: 'critical'
-        target_match:
-          severity: 'warning'
-        # Alerts must share these labels to be considered related
-        equal: [ 'alertname', 'namespace', 'instance' ]
+    # If a critical alert exists, don't send related warnings
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      # Alerts must share these labels to be considered related
+      equal: [ 'alertname', 'namespace', 'instance' ]
     receivers:
-      - name: 'discord-critical'
-        webhook_configs:
-          - url: >-
-              https://discord.com/api/webhooks/1355431526891786240/5KSnlY0KPdx7dRsSL0yJDaZYNzVktheQz1PXNoX9-eCIlZP2MFZcM67PtFRTRa4ZwJ_a
-            send_resolved: true
-      - name: 'discord-warnings'
-        webhook_configs:
-          - url: >-
-              https://discord.com/api/webhooks/1355379117692027012/y6Sxl2G-D4hqr8TQVL8rT1HRb1n_h2e8x7nQoNbSDZz_8cGYII2ZVeziLxujkFjkm89X
-            send_resolved: true
-      # Add a null receiver for silenced alerts
-      - name: 'null'
+    - name: 'discord-critical'
+      webhook_configs:
+      - url: >-
+          https://discord.com/api/webhooks/1355431526891786240/5KSnlY0KPdx7dRsSL0yJDaZYNzVktheQz1PXNoX9-eCIlZP2MFZcM67PtFRTRa4ZwJ_a
+        send_resolved: true
+    - name: 'discord-warnings'
+      webhook_configs:
+      - url: >-
+          https://discord.com/api/webhooks/1355379117692027012/y6Sxl2G-D4hqr8TQVL8rT1HRb1n_h2e8x7nQoNbSDZz_8cGYII2ZVeziLxujkFjkm89X
+        send_resolved: true
+    # Add a null receiver for silenced alerts
+    - name: 'null'
     templates:
-      - '/etc/alertmanager/config/*.tmpl'
+    - '/etc/alertmanager/config/*.tmpl'
   templateFiles:
     discord_default.tmpl: |-
       {{ define "discord.default.message" }}
@@ -198,13 +198,13 @@ alertmanager:
         more_set_headers "X-Content-Type-Options: nosniff";
         more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
-      - alertmanager.wakkalabs.com
+    - alertmanager.wakkalabs.com
     path: /
     pathType: Prefix
     tls:
-      - secretName: alertmanager-wakkalabs-tls
-        hosts:
-          - alertmanager.wakkalabs.com
+    - secretName: alertmanager-wakkalabs-tls
+      hosts:
+      - alertmanager.wakkalabs.com
 
 defaultRules:
   create: true
@@ -234,13 +234,13 @@ kubeControllerManager:
   service:
     ipFamilyPolicy: SingleStack
     ipFamilies:
-      - IPv4
+    - IPv4
 
 kubeScheduler:
   service:
     ipFamilyPolicy: SingleStack
     ipFamilies:
-      - IPv4
+    - IPv4
 
 # ================================
 # Grafana Configuration
@@ -287,7 +287,7 @@ grafana:
     enabled: true
     type: pvc
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
     size: 100Gi
     storageClassName: ceph-block
   ingress:
@@ -304,74 +304,73 @@ grafana:
         more_set_headers "X-Content-Type-Options: nosniff";
         more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
-      - grafana.wakkalabs.com
+    - grafana.wakkalabs.com
     path: /
     pathType: Prefix
     tls:
-      - secretName: grafana-wakkalabs-tls
-        hosts:
-          - grafana.wakkalabs.com
+    - secretName: grafana-wakkalabs-tls
+      hosts:
+      - grafana.wakkalabs.com
 
   additionalDataSources:
-    - name: Tempo
-      type: tempo
-      uid: tempo
-      access: proxy
-      url: http://tempo.monitoring.svc.cluster.local:3100
-      jsonData:
-        httpMethod: GET
-        lokiSearch:
-          datasourceUid: loki
-        tracesToLogs:
-          datasourceUid: loki
-          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
-          mappedTags: [ { key: 'service.name', value: 'service' } ]
-          mapTagNamesEnabled: true
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-          filterByTraceID: true
-          filterBySpanID: true
-        serviceMap:
-          datasourceUid: prometheus
-        nodeGraph:
-          enabled: true
-        search:
-          hide: false
-    # Add Loki for log aggregation
-    - name: Loki
-      type: loki
-      uid: loki
-      access: proxy
-      url: http://loki-gateway.monitoring.svc.cluster.local
-      jsonData:
-        maxLines: 1000
-        derivedFields:
-          - datasourceUid: tempo
-            matcherRegex: "traceID=(\\w+)"
-            name: TraceID
-            url: "$${__value.raw}"
-
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo.monitoring.svc.cluster.local:3100
+    jsonData:
+      httpMethod: GET
+      lokiSearch:
+        datasourceUid: loki
+      tracesToLogs:
+        datasourceUid: loki
+        tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+        mappedTags: [ { key: 'service.name', value: 'service' } ]
+        mapTagNamesEnabled: true
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: true
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+  # Add Loki for log aggregation
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki-gateway.monitoring.svc.cluster.local
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+      - datasourceUid: tempo
+        matcherRegex: "traceID=(\\w+)"
+        name: TraceID
+        url: "$${__value.raw}"
   # Add pre-configured dashboards for Loki and additional monitoring
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
-        - name: 'default'
-          orgId: 1
-          folder: ''
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
-        - name: 'kubernetes'
-          orgId: 1
-          folder: 'Kubernetes'
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/kubernetes
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+      - name: 'kubernetes'
+        orgId: 1
+        folder: 'Kubernetes'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/kubernetes
 
   # Define dashboards
   dashboards:
@@ -399,18 +398,18 @@ grafana:
         gnetId: 14850
         revision: 1
         datasource:
-          - name: prometheus
-            value: Prometheus
-          - name: tempo
-            value: Tempo
+        - name: prometheus
+          value: Prometheus
+        - name: tempo
+          value: Tempo
       application-trace-analysis:
         gnetId: 17836
         revision: 1
         datasource:
-          - name: DS_PROMETHEUS
-            value: Prometheus
-          - name: DS_TEMPO
-            value: Tempo
+        - name: DS_PROMETHEUS
+          value: Prometheus
+        - name: DS_TEMPO
+          value: Tempo
 
 # Add additional exporters
 nodeExporter:
@@ -454,13 +453,13 @@ tempo:
         more_set_headers "X-Content-Type-Options: nosniff";
         more_set_headers "X-XSS-Protection: 1; mode=block";
     hosts:
-      - tempo.wakkalabs.com
+    - tempo.wakkalabs.com
     path: /
     pathType: Prefix
     tls:
-      - secretName: tempo-wakkalabs-tls
-        hosts:
-          - tempo.wakkalabs.com
+    - secretName: tempo-wakkalabs-tls
+      hosts:
+      - tempo.wakkalabs.com
   tempoQuery:
     enabled: true
     service:
@@ -479,7 +478,7 @@ tempo:
     size: 50Gi
     storageClassName: ceph-block # Using the same storage class as other components
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       cpu: 200m
