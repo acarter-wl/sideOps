@@ -1,10 +1,7 @@
 clusterName: "opensearch-cluster"
 nodeGroup: "master"
-
-# For a homelab environment, a single replica is often sufficient
 replicas: 1
 
-# Set resources based on your available capacity - adjust as needed
 resources:
   requests:
     cpu: "1"
@@ -13,50 +10,23 @@ resources:
     cpu: "2"
     memory: "2Gi"
 
-# Configure persistence
 persistence:
   enabled: true
-  # Use your default storage class or specify one
   storageClass: "ceph-block"
   accessModes:
     - ReadWriteOnce
   size: 30Gi
 
-# Set Java heap size - adjust based on your available memory
 opensearchJavaOpts: "-Xmx1g -Xms1g"
-
-# Important for single-node deployments
 singleNode: true
 
-# Security configuration - reference external secrets
-securityConfig:
-  enabled: true
-  actionGroupsSecret: ""
-  configSecret: ""
-  internalUsersSecret: ""
-  rolesSecret: ""
-  rolesMappingSecret: ""
-  tenantConfigSecret: ""
-  adminCredentials:
-    # Reference the existing external secret instead of creating one
-    username: admin
-    password: admin
-    createSecret: false
-    secret:
-      name: "opensearch-cluster-master-credentials"
-
-# Network settings
-networkHost: "0.0.0.0"
-
-# For homelab environments, enable security but disable demo config
+# Enable security with proper certificates
 extraEnvs:
   - name: "DISABLE_INSTALL_DEMO_CONFIG"
     value: "true"
   - name: "bootstrap.memory_lock"
     value: "true"
-# Allow the security plugin to run (remove DISABLE_SECURITY_PLUGIN env var)
 
-# Settings that take precedence over opensearch.yml
 config:
   opensearch.yml: |
     cluster.name: opensearch-cluster
@@ -82,11 +52,12 @@ config:
     plugins.security.nodes_dn:
       - "CN=opensearch-cluster-master,O=cluster,OU=opensearch"
 
-# Dashboard settings - set to false since we're deploying separate dashboards
-dashboards:
-  enabled: false
+    # Enable security features
+    plugins.security.audit.type: internal_opensearch
+    plugins.security.enable_snapshot_restore_privilege: true
+    plugins.security.check_snapshot_restore_write_privileges: true
+    plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
 
-# Mount volumes for certificates and credentials - FIXED DUPLICATE ISSUE
 extraVolumes:
   - name: node-certs
     secret:
@@ -109,10 +80,23 @@ extraVolumeMounts:
     mountPath: /usr/share/opensearch/config/opensearch-security/admin-creds
     readOnly: true
 
-# Add basic anti-affinity to improve reliability
+# Security configuration
+securityConfig:
+  enabled: true
+  adminCredentials:
+    username: admin
+    password: admin
+    createSecret: false
+    secret:
+      name: "opensearch-cluster-master-credentials"
+
+networkHost: "0.0.0.0"
+
+dashboards:
+  enabled: false
+
 antiAffinity: "soft"
 
-# Prometheus metrics support
 prometheus:
   enabled: true
   serviceMonitor:
@@ -120,43 +104,28 @@ prometheus:
     labels:
       release: kube-prometheus-stack
 
-# Configure service
 service:
   type: ClusterIP
   httpPort: 9200
   transportPort: 9300
 
-# Fix the ingress configuration - proper format for the chart
 ingress:
   enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: dashboards.your-domain.com
+    - host: opensearch.wakkalabs.com
       paths:
         - path: /
           pathType: Prefix
           backend:
             service:
-              name: opensearch-dashboards
+              name: opensearch-cluster-master
               port:
-                number: 5601
-  tls:
-    - secretName: opensearch-dashboards-tls
-      hosts:
-        - dashboards.your-domain.com
+                number: 9200
 
-# Add necessary environment variables for Kubernetes
-extraInitContainers: []
-extraContainers: []
-
-# Security context settings
 podSecurityContext:
   fsGroup: 1000
   runAsUser: 1000
 
-# Security context for container level
 securityContext:
   capabilities:
     drop:
@@ -164,7 +133,6 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Lifecycle hooks
 lifecycle:
   preStop:
     exec:
