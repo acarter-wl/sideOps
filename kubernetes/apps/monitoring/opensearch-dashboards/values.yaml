@@ -39,11 +39,11 @@ extraEnvs:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: internal
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
-    - host: dashboards.your-domain.com
+    - host: dashboards.wakkalabs.com
       paths:
         - path: /
           pathType: Prefix
@@ -53,9 +53,9 @@ ingress:
               port:
                 number: 5601
   tls:
-    - secretName: opensearch-dashboards-tls
+    - secretName: tls-for-dashboards-key-pair
       hosts:
-        - dashboards.your-domain.com
+        - dashboards.wakkalabs.com
 
 config:
   opensearch_dashboards.yml: |
@@ -76,7 +76,7 @@ config:
 extraVolumes:
   - name: certs
     secret:
-      secretName: opensearch-node-cert
+      secretName: tls-for-dashboards-key-pair
 
 extraVolumeMounts:
   - name: certs

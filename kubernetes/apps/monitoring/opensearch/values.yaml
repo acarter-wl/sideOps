@@ -61,7 +61,7 @@ config:
 extraVolumes:
   - name: node-certs
     secret:
-      secretName: opensearch-node-cert
+      secretName: tls-for-opensearch-key-pair
   - name: admin-certs
     secret:
       secretName: opensearch-admin-cert
