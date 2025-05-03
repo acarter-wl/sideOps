@@ -1,0 +1,38 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-node-cert
+  namespace: monitoring
+spec:
+  secretName: opensearch-node-cert
+  duration: 8760h # 1 year
+  renewBefore: 360h # 15 days
+  subject:
+    organizationalUnits:
+      - opensearch
+    organizations:
+      - cluster
+  commonName: opensearch-cluster-master
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
+  dnsNames:
+    - opensearch-cluster-master
+    - opensearch-cluster-master.monitoring
+    - opensearch-cluster-master.monitoring.svc
+    - opensearch-cluster-master.monitoring.svc.cluster.local
+    - localhost
+    - opensearch-cluster-master.wakkalabs.com
+  ipAddresses:
+    - 127.0.0.1
+  issuerRef:
+    name: letsencrypt-production # Use your existing ClusterIssuer
+    kind: ClusterIssuer
+    group: cert-manager.io

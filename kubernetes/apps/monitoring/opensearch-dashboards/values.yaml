@@ -39,23 +39,17 @@ extraEnvs:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: internal
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: dashboards.wakkalabs.com
+    - host: dashboards.your-domain.com
       paths:
         - path: /
           pathType: Prefix
-          backend:
-            service:
-              name: opensearch-dashboards
-              port:
-                number: 5601
   tls:
     - secretName: opensearch-dashboards-tls
       hosts:
-        - dashboards.wakkalabs.com
+        - dashboards.your-domain.com
 
 config:
   opensearch_dashboards.yml: |
@@ -64,13 +58,10 @@ config:
     opensearch.username: "admin"
     opensearch.password: "${OPENSEARCH_PASSWORD}"
     opensearch.ssl.verificationMode: certificate
+    server.ssl.enabled: false  # No HTTPS for internal traffic
     opensearch.ignoreVersionMismatch: true
     telemetry.optIn: false
     telemetry.enabled: false
-    # If you want HTTPS for the dashboard itself
-    server.ssl.enabled: true
-    server.ssl.certificate: "/usr/share/opensearch-dashboards/config/certs/tls.crt"
-    server.ssl.key: "/usr/share/opensearch-dashboards/config/certs/tls.key"
 
 extraVolumes:
   - name: dashboards-certs

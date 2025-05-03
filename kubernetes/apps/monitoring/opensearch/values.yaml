@@ -19,7 +19,7 @@ persistence:
   # Use your default storage class or specify one
   storageClass: "ceph-block"
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   size: 30Gi
 
 # Set Java heap size - adjust based on your available memory
@@ -48,23 +48,66 @@ securityConfig:
 # Network settings
 networkHost: "0.0.0.0"
 
-# For homelab environments, we can disable some production features
+# For homelab environments, enable security but disable demo config
 extraEnvs:
-- name: "DISABLE_INSTALL_DEMO_CONFIG"
-  value: "true"
-- name: "DISABLE_SECURITY_PLUGIN"
-  value: "true"
-- name: "bootstrap.memory_lock"
-  value: "true"
+  - name: "DISABLE_INSTALL_DEMO_CONFIG"
+    value: "true"
+  - name: "bootstrap.memory_lock"
+    value: "true"
+# Allow the security plugin to run (remove DISABLE_SECURITY_PLUGIN env var)
 
 # Settings that take precedence over opensearch.yml
 config:
   opensearch.yml: |
+    cluster.name: opensearch-cluster
     discovery.type: single-node
+    network.host: 0.0.0.0
+
+    # Transport layer security
+    plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/node-certs/tls.crt
+    plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/node-certs/tls.key
+    plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/node-certs/ca.crt
+    plugins.security.ssl.transport.enforce_hostname_verification: false
+
+    # HTTP layer security
+    plugins.security.ssl.http.enabled: true
+    plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/node-certs/tls.crt
+    plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/node-certs/tls.key
+    plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/node-certs/ca.crt
+
+    # Security settings
+    plugins.security.allow_default_init_securityindex: true
+    plugins.security.authcz.admin_dn:
+      - "CN=admin,O=admin,OU=opensearch"
+    plugins.security.nodes_dn:
+      - "CN=opensearch-cluster-master,O=cluster,OU=opensearch"
 
 # Dashboard settings - set to false since we're deploying separate dashboards
 dashboards:
   enabled: false
+
+# Mount volumes for certificates and credentials - FIXED DUPLICATE ISSUE
+extraVolumes:
+  - name: node-certs
+    secret:
+      secretName: opensearch-node-cert
+  - name: admin-certs
+    secret:
+      secretName: opensearch-admin-cert
+  - name: admin-credentials
+    secret:
+      secretName: opensearch-cluster-master-credentials
+
+extraVolumeMounts:
+  - name: node-certs
+    mountPath: /usr/share/opensearch/config/node-certs
+    readOnly: true
+  - name: admin-certs
+    mountPath: /usr/share/opensearch/config/admin-certs
+    readOnly: true
+  - name: admin-credentials
+    mountPath: /usr/share/opensearch/config/opensearch-security/admin-creds
+    readOnly: true
 
 # Add basic anti-affinity to improve reliability
 antiAffinity: "soft"
@@ -100,31 +143,16 @@ podSecurityContext:
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   runAsNonRoot: true
   runAsUser: 1000
-
-# # Use the default probes from the chart
-# readinessProbe: {}
-# livenessProbe: {}
 
 # Lifecycle hooks
 lifecycle:
   preStop:
     exec:
       command:
-      - bash
-      - -c
-      - >
-        set -e sleep 5
-
-# Mount the external secret as environment variables
-extraVolumes:
-- name: admin-credentials
-  secret:
-    secretName: opensearch-cluster-master-credentials
-
-extraVolumeMounts:
-- name: admin-credentials
-  mountPath: /usr/share/opensearch/config/opensearch-security/admin-creds
-  readOnly: true
+        - bash
+        - -c
+        - >
+          set -e sleep 5
