@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,27 +7,17 @@ metadata:
 spec:
   project: infrastructure
   sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/loki
+      targetRevision: main
+      ref: repo
     - repoURL: https://grafana.github.io/helm-charts
       chart: loki-stack
-      targetRevision: 2.9.11
+      targetRevision: 2.10.2
       helm:
         releaseName: loki
-        valueFiles: []
-        parameters:
-          - name: grafana.enabled
-            value: "false"
-          - name: prometheus.enabled
-            value: "false"
-          - name: prometheus.alertmanager.persistentVolume.enabled
-            value: "false"
-          - name: prometheus.server.persistentVolume.enabled
-            value: "false"
-          - name: loki.persistence.enabled
-            value: "true"
-          - name: loki.persistence.storageClassName
-            value: "ceph-block"
-          - name: loki.persistence.size
-            value: "50Gi"
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/loki/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
