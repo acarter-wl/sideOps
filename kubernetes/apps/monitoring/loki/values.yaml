@@ -24,7 +24,7 @@ promtail:
   enabled: true # Activates Promtail for log collection
   image:
     repository: grafana/promtail
-    tag: "2.10.2"
+    tag: "3.5.0"
   config:
     clients:
       - url: http://loki:3100/loki/api/v1/push # Sets the endpoint for Promtail to push logs to Loki. This is the Loki service URL within the Kubernetes cluster
