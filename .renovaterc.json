@@ -1,0 +1,32 @@
+{
+  // Enable Renovate for this repository
+  "extends": [
+    "config:base"
+  ],
+  // Use semantic commit messages for traceability
+  "semanticCommits": true,
+  // Group minor and patch updates for less noise
+  "packageRules": [
+    {
+      "updateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies"
+    }
+  ],
+  // Restrict updates to a safe schedule (UTC business hours)
+  "schedule": [
+    "after 6am and before 6pm on every weekday"
+  ],
+  // Enable automerge for patch updates only
+  "automerge": true,
+  "automergeType": "branch",
+  "automergeMinor": false,
+  // Exclude lock file maintenance if not needed
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 7am on the first day of the month"]
+  },
+  // Document: Add additional packageRules for language-specific needs as required
+  // Secrets and tokens should be managed via environment variables, not in this file
+  "onboarding": true,
+  "platform": "github"
+}
