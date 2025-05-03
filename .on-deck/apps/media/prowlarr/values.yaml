@@ -31,7 +31,7 @@ controllers:
         enabled: true
         image:
           repository: "ghcr.io/home-operations/prowlarr"
-          tag: "1.33.3.5008"
+          tag: "1.35.1.5034"
           pullPolicy: IfNotPresent
         env:
           TZ: America/Chicago
