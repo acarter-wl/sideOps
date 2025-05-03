@@ -86,6 +86,9 @@ prometheus:
     - secretName: prometheus-wakkalabs-tls
       hosts:
       - prometheus.wakkalabs.com
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
 
 alertmanager:
   replicas: 1
@@ -166,6 +169,10 @@ alertmanager:
     - secretName: alertmanager-wakkalabs-tls
       hosts:
       - alertmanager.wakkalabs.com
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+
 defaultRules:
   create: true
   rules:
