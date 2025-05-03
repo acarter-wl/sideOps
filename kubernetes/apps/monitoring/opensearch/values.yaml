@@ -62,20 +62,11 @@ extraVolumes:
   - name: certs
     secret:
       secretName: tls-for-opensearch-key-pair
-  - name: admin-certs
-    secret:
-      secretName: opensearch-admin-cert
   - name: admin-credentials
     secret:
       secretName: opensearch-cluster-master-credentials
 
 extraVolumeMounts:
-  - name: certs
-    mountPath: /usr/share/opensearch/config/node-certs
-    readOnly: true
-  - name: admin-certs
-    mountPath: /usr/share/opensearch/config/admin-certs
-    readOnly: true
   - name: admin-credentials
     mountPath: /usr/share/opensearch/config/opensearch-security/admin-creds
     readOnly: true
