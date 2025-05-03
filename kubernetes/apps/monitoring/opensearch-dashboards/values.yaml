@@ -24,6 +24,16 @@ extraEnvs:
     value: ""
   - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
     value: "none"
+  - name: "OPENSEARCH_DASHBOARDS_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: username
+  - name: "OPENSEARCH_DASHBOARDS_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: password
 
 # For ingress configuration - fixed format for the chart
 ingress:
@@ -44,8 +54,8 @@ config:
   opensearch_dashboards.yml: |
     server.host: "0.0.0.0"
     opensearch.hosts: ["https://opensearch-cluster-master:9200"]
-    opensearch.username: "${OPENSEARCH_DASHBOARDS_USERNAME}"
-    opensearch.password: "${OPENSEARCH_DASHBOARDS_PASSWORD}"
+    opensearch.username: "admin"
+    opensearch.password: "${OPENSEARCH_PASSWORD}"
     server.cors: true
     server.cors.origin: ["*"]
     opensearch.ignoreVersionMismatch: true
