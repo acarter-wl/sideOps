@@ -2,7 +2,7 @@ loki:
   enabled: true #Activates the Loki component in this setup for log aggregation.
   image:
     repository: grafana/loki
-    tag: "2.10.2"
+    tag: "3.5.0"
   replicas: 2 # Optional: Limit read/write replicas
   config:
     # Defines the storage schema
