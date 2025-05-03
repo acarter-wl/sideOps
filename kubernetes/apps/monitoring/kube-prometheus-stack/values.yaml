@@ -46,7 +46,9 @@ prometheus:
   prometheusSpec:
     secrets:
     - etcd-client-certs
-  enabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   scrapeInterval: 30s
   evaluationInterval: 30s
   replicas: 2
@@ -93,6 +95,9 @@ prometheus:
       - prometheus.wakkalabs.com
 
 alertmanager:
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   replicas: 1
   service:
     ipFamilyPolicy: SingleStack
