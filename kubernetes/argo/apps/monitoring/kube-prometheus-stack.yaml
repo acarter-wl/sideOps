@@ -1,0 +1,31 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argo-system
+spec:
+  project: infrastructure
+  sources:
+    # yamllint disable-line rule:line-length
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/kube-prometheus-stack
+      targetRevision: main
+      ref: repo
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 71.0.0
+      helm:
+        releaseName: kube-prometheus-stack
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/kube-prometheus-stack/values.yaml
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

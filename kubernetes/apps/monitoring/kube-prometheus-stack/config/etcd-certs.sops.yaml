@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: etcd-certs
+  # Change this to your desired namespace
+  namespace: monitoring
+type: Opaque
+data:
+  etcd-ca.crt: ENC[AES256_GCM,data:dEeGnrDyxobR5s57yu3X/FagRWKonMHy/JSFyHwIETfYFL5YPcaEpOwgJfKHXHOG1eNiwUk+782hPWS+a7aBLficmDVSSrL8TODlUOgsLd7qw/ML5RTDFs+xe2gZ3Ux0/rnCfsoRzAJeDvSbQGT9L+HHi1dUNCNpxytawmkLRLfvNwJ42FQgdU5D3pMtDUZNFOts/3nWGfxNLuonb2f2GnhZtNdPXfyo5VybDTJoMdoWQ25gRTZevVNSvSk1mqXpmGcQcnfcUAg7vi9ssohM1K0rIwpX43XnWc32f0dFgMyHLT0uZtcDYmgwamIGR38a6rezhNnikl1hXdrKt574dz3aHs7I/KZ/8PXHNi/swjgKtvg8GoFU8t+NG1R4S9KBdudFBzyOsVs57K+uav1Gqti9eOthyoFkfhT+aGTmKDOnvid9/nnCmaugS1QbhfNoVR2F9On7Yl+s5GqBpBFK/7AlJ0Ts+EbeJUoQnjntZCB4YSX2rbqMR+CNvgOi0jXzEpMZzGjhEWZDiCt2f/d9yfkK8EfpbTGhVUJTgHRQpX2j7ngNpAhRfZKYEH1GdmzyLkib8dpkHx/757Rcfmq0Cii3A8+C67zf+yNvUg3VjA4YYjdy6xkkj9j/W81rqDOUm/Jw2E0sJUsZBdzaY7ej0ceapEsNrDic4F6EQServ7PyuRR0yGCu0KM98fC2dfbmEBIRwOP0xDKigxHc+oZJaU2MikNzH6uT+FMdzI6+H+99ZCAgxrHThtFVhLiOGcqC3nnbNWa6UxvspgL4cp13aRiwX+54enysV3Dd4Wbgv9NyIe0uI4/Kd9jfsxoesMQ5BRR+bTvIlu3LCp5lWAOuoUcU8F6abLWyT/GOnxQF7gomIHJR6NhlOfvUSpPRWBda7P7vI9OMzgEX23gagbdGV3IFOhdlrusKAWVSjoOhuGFbipB244AyXLrVvP8Ve4hrpRkr+UrsQjt5WUOhtrvsN2RdXeNwX05LydjOdm2/3yqWHVMjN5ddYANfp8OYVln1,iv:WbVslzkW/gVLhSmpZhbFV6rKiwLaihghm6kJVSpzHO4=,tag:BSCjaNQBZyhA+vIJQP2RhQ==,type:str]
+  etcd-client.crt: ENC[AES256_GCM,data:xJToQiwTSryLq5H63/M4F/GwKBtJS7FKwf64zV0WFXqug2MZbgb6/7MJc6+aExmswAzjqEs5hnTe1sdIAQ8rpFZL7sxbfj5lzHWUr+Sl/0wo3vyCOZkWsHWODz0qgm0T1fKSYgG+rHBDSkrTNuGP6LJ/gE5NW2hR3PsG6X29oSVWWg8iLE1eshNR1Y0j7SQdY4MbnvaPbvy/2IegvRTqc4ut9sGGtUCzdYzY9eynYF/zGPlxFo/6yV18F1iOIAspmg5bjOO8GHN3dAECPaqVhBSzXIY8W1TkwmXeqdqiLu59LlOsUBrJrOWBF3GMISIxp3j0lhU2Rd+nKqY5exIvhk10BtATaS3B1u0kAPbggY+kl0jJMMhthUUWbTmmB+4x2xLAJdjkogfzqucwd9cubSUQL661mhpzmIPaZ1KM5pjg3VYmzGwCSlPb7pN7wk3pAWhltwS8XrLo2QZjwPJ9M3V31474mi9FC/iw3bN4T408ujPd8hoFvpOw68+PIPRka5wlL0K6pKqNerKWS+ITcNeTKtSs6eA7P0IPwVo1XmcAId7lrNV2nUqMJHN1YEAKTSRCjNL8jJHAnFt95ZguDL8cWjBP55lirtRZXbbl2Nya6EinHJ3eAa13B2yHkwRF4UcFAkW3qNYnXf11wVyPzbUC5Z0RcKM2yL5tQX56x+lzzpm5oZvsJ9UD0a0QvX+iijvsYnNs9kWQVo4zUuhvoCWEsfxNRZHF3/bUT1KUhD9pk6My7YULP3puOoCN+nWYHZMHFw3PahbECkTxmWeWVvBopqyJWIqs3Ot6MlQ6DD2QgJ/OGkY3Dd3+WHXYpnceBbsYookCf+MmM1RvlHXMJ6qONMkE2ahzl0LDWJ1UlzeasOZs1fiMwnR2TyHI+z05D3UBE98isc0Rt9vWMfvwIgbIYG9tpOxyyB1B9Asl9TT6xw7emg2S/df/+FgIEUVMKgNZ7opMZxA=,iv:Jw0jxyB5/sJOAaNW87wnPT/nOyVv25B5L6DKF4r2Ld4=,tag:cq69OWDPnLQKixcmN8gxKg==,type:str]
+  etcd-client-key.key: ENC[AES256_GCM,data:DiAkmCtZMqntPl/ISKCE44P+WrgmTEweeLt30AvPysISYGuFS0fIfeUHyqv1OKh4QdPAawV3EXPUiil3kBUsi1dnmGgcYf8N889DYvfDbK4fVYAcZ4TQjZ7FU6CSJm2L+TAQj4D+Q9a1lwg/hkdKuP8DqZhGjVQDw9us/g2I63FvxQTi2MdtkIRJTAMNd0F8vgC8A0erxTf2iy/jyMAsEsG7K+Ju0nNssyxfcML/3wyfP/QMx9wpCfcr+1nQteRQVookbkx7lTbtTd3qtOlJ4KCX6ze+wH6HS1b6DxZeeKveYnFwD4bWmJ83BdKA1lVmn3SsU4+LL+Ry/QcbChK9wTdRjXhVB18gZrzt0D35I/SXfN/MFwfAOdgBMrH12UTMjJL+9j9QBHv9yn5vHL/f2A==,iv:EFm9TrBK6fNi81ZlIFVzqicETFXwYODxwVWncCDp5V8=,tag:DwgeFihcXwdn3hWJ93c1ZQ==,type:str]
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB6OTVJcURjTXBRaUhlY1pH
+        eVVobXBOVEEza05CUFVsRXVBTVNqWU1iZHhZCnBKSG1hT3k2azNGM3ZrM2hGRlh6
+        cHMzNXAwNFgzdDhmSUErV09KcCs5M2MKLS0tIGIwZDJJTWJ5UnBaZXJJeVA4Rm5p
+        L2dXMGlHOVlCdWFaRlcxUTU3aytsQzgKSjDaEBpfGXeSQkYI2d31m79TjlqXg4ko
+        6RmGvu4fxqxXWpHC3bR1R3sPnwr57ZZawwmVeJ+v9VAFDfkf9f8VqQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-04-24T05:03:11Z"
+  mac: ENC[AES256_GCM,data:qUE9RzmIJa3y/RPLTIe5gST3prAXgP1tEoJ8rpNQ7LmA3Dofd0hF7QaUWVCMQwbBpAGRNSX5nV3zrJUJJ3MAQ4s7vjangLLjzzBg+IlJWNttWK/YNmpqKvKpEs20+lOynGQxRS3hBSk/zI1yfgB/Bs6WA/3yAhu74F5m4xxrz/M=,iv:3Jmesx9xR5Rh7v8duFd7RnHuixoBdiGaiUjJAK9oDjg=,tag:1eMigV+bOVvWlCiymFIMbQ==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.10.2
