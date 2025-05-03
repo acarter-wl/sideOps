@@ -57,8 +57,7 @@ config:
     opensearch.username: "admin"
     opensearch.password: "admin"
     opensearch.ignoreVersionMismatch: true
-    telemetry.optIn: false
-    telemetry.enabled: false
+
 
 # Add custom dashboards to have pre-configured upon deployment
 dashboardImport:
