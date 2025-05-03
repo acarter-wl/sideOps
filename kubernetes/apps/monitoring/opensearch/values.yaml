@@ -59,7 +59,7 @@ config:
     plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
 
 extraVolumes:
-  - name: node-certs
+  - name: certs
     secret:
       secretName: tls-for-opensearch-key-pair
   - name: admin-certs
@@ -70,7 +70,7 @@ extraVolumes:
       secretName: opensearch-cluster-master-credentials
 
 extraVolumeMounts:
-  - name: node-certs
+  - name: certs
     mountPath: /usr/share/opensearch/config/node-certs
     readOnly: true
   - name: admin-certs
