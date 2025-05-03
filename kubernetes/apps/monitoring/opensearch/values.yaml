@@ -53,7 +53,7 @@ extraEnvs:
 - name: "DISABLE_INSTALL_DEMO_CONFIG"
   value: "true"
 - name: "DISABLE_SECURITY_PLUGIN"
-  value: "false"
+  value: "true"
 - name: "bootstrap.memory_lock"
   value: "true"
 
