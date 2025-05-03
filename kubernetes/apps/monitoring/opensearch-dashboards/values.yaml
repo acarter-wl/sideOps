@@ -20,25 +20,25 @@ opensearchAccount:
 
 # Basic environment variables
 extraEnvs:
-- name: "SERVER_BASEPATH"
-  value: ""
-- name: "OPENSEARCH_SSL_VERIFICATIONMODE"
-  value: "none"
+  - name: "SERVER_BASEPATH"
+    value: ""
+  - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
+    value: "none"
 
 # For ingress configuration - fixed format for the chart
 ingress:
   enabled: true
   className: "internal"
   hosts:
-  - host: dashboards.wakkalabs.com
-    paths:
-    - path: /
-      pathType: Prefix
-      backend:
-        service:
-          name: opensearch-dashboards
-          port:
-            number: 5601
+    - host: dashboards.wakkalabs.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: opensearch-dashboards
+              port:
+                number: 5601
 
 # Configure server settings
 config:
@@ -78,7 +78,7 @@ persistence:
   enabled: true
   storageClass: "ceph-block"
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   size: 2Gi
 
 # Security context for better pod security
@@ -88,24 +88,26 @@ podSecurityContext:
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   runAsNonRoot: true
   runAsUser: 1000
 
-extraEnvs:
-
 # Set up env vars from the secret
 extraEnvVars:
-- name: "OPENSEARCH_DASHBOARDS_USERNAME"
-  valueFrom:
-    secretKeyRef:
-      name: opensearch-cluster-master-credentials
-      key: username
-- name: "OPENSEARCH_DASHBOARDS_PASSWORD"
-  valueFrom:
-    secretKeyRef:
-      name: opensearch-cluster-master-credentials
-      key: password
+  - name: "SERVER_BASEPATH"
+    value: ""
+  - name: "OPENSEARCH_SSL_VERIFICATIONMODE"
+    value: "none"
+  - name: "OPENSEARCH_DASHBOARDS_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: username
+  - name: "OPENSEARCH_DASHBOARDS_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: password
 # - name: OPENSEARCH_COOKIE_SECURE
 #   value: "true"
 # - name: OPENSEARCH_COOKIE_PASSWORD
