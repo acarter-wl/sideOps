@@ -16,12 +16,20 @@ crds:
 # ================================
 # ETCD Scraping for Talos
 # ======================
-kubeEtcd:
-  enabled: true
+kubeControllerManager:
   endpoints:
   - 192.168.101.120
   - 192.168.101.121
   - 192.168.101.122
+
+kubeEtcd:
+  endpoints:
+  - 192.168.101.120
+  - 192.168.101.121
+  - 192.168.101.122
+  service:
+    selector:
+      component: etcd
   serviceMonitor:
     scheme: https
     insecureSkipVerify: false
@@ -29,8 +37,15 @@ kubeEtcd:
     caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
     certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
     keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
-
+kubeScheduler:
+  endpoints:
+  - 192.168.101.120
+  - 192.168.101.121
+  - 192.168.101.122
 prometheus:
+  prometheusSpec:
+    secrets:
+    - etcd-client-certs
   enabled: true
   scrapeInterval: 30s
   evaluationInterval: 30s
@@ -42,19 +57,12 @@ prometheus:
     limits:
       memory: 4Gi
       cpu: 2000m
-  prometheusSpec:
-    secrets:
-    - etcd-client-certs
     retention: 15d
     retentionSize: 90GB
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
-    topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
       labelSelector:
         matchLabels:
           app: kube-prometheus-stack
@@ -86,9 +94,6 @@ prometheus:
     - secretName: prometheus-wakkalabs-tls
       hosts:
       - prometheus.wakkalabs.com
-  podDisruptionBudget:
-    enabled: true
-    maxUnavailable: 1
 
 alertmanager:
   replicas: 1
@@ -138,21 +143,7 @@ alertmanager:
     - name: 'null'
     templates:
     - '/etc/alertmanager/config/*.tmpl'
-  templateFiles:
-    discord_default.tmpl: |-
-      {{ define "discord.default.message" }}
-      :bell: **{{ .Status | toUpper }}** {{ if eq .Status "firing" }}:fire:{{ else }}:white_check_mark:{{ end }}
-      **Alert:** {{ .CommonAnnotations.summary }}
-      **Description:** {{ .CommonAnnotations.description }}
-      **Severity:** {{ .CommonLabels.severity | toUpper }}
-      **Details:**
-      {{ range .Alerts }}
-        **Dashboard:** {{ if .Annotations.dashboard }}{{ .Annotations.dashboard }}{{ else }}No dashboard{{ end }}
-        **Runbook:** {{ if .Annotations.runbook }}{{ .Annotations.runbook }}{{ else }}No runbook{{ end }}
-        **Instance:** {{ .Labels.instance }}
-        **Namespace:** {{ .Labels.namespace }}
-      {{ end }}
-      {{ end }}
+
   ingress:
     enabled: true
     ingressClassName: internal
@@ -169,9 +160,6 @@ alertmanager:
     - secretName: alertmanager-wakkalabs-tls
       hosts:
       - alertmanager.wakkalabs.com
-  podDisruptionBudget:
-    enabled: true
-    maxUnavailable: 1
 
 defaultRules:
   create: true
@@ -189,25 +177,22 @@ defaultRules:
     prometheusOperator: true
     # Add custom rule settings to reduce noise
     # Add configmaps for custom rules
-  additionalRuleLabels:
-    team: platform
-  # Silence specific noisy alerts
   disabled:
     KubeControllerManagerDown: false
     KubeSchedulerDown: false
     KubeletTooManyPods: true
 
-kubeControllerManager:
-  service:
-    ipFamilyPolicy: SingleStack
-    ipFamilies:
-    - IPv4
+# kubeControllerManager:
+#   service:
+#     ipFamilyPolicy: SingleStack
+#     ipFamilies:
+#     - IPv4
 
-kubeScheduler:
-  service:
-    ipFamilyPolicy: SingleStack
-    ipFamilies:
-    - IPv4
+# kubeScheduler:
+#   service:
+#     ipFamilyPolicy: SingleStack
+#     ipFamilies:
+#     - IPv4
 
 # ================================
 # Grafana Configuration
@@ -250,7 +235,6 @@ grafana:
     ingressClassName: internal
     annotations:
       kubernetes.io/ingress.class: internal
-      internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
 
     hosts:
