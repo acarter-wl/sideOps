@@ -41,6 +41,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
     - host: dashboards.your-domain.com
       paths:
@@ -56,21 +57,33 @@ config:
     server.host: "0.0.0.0"
     opensearch.hosts: ["https://opensearch-cluster-master:9200"]
     opensearch.username: "admin"
-    opensearch.password: "${OPENSEARCH_PASSWORD}"
-    opensearch.ssl.verificationMode: certificate
-    server.ssl.enabled: false  # No HTTPS for internal traffic
+    opensearch.password: "admin"
+    opensearch.ssl.verificationMode: full
+    opensearch.ssl.certificateAuthorities: ["/usr/share/opensearch-dashboards/config/certs/ca.crt"]
+    opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+    server.ssl.enabled: true
+    server.ssl.certificate: "/usr/share/opensearch-dashboards/config/certs/tls.crt"
+    server.ssl.key: "/usr/share/opensearch-dashboards/config/certs/tls.key"
     opensearch.ignoreVersionMismatch: true
     telemetry.optIn: false
     telemetry.enabled: false
 
 extraVolumes:
-  - name: dashboards-certs
+  - name: certs
     secret:
-      secretName: opensearch-dashboards-tls
+      secretName: opensearch-node-cert
+
 extraVolumeMounts:
-  - name: dashboards-certs
+  - name: certs
     mountPath: /usr/share/opensearch-dashboards/config/certs
     readOnly: true
+
+extraEnvs:
+  - name: OPENSEARCH_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: opensearch-cluster-master-credentials
+        key: password
 # Add custom dashboards to have pre-configured upon deployment
 dashboardImport:
   enabled: false

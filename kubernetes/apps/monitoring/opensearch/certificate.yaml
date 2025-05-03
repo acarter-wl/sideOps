@@ -24,12 +24,13 @@ spec:
     - server auth
     - client auth
   dnsNames:
+    - opensearch.wakkalabs.com
     - opensearch-cluster-master
     - opensearch-cluster-master.monitoring
     - opensearch-cluster-master.monitoring.svc
     - opensearch-cluster-master.monitoring.svc.cluster.local
     - localhost
-    - opensearch-cluster-master.wakkalabs.com
+
   ipAddresses:
     - 127.0.0.1
   issuerRef:
