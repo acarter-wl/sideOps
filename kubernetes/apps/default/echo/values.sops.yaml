@@ -1,97 +1,102 @@
 controllers:
-  echo:
-    strategy: RollingUpdate
-    containers:
-      app:
-        image:
-          repository: ghcr.io/mendhak/http-https-echo
-          tag: 34
-        env:
-          HTTP_PORT: 8080
-          LOG_WITHOUT_NEWLINE: true
-          LOG_IGNORE_PATH: /healthz
-          PROMETHEUS_ENABLED: true
-        probes:
-          liveness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /healthz
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /healthz
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-        resources:
-          requests:
-            cpu: 10m
-          limits:
-            memory: 64Mi
+    echo:
+        strategy: RollingUpdate
+        containers:
+            app:
+                image:
+                    repository: ghcr.io/mendhak/http-https-echo
+                    tag: 34
+                env:
+                    HTTP_PORT: 8080
+                    LOG_WITHOUT_NEWLINE: true
+                    LOG_IGNORE_PATH: /healthz
+                    PROMETHEUS_ENABLED: true
+                probes:
+                    liveness:
+                        enabled: true
+                        custom: true
+                        spec:
+                            httpGet:
+                                path: /healthz
+                                port: 8080
+                            initialDelaySeconds: 0
+                            periodSeconds: 10
+                            timeoutSeconds: 1
+                            failureThreshold: 3
+                    readiness:
+                        enabled: true
+                        custom: true
+                        spec:
+                            httpGet:
+                                path: /healthz
+                                port: 8080
+                            initialDelaySeconds: 0
+                            periodSeconds: 10
+                            timeoutSeconds: 1
+                            failureThreshold: 3
+                securityContext:
+                    allowPrivilegeEscalation: false
+                    readOnlyRootFilesystem: true
+                    capabilities:
+                        drop:
+                            - ALL
+                resources:
+                    requests:
+                        cpu: 10m
+                    limits:
+                        memory: 64Mi
+                volumeMounts:
+                    - name: qbittorrent-config
+                      mountPath: /config
+                    - name: data
+                      mountPath: /downloads
 defaultPodOptions:
-  securityContext:
-    runAsNonRoot: true
-    runAsUser: 65534
-    runAsGroup: 65534
-    seccompProfile:
-      type: RuntimeDefault
+    securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+            type: RuntimeDefault
 service:
-  app:
-    controller: echo
-    ports:
-      http:
-        port: 8080
+    app:
+        controller: echo
+        ports:
+            http:
+                port: 8080
 serviceMonitor:
-  app:
-    serviceName: echo
-    endpoints:
-      - port: http
-        scheme: http
-        path: /metrics
-        interval: 1m
-        scrapeTimeout: 10s
+    app:
+        serviceName: echo
+        endpoints:
+            - port: http
+              scheme: http
+              path: /metrics
+              interval: 1m
+              scrapeTimeout: 10s
 ingress:
-  app:
-    className: external
-    annotations:
-      external-dns.alpha.kubernetes.io/target: external.wakkalabs.com
-    hosts:
-      - host: '{{ .Release.Name }}.wakkalabs.com'
-        paths:
-          - path: /
-            service:
-              identifier: app
-              port: http
+    app:
+        className: external
+        annotations:
+            external-dns.alpha.kubernetes.io/target: external.wakkalabs.com
+        hosts:
+            - host: '{{ .Release.Name }}.wakkalabs.com'
+              paths:
+                - path: /
+                  service:
+                    identifier: app
+                    port: http
 sops:
-  age:
-    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBucitjd0NKVXpmTms0aW1Z
-        aWtOSU9GTG11V1BUWUpYZURUem1oMnQxYVJNCkNRT2FGUTRxNFFGUExWREdMYTMz
-        TnB0S2dsMjFFK014cENtTmRSd2xVM3MKLS0tIHJTL1FWV3hsSTVVSjhtMDBGR3FL
-        ZXNKSjJqWG8zclV5UUxGeEJZM1lMb00KJ9DPKCLVG+/v5smMtDcMPUc6XXMwntxi
-        JFZNLMxhepcHnr7F/s7/CeXe7k5HZCTMWGr0rdohJY4Im9kaEr2x3g==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-05-02T04:30:51Z"
-  mac: ENC[AES256_GCM,data:hqe0i0oKwwp3CunCSsRIR3oEo+kuWxoQl38cuQX3sc+cOXXim3rjfBa43Fir8FxYB1pGo2TnpX0fcw6e+3U61V6ri5wfHwwAUPzBAbUpXw35kZHQ3j2cVzfnLAJieAjyp4KeOW8aesd22oiOoGgh3lIxiLnQC2ZSD9gVLLHPB7I=,iv:CZkawLnujiu9M0zV16OJs2fQt41h7/341a0lwak9SN8=,tag:YTyjZJuy7W3KwLN7YoD/kw==,type:str]
-  encrypted_regex: ^(data|stringData)$
-  mac_only_encrypted: true
-  version: 3.10.2
+    age:
+        - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBucitjd0NKVXpmTms0aW1Z
+            aWtOSU9GTG11V1BUWUpYZURUem1oMnQxYVJNCkNRT2FGUTRxNFFGUExWREdMYTMz
+            TnB0S2dsMjFFK014cENtTmRSd2xVM3MKLS0tIHJTL1FWV3hsSTVVSjhtMDBGR3FL
+            ZXNKSjJqWG8zclV5UUxGeEJZM1lMb00KJ9DPKCLVG+/v5smMtDcMPUc6XXMwntxi
+            JFZNLMxhepcHnr7F/s7/CeXe7k5HZCTMWGr0rdohJY4Im9kaEr2x3g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-05-04T23:14:26Z"
+    mac: ENC[AES256_GCM,data:q9A04BghJvkT2Y8XueHV2/UmmnH3aiJoIvx7saUa79oFIJcj4hpXHSdpGx3PWdvi/C0MQuKpVyHC6J0WTs+UXyO16vDWYXGfbZ/ojRxBXMnilfIloEbRX1CzogHZ/p3oXViG/nBuANuOYtN6aktenqEYhN5OXpxIrtbpvzYf+h0=,iv:UtMa4fykSPPF42TD0GEjEqc6gjRhE183vsVm2khI0Cc=,tag:LqsBincuX6y4HNn2eSEVnQ==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    mac_only_encrypted: true
+    version: 3.10.2
