@@ -155,13 +155,6 @@ metadata:
   namespace: media
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Media Server
-    gethomepage.dev/group: Media
-    gethomepage.dev/icon: sabnzbd.png
-    gethomepage.dev/name: Sabnzbd
-    gethomepage.dev/widget.type: "sabnzbd"
-    gethomepage.dev/widget.url: "https://sabnzbd.wakkalabs.com"
   labels:
     app: sabnzbd
     app.kubernetes.io/name: sabnzbd
