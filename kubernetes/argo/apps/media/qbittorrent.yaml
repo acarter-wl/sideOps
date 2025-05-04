@@ -4,6 +4,7 @@ metadata:
   name: qbittorrent
   namespace: argo-system
   annotations:
+    argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: '8'
 spec:
   project: media
@@ -17,6 +18,7 @@ spec:
   syncPolicy:
     automated:
       prune: true
+      allowEmpty: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
