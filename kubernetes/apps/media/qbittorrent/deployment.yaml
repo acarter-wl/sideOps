@@ -4,7 +4,7 @@ metadata:
   name: qbittorrent
   namespace: media
   labels:
-    app.kubernetes.io/name: qbittorrent
+    app: qbittorrent
 spec:
   replicas: 1
   selector:
@@ -87,10 +87,10 @@ spec:
             - name: tunnel
               mountPath: /dev/net/tun
       volumes:
-        - name: config
+        - name: qbittorrent-config
           persistentVolumeClaim:
             claimName: qbittorrent-config
-        - name: downloads
+        - name: data
           persistentVolumeClaim:
             claimName: downloads-ceph
         - name: media
@@ -106,11 +106,11 @@ metadata:
   name: qbittorrent
   namespace: media
   labels:
-    app.kubernetes.io/name: qbittorrent
+    app: qbittorrent
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: qbittorrent
+    app: qbittorrent
   ports:
     - name: http
       port: 8080
@@ -129,7 +129,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
   labels:
-    app.kubernetes.io/name: qbittorrent
+    app: qbittorrent
 spec:
   ingressClassName: internal
   tls:
