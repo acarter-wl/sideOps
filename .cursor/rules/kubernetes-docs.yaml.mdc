@@ -1,6 +1,6 @@
 ---
 description:
-globs: description: This rule activates for Kubernetes documentation using MkDocs. It ensures clarity
+globs: docs/*/*.md,*.md
 alwaysApply: false
 ---
 <!-- --->
