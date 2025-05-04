@@ -1,52 +1,72 @@
 loki:
-  enabled: true #Activates the Loki component in this setup for log aggregation.
-  image:
-    repository: grafana/loki
-    tag: "2.10.2"
-  replicas: 2 # Optional: Limit read/write replicas
-  config:
-    # Defines the storage schema
-    schema_config:
-      configs:
-        - from: "2020-10-24"
-          store: boltdb-shipper # Uses boltdb-shipper, a local storage engine.
-          object_store: filesystem # Configures the storage backend to use the filesystem
-          schema: v11 # Sets the schema version for compatibility with the configured storage
-          index:
-            prefix: index_
-            period: 24h # rotation period of 24h to create a new index every day, which helps with query performance.
-    ingester:
-      lifecycler:
-        ring:
-          replication_factor: 2 # Limit writes to 2 replicas
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: 'filesystem'
+    bucketNames:
+      chunks: chunks
+      ruler: ruler
+      admin: admin
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  storage_config:
+    filesystem:
+      directory: /tmp/loki/chunks
+  pattern_ingester:
+    enabled: true
+  limits_config:
+    allow_structured_metadata: true
+    volume_enabled: true
+  ruler:
+    enable_api: true
+  auth_enabled: false
 
-promtail:
-  enabled: true # Activates Promtail for log collection
-  image:
-    repository: grafana/promtail
-    tag: "2.10.2"
-  config:
-    clients:
-      - url: http://loki:3100/loki/api/v1/push # Sets the endpoint for Promtail to push logs to Loki. This is the Loki service URL within the Kubernetes cluster
-    positions:
-      filename: /run/promtail/positions.yaml # Sets the file path where Promtail stores positions for each log it reads, ensuring logs are picked up from where it last left off
-    scrape_configs:
-      - job_name: kubernetes-pods # The job to scrape logs from K8s pods
-        kubernetes_sd_configs:
-          # Uses k8s service discovery for discovering pod logs
-          - role: pod
-        relabel_configs:
-          # Adjust labels
-          - source_labels: [ __meta_kubernetes_pod_label_name ]
-            target_label: job
-          - source_labels: [ __meta_kubernetes_namespace ]
-            target_label: namespace
-          - source_labels: [ __meta_kubernetes_pod_name ]
-            target_label: pod
-          - action: replace
-            source_labels: [ __meta_kubernetes_pod_container_name ]
-            target_label: container
+minio:
+  enabled: false
 
-  rbac:
-    # Ensure Promtail has the necessary permissions to read logs
-    create: true
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  persistence:
+    storageClass: ceph-block
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+
+sidecar:
+  image:
+    repository: kiwigrid/k8s-sidecar
+    tag: 1.30.0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+chunksCache:
+  allocatedMemory: 500
