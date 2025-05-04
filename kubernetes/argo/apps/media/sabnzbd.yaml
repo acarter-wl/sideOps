@@ -5,6 +5,7 @@ metadata:
   name: sabnzbd
   namespace: argo-system
   annotations:
+    argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: '8'
 spec:
   destination:
@@ -17,7 +18,9 @@ spec:
     path: kubernetes/apps/media/sabnzbd
   syncPolicy:
     syncOptions:
-      - Replace=true
+      - ServerSideApply=true
+
+      - 
     automated:
       prune: true
       selfHeal: true
