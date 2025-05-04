@@ -71,11 +71,11 @@ metadata:
   namespace: media
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
-  storageClassName: ceph-block
+      storage: 5Gi
+  storageClassName: cephfs
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -123,11 +123,11 @@ metadata:
   namespace: media
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
-  storageClassName: ceph-block
+      storage: 5Gi
+  storageClassName: cephfs
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
