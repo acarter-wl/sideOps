@@ -1,16 +1,14 @@
 ---
 description:
-globs:
+globs: description: This rule activates for Kubernetes documentation using MkDocs. It ensures clarity
 alwaysApply: false
 ---
----
+<!-- --->
 description: This rule activates for Kubernetes documentation using MkDocs. It ensures clarity, technical accuracy, and adherence to best practices for cloud-native documentation.
 globs:
-  - mkdocs.yml
-  - docs/**/*.md
-  - mkdocs/**/*.md
----
-
+  - docs/*.md
+  - docs/*/*.md
+<!------>
 
 # Kubernetes Documentation with MkDocs
 

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sabnzbd-vpn-config
+  namespace: media
+  labels:
+    argocd.argoproj.io/instance: sabnzbd
+data:
+  DOT: "0"
+  FIREWALL: "off"
+  LOG_LEVEL: INFO
+  PGID: "1001"
+  PUID: "1001"
+  SERVER_HOSTNAMES: us-atl.prod.surfshark.com
+  TZ: America/Chicago
+  UMASK: "022"
+  UPDATER_PERIOD: "1"
+  VPN_SERVICE_PROVIDER: "surfshark"
+  VPN_TYPE: "wireguard"
+  WIREGUARD_ADDRESSES: "10.14.0.2/16"
+  WIREGUARD_DNS: "162.252.172.57,149.154.159.92"

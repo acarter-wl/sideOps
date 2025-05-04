@@ -1,0 +1,55 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: monitored-apps
+  namespace: argo-system
+spec:
+  generators:
+  - list:
+      elements:
+      - appName: cilium
+        namespace: kube-system
+        port: 9964
+        path: /metrics
+      - appName: coredns
+        namespace: kube-system
+        port: 9153
+        path: /metrics
+      - appName: metrics-server
+        namespace: kube-system
+        port: 10250
+        path: /metrics
+      - appName: argo-cd
+        namespace: argo-system
+        port: 8082
+        path: /metrics
+  template:
+    metadata:
+      name: '{{appName}}-monitoring'
+      namespace: argo-system
+    spec:
+      project: default
+      source:
+        repoURL: "https://github.com/acarter-wl/sideops.git"
+        path: kubernetes/components/monitoring
+        targetRevision: main
+        helm:
+          releaseName: '{{appName}}-monitoring'
+          valueFiles:
+          - values.yaml
+          values: |
+            appName: '{{appName}}'
+            namespace: '{{namespace}}'
+            port: '{{port}}'
+            path: '{{path}}'
+      destination:
+        name: in-cluster
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true

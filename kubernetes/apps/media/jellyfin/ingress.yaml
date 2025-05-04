@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-set-headers: |
+      Upgrade $http_upgrade;
+      Connection $connection_upgrade;
+      Host $host;
+      X-Real-IP $remote_addr;
+      X-Forwarded-For $proxy_add_x_forwarded_for;
+      X-Forwarded-Proto $scheme;
+      X-Forwarded-Host $host;
+      X-Forwarded-Port $server_port;
+spec:
+  ingressClassName: internal
+  tls:
+    - hosts:
+        - jellyfin.wakkalabs.com
+      secretName: jellyfin-tls
+  rules:
+    - host: jellyfin.wakkalabs.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin-web
+                port:
+                  number: 8096

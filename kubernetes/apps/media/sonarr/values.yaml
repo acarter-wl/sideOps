@@ -1,0 +1,125 @@
+controllers:
+  main:
+    enabled: true
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    initContainers:
+      init-chmod:
+        enabled: true
+        image:
+          repository: busybox
+          tag: latest
+          pullPolicy: IfNotPresent
+        command:
+          - /bin/sh
+          - -c
+          - chown -R 0:0 /config && chmod -R 775 /config
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          privileged: true
+    containers:
+      main:
+        enabled: true
+        image:
+          repository: "ghcr.io/home-operations/sonarr"
+          tag: "4.0.14.2938"
+          pullPolicy: IfNotPresent
+        # args:
+        #   - --port
+        #   - "8080"
+        env:
+          TZ: America/Chicago
+          PUID: "0"
+          PGID: "0"
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: true
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 15
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          startup:
+            enabled: true
+            spec:
+              httpGet:
+                path: /
+                port: http
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 30
+service:
+  sonarr:
+    controller: main
+    ports:
+      http:
+        port: 8989
+        targetPort: 8989
+ingress:
+  main:
+    enabled: true
+    className: internal
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    hosts:
+      - host: sonarr.wakkalabs.com
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: sonarr
+              port: 8989
+    tls:
+      - secretName: sonarr-tls
+        hosts:
+          - sonarr.wakkalabs.com
+securityContext:
+  fsGroup: 0
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: sonarr-config
+    globalMounts:
+      - path: /config
+  downloads:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: downloads-ceph
+    globalMounts:
+      - path: /downloads
+  media:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: nfs-media
+    globalMounts:
+      - path: /media
