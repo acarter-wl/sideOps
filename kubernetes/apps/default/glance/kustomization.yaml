@@ -8,4 +8,3 @@ resources:
   - glance-service.yaml
   - ingress.yaml
   - ./configmaps
-  - ./config
