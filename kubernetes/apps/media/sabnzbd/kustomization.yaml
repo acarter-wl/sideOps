@@ -4,4 +4,3 @@ namespace: media
 resources:
   - ./config
   - deployment.yaml
-  - cm.yaml

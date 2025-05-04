@@ -84,28 +84,11 @@ spec:
               add:
                 - NET_ADMIN
           env:
-            - name: VPN_SERVICE_PROVIDER
-              value: "surfshark"
-            - name: VPN_TYPE
-              value: "wireguard"
-            - name: SERVER_HOSTNAMES
-              value: "us-atl.prod.surfshark.com"
-            - name: WIREGUARD_ADDRESSES
-              value: "10.14.0.2/16"
-            - name: FIREWALL
-              value: "off"
-            - name: DOT
-              value: "off"
-            - name: LOG_LEVEL
-              value: "debug"
             - name: HTTP_PROXY_ENABLED
               value: "on"
             - name: HTTP_PROXY_PORT
               value: "8888"
           envFrom:
-            - configMapRef:
-                name: sabnzbd-vpn-config
-                optional: false
             - secretRef:
                 name: sabnzbd-vpn-credentials
                 optional: false
