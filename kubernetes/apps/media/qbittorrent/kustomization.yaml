@@ -4,4 +4,3 @@ resources:
   - ./config
   - deployment.yaml
   - network.yaml
-  - wg-cm.yaml

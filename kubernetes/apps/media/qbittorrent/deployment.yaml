@@ -83,9 +83,6 @@ spec:
               add:
                 - NET_ADMIN
           envFrom:
-            - configMapRef:
-                name: qbittorrent-vpn-config
-                optional: false
             - secretRef:
                 name: qbittorrent-vpn-credentials
                 optional: false
@@ -96,18 +93,6 @@ spec:
           volumeMounts:
             - name: tunnel
               mountPath: /dev/net/tun
-              #livenessProbe:
-              #  httpGet:
-              #    path: /
-              #    port: 9999
-              #  initialDelaySeconds: 30
-              #  timeoutSeconds: 30
-              #readinessProbe:
-              #  httpGet:
-              #    path: /
-              #    port: 9999
-              #  initialDelaySeconds: 30
-              #  timeoutSeconds: 10
       volumes:
         - name: qbittorrent-config
           persistentVolumeClaim:
@@ -118,3 +103,4 @@ spec:
         - name: tunnel
           hostPath:
             path: /dev/net/tun
+            type: CharDevice
