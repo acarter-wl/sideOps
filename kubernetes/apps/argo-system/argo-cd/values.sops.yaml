@@ -18,6 +18,13 @@ configs:
                 - CiliumIdentity
               clusters:
                 - "*"
+        configManagementPlugins: |
+            - name: kustomized-helm
+              generate:
+                command: ["/usr/local/bin/kustomized-helm"]
+                args: ["build"]
+              discover:
+                fileName: "kustomization.yaml"
     secret:
         argocdServerAdminPassword: $2a$10$5TnJS.VBR//mhM.hu6LYt.C1MZGCk31xCGIvXWLpELe4yNcmDnoEy
         argocdServerAdminPasswordMtime: 2025-05-01T23:30:51
@@ -130,6 +137,9 @@ repoServer:
         - mountPath: /usr/local/bin/ksops
           name: custom-tools
           subPath: ksops
+        - mountPath: /usr/local/bin/kustomized-helm
+          name: custom-tools
+          subPath: kustomized-helm
         # Ensure ksops binary is present, executable, and built for the correct architecture (e.g., amd64) in /custom-tools/ksops
         # Remove any other plugin binaries you do not use to avoid exec format errors
         - mountPath: /helm-secrets-private-keys/
@@ -161,8 +171,8 @@ sops:
             ejVpd3JnMmwrQ3k0QlExWmdzbVk3YmcKOqV2kluOhfERAUiHD2A8U7wcE76X8XeB
             qooQeywk++vx7GrhRNGIITolGmsfsE/USg0R9x8ZCprXEan5AV7naw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-04T20:49:37Z"
-    mac: ENC[AES256_GCM,data:bIJLGuSa0Xn6YFOiq6/Iec2dkEoibPszlaX6Ie9yD2WgKPLxYxa/iUdIq9oTIb5TEB53fMJ//y7U5r/qu6VOrG9B1jHYfGFWGB+Gz7NRwtISfiam1QdOIYWB+tn0CDP2Wpiy595pl766fc8WQce8s5L0hTfrdP09C1BouXAWcBc=,iv:obKwIz1gIMbRLLdcr0i1dzksdRrfrVxHE98yYjXzjjY=,tag:EudsxTg7c3UE5dtp/1th8Q==,type:str]
+    lastmodified: "2025-05-04T21:01:42Z"
+    mac: ENC[AES256_GCM,data:hyuh2iOPRENcFDpfEdaTCc+rNlqLlLNzo8paScJkAElmth93QzznHUrTYmDpSM5EFOiIxRCFDfaVZnxM10n0VM3exjICAzYKgBeEpnvUMambxJlL4Pdmi9qa7Fx7TPiekPFF3Swuek2QquabAaU0dUZjVETaO5XPZX+P6dJY/bQ=,iv:liydf/yUyoV36pqw+z0sbqUwCzes99PvJYHdNEZqIjk=,tag:Xr6sfItNXQjDNn6HkV2Z7w==,type:str]
     encrypted_regex: ^(data|stringData)$
     mac_only_encrypted: true
     version: 3.10.2
