@@ -9,9 +9,6 @@ spec:
   selector:
     matchLabels:
       app: blackbox-exporter
-  namespaceSelector:
-    matchNames:
-      - monitoring
   podMetricsEndpoints:
     - port: http
       path: /probe

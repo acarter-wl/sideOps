@@ -9,9 +9,7 @@ spec:
   selector:
     matchLabels:
       app: rook-ceph-mgr # Match labels of the Ceph services to monitor
-  namespaceSelector:
-    matchNames:
-      - rook-ceph # The namespace where Ceph services run
+  namespaceSelector: {}s
   endpoints:
     - port: http-metrics # The port name in the Ceph service exposing metrics
       path: /metrics

@@ -9,9 +9,7 @@ spec:
   selector:
     matchLabels:
       app: blackbox-exporter
-  namespaceSelector:
-    matchNames:
-      - monitoring
+  namespaceSelector: {}
   endpoints:
     - port: http
       path: /probe
