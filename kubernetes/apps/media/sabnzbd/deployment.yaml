@@ -45,9 +45,19 @@ spec:
             - name: TZ
               value: "America/Chicago"
             - name: HOST_WHITELIST
-              value: "*"
+              value: "sabnzbd.wakkalabs.com,*"
             - name: SABNZBD__MISC__HOST_WHITELIST
-              value: "*"
+              value: "sabnzbd.wakkalabs.com,*"
+            # Configure additional settings
+            - name: SABNZBD__MISC__DISABLE_API_KEY
+              value: "0"
+            - name: SABNZBD__MISC__LOCAL_RANGES
+              value: "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,127.0.0.1,::1,fe80::/10"  
+            # Configure usenet server to use the proxy
+            - name: SABNZBD__MISC__HTTP_PROXY
+              value: "http://sabnzbd-vpn-proxy:8888"
+            - name: SABNZBD__MISC__HTTPS_PROXY
+              value: "http://sabnzbd-vpn-proxy:8888"
           resources:
             requests:
               cpu: 100m
