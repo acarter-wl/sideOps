@@ -25,7 +25,6 @@ spec:
           image: busybox:latest
           securityContext:
             runAsUser: 0
-
           volumeMounts:
             - mountPath: /downloads
               name: downloads
@@ -49,6 +48,40 @@ spec:
               value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
               value: "*"
+            # Configure usenet servers to use VPN proxy
+            - name: SABNZBD__SERVERS__SERVER1__HOST
+              value: "your-usenet-server.com"  # Replace with your actual usenet server
+            - name: SABNZBD__SERVERS__SERVER1__PORT 
+              value: "119"  # Or 563 for SSL
+            - name: SABNZBD__SERVERS__SERVER1__USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sabnzbd-usenet-credentials
+                  key: username
+                  optional: true
+            - name: SABNZBD__SERVERS__SERVER1__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sabnzbd-usenet-credentials
+                  key: password
+                  optional: true
+            - name: SABNZBD__SERVERS__SERVER1__SSL
+              value: "1"
+            - name: SABNZBD__SERVERS__SERVER1__DISPLAY_NAME
+              value: "Primary Usenet (VPN)"
+            - name: SABNZBD__SERVERS__SERVER1__TIMEOUT
+              value: "60"
+            - name: SABNZBD__SERVERS__SERVER1__CONNECTIONS
+              value: "10"
+            - name: SABNZBD__SERVERS__SERVER1__OPTIONAL
+              value: "0"
+            - name: SABNZBD__SERVERS__SERVER1__RETENTION
+              value: "0"
+            # Configure proxy for downloads only
+            - name: SABNZBD__MISC__HTTPS_PROXY
+              value: "http://sabnzbd-vpn-proxy:8888"
+            - name: SABNZBD__MISC__HTTP_PROXY
+              value: "http://sabnzbd-vpn-proxy:8888"
           resources:
             requests:
               cpu: 100m
@@ -67,6 +100,31 @@ spec:
               name: downloads
             - mountPath: /media
               name: media
+---
+# Separate VPN deployment to avoid routing issues with web UI
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sabnzbd-vpn
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sabnzbd-vpn
+  template:
+    metadata:
+      labels:
+        app: sabnzbd-vpn
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 0
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      containers:
         - name: gluetun
           image: ghcr.io/qdm12/gluetun:v3.40
           imagePullPolicy: IfNotPresent
@@ -86,6 +144,12 @@ spec:
               value: "on"
             - name: HTTP_PROXY_PORT
               value: "8888"
+            # Add subnets that should bypass VPN
+            - name: FIREWALL_ALLOWED_SUBNETS
+              value: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+            # Allow access to localhost/pod subnet
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
           envFrom:
             - secretRef:
                 name: sabnzbd-vpn-credentials
