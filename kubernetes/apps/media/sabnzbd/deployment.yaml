@@ -178,11 +178,6 @@ spec:
         - name: tunnel
           hostPath:
             path: /dev/net/tun
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: sabnzbd-config
-        - name: downloads
           persistentVolumeClaim:
             claimName: downloads-ceph
         - name: media
