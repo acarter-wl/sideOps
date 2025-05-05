@@ -1,32 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sabnzbd-config-script
+  name: sabnzbd-proxy-env
   namespace: media
 data:
-  setup-proxy.sh: |
-    #!/bin/sh
-    set -e
-    
-    # Wait for config file to exist
-    until [ -f /config/sabnzbd.ini ]; do
-      echo "Waiting for SABnzbd config file to be created..."
-      sleep 2
-    done
-    
-    # Check if server section exists and add/update proxy settings
-    if ! grep -q "\[misc\]" /config/sabnzbd.ini; then
-      echo "[misc]" >> /config/sabnzbd.ini
-    fi
-    
-    # Update or add proxy settings
-    sed -i '/^http_proxy.*/d' /config/sabnzbd.ini
-    sed -i '/^https_proxy.*/d' /config/sabnzbd.ini
-    
-    # Add proxy settings under [misc] section
-    sed -i '/\[misc\]/a http_proxy = http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888\nhttps_proxy = http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888' /config/sabnzbd.ini
-    
-    echo "Proxy settings configured in sabnzbd.ini"
-    
-    # Keep container running
-    tail -f /dev/null
+  http_proxy: "http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888"
+  https_proxy: "http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888"
+  no_proxy: "localhost,127.0.0.1,sabnzbd.wakkalabs.com,sabnzbd"
