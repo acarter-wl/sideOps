@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,17 +9,24 @@ metadata:
     argocd.argoproj.io/sync-wave: '8'
 spec:
   project: media
-  source:
-    repoURL: https://github.com/acarter-wl/sideops.git
-    targetRevision: main
-    path: kubernetes/apps/media/qbittorrent
+  sources:
+    - repoURL: https://github.com/acarter-wl/sideops.git
+      targetRevision: main
+      ref: repo
+      path: kubernetes/apps/media/qbittorrent
+    - repoURL: ghcr.io/bjw-s/helm
+      targetRevision: 3.7.3
+      chart: app-template
+      helm:
+        releaseName: qbittorrent
+        valueFiles:
+          - $repo/kubernetes/apps/media/qbittorrent/values.yaml
   destination:
-    server: https://kubernetes.default.svc
     namespace: media
+    server: https://kubernetes.default.svc
   syncPolicy:
     automated:
       prune: true
-      allowEmpty: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true

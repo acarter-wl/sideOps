@@ -8,19 +8,25 @@ metadata:
     argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: '8'
 spec:
+  project: media
+  sources:
+    - repoURL: https://github.com/acarter-wl/sideops.git
+      targetRevision: main
+      ref: repo
+      path: kubernetes/apps/media/sabnzbd
+    - repoURL: ghcr.io/bjw-s/helm
+      targetRevision: 3.7.3
+      chart: app-template
+      helm:
+        releaseName: sabnzbd
+        valueFiles:
+          - $repo/kubernetes/apps/media/sabnzbd/values.yaml
   destination:
     namespace: media
     server: https://kubernetes.default.svc
-  project: media
-  source:
-    repoURL: https://github.com/acarter-wl/sideops.git
-    targetRevision: main
-    path: kubernetes/apps/media/sabnzbd
   syncPolicy:
-    syncOptions:
-      - ServerSideApply=true
-
-      - 
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
