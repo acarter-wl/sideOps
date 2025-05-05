@@ -48,3 +48,8 @@ bloomCompactor:
   replicas: 0
 bloomGateway:
   replicas: 0
+
+# Add monitoring configuration to fix nil pointer error
+monitoring:
+  dashboards:
+    enabled: false
