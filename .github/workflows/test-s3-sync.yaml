@@ -31,7 +31,7 @@ jobs:
           echo "Hello, S3!" > ./test-data/hello.txt
 
       - name: Sync to S3
-        uses: acarter-wl/sideops/s3-sync-action
+        uses: ./s3-sync-action
         env:
           AWS_S3_BUCKET: "plts3artifacts"
           AWS_REGION: "us-east-2"
