@@ -1,12 +1,9 @@
-loki:
+Your Loki configuration looks good for a single-binary deployment with filesystem storage. However, there are a few improvements and corrections I'd suggest:
+yamlloki:
   commonConfig:
     replication_factor: 1
   storage:
     type: 'filesystem'
-    bucketNames:
-      chunks: chunks
-      ruler: ruler
-      admin: admin
   schemaConfig:
     configs:
       - from: "2024-04-01"
@@ -16,9 +13,6 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  storage_config:
-    filesystem:
-      directory: /tmp/loki/chunks
   pattern_ingester:
     enabled: true
   limits_config:
@@ -36,11 +30,9 @@ deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
   persistence:
+    enabled: true # Add this line
     storageClass: ceph-block
-    accessModes:
-      - ReadWriteOnce
     size: 20Gi
-
   resources:
     requests:
       cpu: "1"
@@ -49,24 +41,56 @@ singleBinary:
       cpu: "2"
       memory: "4Gi"
 
-sidecar:
-  image:
-    repository: kiwigrid/k8s-sidecar
-    tag: 1.30.3
-  resources:
-    requests:
-      cpu: 50m
-      memory: 50Mi
-    limits:
-      cpu: 100m
-      memory: 100Mi
+# Gateway configuration for ingress
+gateway:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: internal
+    annotations:
+      kubernetes.io/ingress.class: internal
+      internal-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+    hosts:
+      - host: loki.wakkalabs.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: loki-wakkalabs-tls
+        hosts:
+          - loki.wakkalabs.com
 
+# Monitoring
+monitoring:
+  dashboards:
+    enabled: true
+    annotations:
+      grafana_dashboard: "1"
+    labels:
+      grafana_dashboard: "1"
+  rules:
+    enabled: true
+    alerting: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false
+  lokiCanary:
+    enabled: false
+
+# Test pod for verification
+test:
+  enabled: false
+
+# Keep these disabled for SingleBinary mode
 backend:
   replicas: 0
 read:
   replicas: 0
 write:
   replicas: 0
-
-chunksCache:
-  allocatedMemory: 500
