@@ -77,6 +77,14 @@ prometheus:
       fsGroup: 2000
       runAsNonRoot: true
       runAsUser: 1000
+    extraVolumes:
+      - name: etcd-certs
+        secret:
+          secretName: etcd-client-certs
+    extraVolumeMounts:
+      - name: etcd-certs
+        mountPath: /etc/prometheus/secrets/etcd-certs
+        readOnly: true
     storageSpec:
       volumeClaimTemplate:
         spec:
