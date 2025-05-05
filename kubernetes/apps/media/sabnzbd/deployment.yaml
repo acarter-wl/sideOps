@@ -48,40 +48,6 @@ spec:
               value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
               value: "*"
-            # Configure usenet servers to use VPN proxy
-            - name: SABNZBD__SERVERS__SERVER1__HOST
-              value: "your-usenet-server.com"  # Replace with your actual usenet server
-            - name: SABNZBD__SERVERS__SERVER1__PORT 
-              value: "119"  # Or 563 for SSL
-            - name: SABNZBD__SERVERS__SERVER1__USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: sabnzbd-usenet-credentials
-                  key: username
-                  optional: true
-            - name: SABNZBD__SERVERS__SERVER1__PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sabnzbd-usenet-credentials
-                  key: password
-                  optional: true
-            - name: SABNZBD__SERVERS__SERVER1__SSL
-              value: "1"
-            - name: SABNZBD__SERVERS__SERVER1__DISPLAY_NAME
-              value: "Primary Usenet (VPN)"
-            - name: SABNZBD__SERVERS__SERVER1__TIMEOUT
-              value: "60"
-            - name: SABNZBD__SERVERS__SERVER1__CONNECTIONS
-              value: "10"
-            - name: SABNZBD__SERVERS__SERVER1__OPTIONAL
-              value: "0"
-            - name: SABNZBD__SERVERS__SERVER1__RETENTION
-              value: "0"
-            # Configure proxy for downloads only
-            - name: SABNZBD__MISC__HTTPS_PROXY
-              value: "http://sabnzbd-vpn-proxy:8888"
-            - name: SABNZBD__MISC__HTTP_PROXY
-              value: "http://sabnzbd-vpn-proxy:8888"
           resources:
             requests:
               cpu: 100m
@@ -111,7 +77,22 @@ spec:
           persistentVolumeClaim:
             claimName: nfs-media
 ---
-# Separate VPN deployment to avoid routing issues with web UI
+apiVersion: v1
+kind: Service
+metadata:
+  name: sabnzbd
+  namespace: media
+spec:
+  selector:
+    app: sabnzbd
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: web-ui
+  type: ClusterIP
+---
+# Separate VPN proxy service for downloads
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -154,11 +135,8 @@ spec:
               value: "on"
             - name: HTTP_PROXY_PORT
               value: "8888"
-            # Add subnets that should bypass VPN
+            # Allow access to pod subnet
             - name: FIREWALL_ALLOWED_SUBNETS
-              value: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
-            # Allow access to localhost/pod subnet
-            - name: FIREWALL_OUTBOUND_SUBNETS
               value: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
           envFrom:
             - secretRef:
@@ -178,31 +156,8 @@ spec:
         - name: tunnel
           hostPath:
             path: /dev/net/tun
-          persistentVolumeClaim:
-            claimName: downloads-ceph
-        - name: media
-          persistentVolumeClaim:
-            claimName: nfs-media
-        - name: tunnel
-          hostPath:
-            path: /dev/net/tun
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: sabnzbd
-  namespace: media
-spec:
-  selector:
-    app: sabnzbd
-  ports:
-    - port: 8080
-      targetPort: 8080
-      protocol: TCP
-      name: web-ui
-  type: ClusterIP
----
-# Separate service for VPN proxy access 
+# Service for the VPN proxy
 apiVersion: v1
 kind: Service
 metadata:
@@ -210,7 +165,7 @@ metadata:
   namespace: media
 spec:
   selector:
-    app: sabnzbd
+    app: sabnzbd-vpn
   ports:
     - port: 8888
       targetPort: 8888
