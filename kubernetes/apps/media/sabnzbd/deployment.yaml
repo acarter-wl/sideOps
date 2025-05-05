@@ -49,22 +49,6 @@ spec:
               value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
               value: "*"
-            # Remove global proxy settings that affect web UI access
-            # - name: SABNZBD__MISC__HTTPS_PROXY
-            #   value: "http://localhost:8888"
-            # - name: SABNZBD__MISC__HTTP_PROXY
-            #   value: "http://localhost:8888"
-            # Instead configure proxy only at the Usenet server level
-            - name: SABNZBD__SERVERS__SERVER1__DISPLAYNAME
-              value: "Usenet Server"
-            - name: SABNZBD__SERVERS__SERVER1__SSL
-              value: "1"
-            - name: SABNZBD__SERVERS__SERVER1__TIMEOUT
-              value: "60"
-            - name: SABNZBD__SERVERS__SERVER1__PRIORITY 
-              value: "0"
-            - name: SABNZBD__SERVERS__SERVER1__CONNECTIONS
-              value: "10"
           resources:
             requests:
               cpu: 100m
