@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki
+  namespace: monitoring
+spec:
+  template:
+    spec:
+      volumes:
+        - $patch: delete
+          name: config
+      containers:
+        - name: loki
+          volumeMounts:
+            - $patch: delete
+              name: config
