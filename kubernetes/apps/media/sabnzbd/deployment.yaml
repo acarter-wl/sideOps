@@ -100,6 +100,16 @@ spec:
               name: downloads
             - mountPath: /media
               name: media
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sabnzbd-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads-ceph
+        - name: media
+          persistentVolumeClaim:
+            claimName: nfs-media
 ---
 # Separate VPN deployment to avoid routing issues with web UI
 apiVersion: apps/v1
@@ -164,6 +174,10 @@ spec:
           volumeMounts:
             - name: tunnel
               mountPath: /dev/net/tun
+      volumes:
+        - name: tunnel
+          hostPath:
+            path: /dev/net/tun
       volumes:
         - name: config
           persistentVolumeClaim:
