@@ -1,0 +1,39 @@
+name: Test S3 Sync Action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-s3-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-east-2
+      S3_BUCKET: plts3artifacts
+      DEST_DIR: test-artifacts/${{ github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::654654563406:role/github-actions-oidc
+          aws-region: "us-east-2"
+
+      - name: Create test file
+        run: |
+          mkdir -p ./test-data
+          echo "Hello, S3!" > ./test-data/hello.txt
+
+      - name: Sync to S3
+        uses: intelerad-org/plt-actions/s3-sync-action@plt-20000
+        env:
+          AWS_S3_BUCKET: "plts3artifacts"
+          AWS_REGION: "us-east-2"
+          SOURCE_DIR: "./test-data"
+          DEST_DIR: "test-artifacts/${{ github.sha }}"
