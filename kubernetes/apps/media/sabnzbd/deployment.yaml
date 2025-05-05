@@ -130,31 +130,3 @@ spec:
       protocol: TCP
       name: web-ui
   type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: sabnzbd
-  namespace: media
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-  labels:
-    app: sabnzbd
-    app.kubernetes.io/name: sabnzbd
-spec:
-  ingressClassName: internal
-  tls:
-    - hosts:
-        - sabnzbd.wakkalabs.com
-      secretName: sabnzbd-tls
-  rules:
-    - host: sabnzbd.wakkalabs.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: sabnzbd
-                port:
-                  number: 8080
