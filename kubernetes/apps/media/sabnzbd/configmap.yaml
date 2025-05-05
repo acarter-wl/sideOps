@@ -4,19 +4,7 @@ metadata:
   name: sabnzbd-proxy-settings
   namespace: media
 data:
-  init-config.sh: |
-    #!/bin/bash
-    set -e
-    
-    # Wait for config file to be created by SABnzbd
-    while [ ! -f /config/sabnzbd.ini ]; do
-      echo "Waiting for SABnzbd config file to be created..."
-      sleep 2
-    done
-    
-    # Add iptables rules to route only usenet traffic through VPN
-    # This will let all other traffic go directly, allowing web UI to be accessed
-    cat > /scripts/route-usenet.sh << 'EOF'
+  route-usenet.sh: |
     #!/bin/bash
     
     # Add iptables rule to route usenet traffic through VPN proxy
@@ -25,8 +13,3 @@ data:
     
     # Run the command provided
     exec "$@"
-    EOF
-    
-    chmod +x /scripts/route-usenet.sh
-    
-    echo "Routing configuration complete"
