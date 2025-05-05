@@ -1,0 +1,61 @@
+configuration:
+  provider: aws
+  backupStorageLocation:
+    bucket: velero-cluster-1
+    name: cluster-1
+    default: true
+    config:
+      region: minio
+      s3ForcePathStyle: true
+      s3Url: http://s3api.wakkalabs.com:9000
+
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.7.0
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+deployNodeAgent: true
+
+resources:
+  requests:
+    cpu: 125m
+    memory: 128Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+
+metrics:
+  enabled: true
+
+backupsEnabled: true
+snapshotsEnabled: false
+
+credentials:
+  useSecret: true
+  name: cloud-credentials
+  existingSecret: cloud-credentials
+  #secretContents:
+  #  cloud: |
+  #    [default]
+  #    aws_access_key_id=minio
+  #    aws_secret_access_key=miniostorage
+
+extraObjects:
+  - apiVersion: velero.io/v1
+    kind: BackupStorageLocation
+    metadata:
+      name: cluster-2
+      namespace: velero
+    spec:
+      accessMode: ReadOnly
+      config:
+        region: minio
+        s3ForcePathStyle: "true"
+        s3Url: http://minio-url
+      default: false
+      objectStorage:
+        bucket: velero-cluster-2
+      provider: aws
