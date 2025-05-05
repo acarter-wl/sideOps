@@ -1,15 +1,32 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sabnzbd-proxy-settings
+  name: sabnzbd-config-script
   namespace: media
 data:
-  route-usenet.sh: |
-    #!/bin/bash
+  setup-proxy.sh: |
+    #!/bin/sh
+    set -e
     
-    # Add iptables rule to route usenet traffic through VPN proxy
-    iptables -t nat -A OUTPUT -p tcp --dport 119 -j DNAT --to-destination 127.0.0.1:8888
-    iptables -t nat -A OUTPUT -p tcp --dport 563 -j DNAT --to-destination 127.0.0.1:8888
+    # Wait for config file to exist
+    until [ -f /config/sabnzbd.ini ]; do
+      echo "Waiting for SABnzbd config file to be created..."
+      sleep 2
+    done
     
-    # Run the command provided
-    exec "$@"
+    # Check if server section exists and add/update proxy settings
+    if ! grep -q "\[misc\]" /config/sabnzbd.ini; then
+      echo "[misc]" >> /config/sabnzbd.ini
+    fi
+    
+    # Update or add proxy settings
+    sed -i '/^http_proxy.*/d' /config/sabnzbd.ini
+    sed -i '/^https_proxy.*/d' /config/sabnzbd.ini
+    
+    # Add proxy settings under [misc] section
+    sed -i '/\[misc\]/a http_proxy = http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888\nhttps_proxy = http://sabnzbd-vpn-proxy.media.svc.cluster.local:8888' /config/sabnzbd.ini
+    
+    echo "Proxy settings configured in sabnzbd.ini"
+    
+    # Keep container running
+    tail -f /dev/null
