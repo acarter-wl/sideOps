@@ -72,13 +72,7 @@ prometheus:
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
-    serviceMonitorNamespaceSelector:
-      matchNames:
-        - monitoring
-        - rook-ceph
-        - kube-system
-        - network
-        - argo-system
+    serviceMonitorNamespaceSelector: {}
     securityContext:
       fsGroup: 2000
       runAsNonRoot: true
