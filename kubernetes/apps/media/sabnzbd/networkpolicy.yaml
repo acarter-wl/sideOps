@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-sabnzbd-to-vpn
+  namespace: media
+spec:
+  podSelector:
+    matchLabels:
+      app: sabnzbd-vpn
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: sabnzbd
+    ports:
+    - protocol: TCP
+      port: 8888
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-sabnzbd-egress
+  namespace: media
+spec:
+  podSelector:
+    matchLabels:
+      app: sabnzbd
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: sabnzbd-vpn
+    ports:
+    - protocol: TCP
+      port: 8888
