@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sabnzbd-proxy-settings
+  namespace: media
+data:
+  init-config.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Wait for config file to be created by SABnzbd
+    while [ ! -f /config/sabnzbd.ini ]; do
+      echo "Waiting for SABnzbd config file to be created..."
+      sleep 2
+    done
+    
+    # Add proxy configuration to use the sidecar container
+    if ! grep -q "http_proxy = http://localhost:8888" /config/sabnzbd.ini; then
+      echo "Setting up proxy configuration in sabnzbd.ini"
+      cat >> /config/sabnzbd.ini << EOF
+    
+    [misc]
+    http_proxy = http://localhost:8888
+    https_proxy = http://localhost:8888
+    
+    EOF
+      echo "Proxy configuration added to sabnzbd.ini"
+    else
+      echo "Proxy configuration already exists in sabnzbd.ini"
+    fi

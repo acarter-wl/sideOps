@@ -28,6 +28,16 @@ spec:
           volumeMounts:
             - mountPath: /downloads
               name: downloads
+        - name: init-config
+          image: busybox:latest
+          command: ["/bin/sh", "/scripts/init-config.sh"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /scripts
+              name: config-scripts
       containers:
         - name: sabnzbd
           image: linuxserver/sabnzbd:latest
@@ -48,16 +58,6 @@ spec:
               value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
               value: "*"
-            # Configure additional settings
-            - name: SABNZBD__MISC__DISABLE_API_KEY
-              value: "0"
-            - name: SABNZBD__MISC__LOCAL_RANGES
-              value: "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,127.0.0.1,::1,fe80::/10"  
-            # Configure usenet server to use the proxy
-            - name: SABNZBD__MISC__HTTP_PROXY
-              value: "http://sabnzbd-vpn-proxy:8888"
-            - name: SABNZBD__MISC__HTTPS_PROXY
-              value: "http://sabnzbd-vpn-proxy:8888"
           resources:
             requests:
               cpu: 100m
@@ -76,56 +76,7 @@ spec:
               name: downloads
             - mountPath: /media
               name: media
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: sabnzbd-config
-        - name: downloads
-          persistentVolumeClaim:
-            claimName: downloads-ceph
-        - name: media
-          persistentVolumeClaim:
-            claimName: nfs-media
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: sabnzbd
-  namespace: media
-spec:
-  selector:
-    app: sabnzbd
-  ports:
-    - port: 8080
-      targetPort: 8080
-      protocol: TCP
-      name: web-ui
-  type: ClusterIP
----
-# Separate VPN proxy service for downloads
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: sabnzbd-vpn
-  namespace: media
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: sabnzbd-vpn
-  template:
-    metadata:
-      labels:
-        app: sabnzbd-vpn
-    spec:
-      terminationGracePeriodSeconds: 30
-      securityContext:
-        fsGroup: 0
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "1"
-      containers:
+        # VPN container in same pod for direct connectivity
         - name: gluetun
           image: ghcr.io/qdm12/gluetun:v3.40
           imagePullPolicy: IfNotPresent
@@ -163,22 +114,34 @@ spec:
             - name: tunnel
               mountPath: /dev/net/tun
       volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sabnzbd-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads-ceph
+        - name: media
+          persistentVolumeClaim:
+            claimName: nfs-media
         - name: tunnel
           hostPath:
             path: /dev/net/tun
+        - name: config-scripts
+          configMap:
+            name: sabnzbd-proxy-settings
+            defaultMode: 0755
 ---
-# Service for the VPN proxy
 apiVersion: v1
 kind: Service
 metadata:
-  name: sabnzbd-vpn-proxy
+  name: sabnzbd
   namespace: media
 spec:
   selector:
-    app: sabnzbd-vpn
+    app: sabnzbd
   ports:
-    - port: 8888
-      targetPort: 8888
+    - port: 8080
+      targetPort: 8080
       protocol: TCP
-      name: http-proxy
+      name: web-ui
   type: ClusterIP
