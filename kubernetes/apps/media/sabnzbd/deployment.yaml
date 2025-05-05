@@ -45,9 +45,9 @@ spec:
             - name: TZ
               value: "America/Chicago"
             - name: HOST_WHITELIST
-              value: "sabnzbd.wakkalabs.com,*"
+              value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
-              value: "sabnzbd.wakkalabs.com,*"
+              value: "*"
             # Configure additional settings
             - name: SABNZBD__MISC__DISABLE_API_KEY
               value: "0"
