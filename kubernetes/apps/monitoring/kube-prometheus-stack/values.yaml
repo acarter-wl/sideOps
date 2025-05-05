@@ -9,19 +9,12 @@ global:
 
 crds:
   enabled: true
-  # Enable upgrade job for better CRD management during upgrades
   upgradeJob:
     enabled: true
 
 # ================================
 # ETCD Scraping for Talos
-# ======================
-kubeControllerManager:
-  endpoints:
-    - 192.168.101.120
-    - 192.168.101.121
-    - 192.168.101.122
-
+# ================================
 kubeEtcd:
   endpoints:
     - 192.168.101.120
@@ -37,28 +30,42 @@ kubeEtcd:
     caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
     certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
     keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client-key.key
+
+# ================================
+# Control Plane Components
+# ================================
+kubeControllerManager:
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+
 kubeScheduler:
   endpoints:
     - 192.168.101.120
     - 192.168.101.121
     - 192.168.101.122
+
+# ================================
+# Prometheus Configuration
+# ================================
 prometheus:
   prometheusSpec:
     secrets:
       - etcd-client-certs
-  podDisruptionBudget:
-    enabled: true
-    minAvailable: 1
-  scrapeInterval: 30s
-  evaluationInterval: 30s
-  replicas: 2
-  resources:
-    requests:
-      memory: 2Gi
-      cpu: 1000m
-    limits:
-      memory: 4Gi
-      cpu: 2000m
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    replicas: 2
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1000m
+      limits:
+        memory: 4Gi
+        cpu: 2000m
     retention: 15d
     retentionSize: 90GB
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -84,6 +91,32 @@ prometheus:
           resources:
             requests:
               storage: 50Gi
+    additionalScrapeConfigs:
+      - job_name: 'blackbox-homelab'
+        metrics_path: /probe
+        params:
+          module: [ http_2xx ]
+        static_configs:
+          - targets:
+              - https://sonarr.wakkalabs.com
+              - https://radarr.wakkalabs.com
+              - https://prowlarr.wakkalabs.com
+              - https://ceph.wakkalabs.com
+              - https://jellyfin.wakkalabs.com
+              - https://jellyseerr.wakkalabs.com
+              - https://nzbhydra.wakkalabs.com
+              - https://sabnzbd.wakkalabs.com
+              - https://qbittorrent.wakkalabs.com
+              - https://argo.wakkalabs.com
+              - https://alertmanager.wakkalabs.com
+              - https://prometheus.wakkalabs.com
+        relabel_configs:
+          - source_labels: [ __address__ ]
+            target_label: __param_target
+          - source_labels: [ __param_target ]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox-exporter.monitoring.svc.cluster.local:9115
   ingress:
     enabled: true
     ingressClassName: internal
@@ -91,7 +124,6 @@ prometheus:
       kubernetes.io/ingress.class: internal
       internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
-
     hosts:
       - prometheus.wakkalabs.com
     path: /
@@ -101,7 +133,11 @@ prometheus:
         hosts:
           - prometheus.wakkalabs.com
 
+# ================================
+# Alertmanager Configuration
+# ================================
 alertmanager:
+  enabled: true # This is default, but good to be explicit
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
@@ -110,49 +146,6 @@ alertmanager:
     ipFamilyPolicy: SingleStack
     ipFamilies:
       - IPv4
-  config:
-    global:
-      resolve_timeout: 5m
-    route:
-      group_by: [ 'job', 'alertname', 'namespace', 'severity' ]
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 12h
-      receiver: 'null'
-      routes:
-        - match:
-            alertname: Watchdog
-          receiver: 'null'
-        - match:
-            severity: critical
-          receiver: 'discord-critical'
-          continue: true
-        - match:
-            severity: warning
-          receiver: 'discord-warnings'
-          group_wait: 10m
-          repeat_interval: 24h
-    inhibit_rules:
-      - source_match:
-          severity: 'critical'
-        target_match:
-          severity: 'warning'
-        equal: [ 'alertname', 'namespace', 'instance' ]
-    receivers:
-      - name: 'discord-critical'
-        webhook_configs:
-          - url: >-
-              https://discord.com/api/webhooks/1355431526891786240/5KSnlY0KPdx7dRsSL0yJDaZYNzVktheQz1PXNoX9-eCIlZP2MFZcM67PtFRTRa4ZwJ_a
-            send_resolved: true
-      - name: 'discord-warnings'
-        webhook_configs:
-          - url: >-
-              https://discord.com/api/webhooks/1355379117692027012/y6Sxl2G-D4hqr8TQVL8rT1HRb1n_h2e8x7nQoNbSDZz_8cGYII2ZVeziLxujkFjkm89X
-            send_resolved: true
-      - name: 'null'
-    templates:
-      - '/etc/alertmanager/config/*.tmpl'
-
   ingress:
     enabled: true
     ingressClassName: internal
@@ -160,7 +153,6 @@ alertmanager:
       kubernetes.io/ingress.class: internal
       internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
-
     hosts:
       - alertmanager.wakkalabs.com
     path: /
@@ -170,6 +162,20 @@ alertmanager:
         hosts:
           - alertmanager.wakkalabs.com
 
+  # Optional but recommended: Add persistent storage
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ceph-block
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 10Gi
+
+# ================================
+# Default Rules Configuration
+# ================================
 defaultRules:
   create: true
   rules:
@@ -184,24 +190,10 @@ defaultRules:
     kubeScheduler: true
     kubernetesStorage: true
     prometheusOperator: true
-    # Add custom rule settings to reduce noise
-    # Add configmaps for custom rules
   disabled:
     KubeControllerManagerDown: false
     KubeSchedulerDown: false
     KubeletTooManyPods: true
-
-# kubeControllerManager:
-#   service:
-#     ipFamilyPolicy: SingleStack
-#     ipFamilies:
-#     - IPv4
-
-# kubeScheduler:
-#   service:
-#     ipFamilyPolicy: SingleStack
-#     ipFamilies:
-#     - IPv4
 
 # ================================
 # Grafana Configuration
@@ -215,11 +207,8 @@ grafana:
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: "America/Chicago"
   defaultDashboardsEditable: true
-  # Add Grafana settings for better security and usability
-  # Configure SMTP for Grafana alerts
   serviceMonitor:
     enabled: true
-  # Configure sidecar for auto-importing dashboards
   sidecar:
     dashboards:
       enabled: true
@@ -245,7 +234,6 @@ grafana:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: "letsencrypt-production"
-
     hosts:
       - grafana.wakkalabs.com
     path: /
@@ -255,45 +243,34 @@ grafana:
         hosts:
           - grafana.wakkalabs.com
 
-  additionalDataSources:
-    - name: Tempo
-      type: tempo
-      uid: tempo
-      access: proxy
-      url: http://tempo.monitoring.svc.cluster.local:3100
-      jsonData:
-        httpMethod: GET
-        lokiSearch:
-          datasourceUid: loki
-        tracesToLogs:
-          datasourceUid: loki
-          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
-          mappedTags: [ { key: 'service.name', value: 'service' } ]
-          mapTagNamesEnabled: true
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-          filterByTraceID: true
-          filterBySpanID: true
-        serviceMap:
-          datasourceUid: prometheus
-        nodeGraph:
-          enabled: true
-        search:
-          hide: false
-    # Add Loki for log aggregation
-    # - name: Loki
-    #   type: loki
-    #   uid: loki
-    #   access: proxy
-    #   url: http://loki-gateway.monitoring.svc.cluster.local
-    #   jsonData:
-    #     maxLines: 1000
-    #     derivedFields:
-    #     - datasourceUid: tempo
-    #       matcherRegex: "traceID=(\\w+)"
-    #       name: TraceID
-    #       url: "$${__value.raw}"
-    # Add pre-configured dashboards for Loki and additional monitoring
+  # Additional Data Sources
+  # additionalDataSources:
+  #   - name: Tempo
+  #     type: tempo
+  #     uid: tempo
+  #     access: proxy
+  #     url: http://tempo.monitoring.svc.cluster.local:3100
+  #     jsonData:
+  #       httpMethod: GET
+  #       lokiSearch:
+  #         datasourceUid: loki
+  #       tracesToLogs:
+  #         datasourceUid: loki
+  #         tags: ['instance', 'pod', 'namespace', 'service.name']
+  #         mappedTags: [{key: 'service.name', value: 'service'}]
+  #         mapTagNamesEnabled: true
+  #         spanStartTimeShift: '-1h'
+  #         spanEndTimeShift: '1h'
+  #         filterByTraceID: true
+  #         filterBySpanID: true
+  #       serviceMap:
+  #         datasourceUid: prometheus
+  #       nodeGraph:
+  #         enabled: true
+  #       search:
+  #         hide: false
+
+  # Dashboard Providers
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -314,15 +291,51 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards/kubernetes
+        - name: 'network'
+          orgId: 1
+          folder: 'Network'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/network
+        - name: 'storage'
+          orgId: 1
+          folder: 'Storage'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/storage
 
-  # Define dashboards
+  # Dashboards
   dashboards:
     default:
-      # Add custom dashboards here
       kubernetes-cluster-monitoring:
         gnetId: 13770
         revision: 1
         datasource: Prometheus
+      proxmox-overview:
+        gnetId: 10347
+        revision: 5
+        datasource: Prometheus
+      kubernetes-capacity-planning:
+        gnetId: 5309
+        revision: 1
+        datasource: Prometheus
+      kubernetes-cluster-autoscaler:
+        gnetId: 3831
+        revision: 1
+        datasource: Prometheus
+      etcd-cluster:
+        gnetId: 9733
+        revision: 3
+        datasource: Prometheus
+      kubernetes-pv-usage:
+        gnetId: 13646
+        revision: 2
+        datasource: Prometheus
+
     kubernetes:
       k8s-node-rsrc-use:
         gnetId: 8171
@@ -332,29 +345,70 @@ grafana:
         gnetId: 12611
         revision: 1
         datasource: Loki
-      # Add Tempo tracing dashboards
-      tempo-overview:
-        gnetId: 15643
+      kubernetes-apiserver:
+        gnetId: 12006
         revision: 1
-        datasource: Tempo
-      tempo-service-graph:
-        gnetId: 14850
+        datasource: Prometheus
+      kubelet-monitoring:
+        gnetId: 14282
         revision: 1
-        datasource:
-          - name: prometheus
-            value: Prometheus
-          - name: tempo
-            value: Tempo
-      application-trace-analysis:
-        gnetId: 17836
+        datasource: Prometheus
+      node-exporter-full:
+        gnetId: 1860
+        revision: 31
+        datasource: Prometheus
+      kubernetes-cluster-monitoring-detailed:
+        gnetId: 8588
         revision: 1
-        datasource:
-          - name: DS_PROMETHEUS
-            value: Prometheus
-          - name: DS_TEMPO
-            value: Tempo
+        datasource: Prometheus
+      kubernetes-pod-monitoring:
+        gnetId: 6417
+        revision: 1
+        datasource: Prometheus
+      kubernetes-workload:
+        gnetId: 15758
+        revision: 1
+        datasource: Prometheus
+      kubernetes-controller-manager:
+        gnetId: 12110
+        revision: 1
+        datasource: Prometheus
+      kubernetes-scheduler:
+        gnetId: 12130
+        revision: 1
+        datasource: Prometheus
 
-# Add additional exporters
+    network:
+      kubernetes-network-monitoring:
+        gnetId: 12125
+        revision: 1
+        datasource: Prometheus
+      nginx-ingress-controller:
+        gnetId: 9614
+        revision: 1
+        datasource: Prometheus
+      cilium-overview:
+        gnetId: 6658
+        revision: 1
+        datasource: Prometheus
+
+    storage:
+      ceph-cluster:
+        gnetId: 2842
+        revision: 17
+        datasource: Prometheus
+      ceph-pools:
+        gnetId: 5336
+        revision: 9
+        datasource: Prometheus
+      kubernetes-persistent-volumes:
+        gnetId: 13646
+        revision: 2
+        datasource: Prometheus
+
+# ================================
+# Additional Exporters
+# ================================
 nodeExporter:
   enabled: true
   priorityClassName: system-node-critical
@@ -366,100 +420,13 @@ nodeExporter:
       cpu: 100m
       memory: 100Mi
 
-# Enable kube-state-metrics
 kubeStateMetrics:
   enabled: true
   selfMonitor:
     enabled: true
 
-# Add Loki stack for log management
+# ================================
+# Optional Components
+# ================================
 loki:
-  enabled: false # Set to true if you want to deploy Loki with this chart
-tempo:
-  enabled: true # Enable Tempo for distributed tracing
-  replicas: 2 # Run multiple replicas for high availability
-  service:
-    name: tempo
-    port: 3100
-  serviceMonitor:
-    enabled: true
-  ingress:
-    enabled: true
-    ingressClassName: internal
-    annotations:
-      kubernetes.io/ingress.class: internal
-      internal-dns.alpha.kubernetes.io/enabled: "true"
-      cert-manager.io/cluster-issuer: "letsencrypt-production"
-
-    hosts:
-      - tempo.wakkalabs.com
-    path: /
-    pathType: Prefix
-    tls:
-      - secretName: tempo-wakkalabs-tls
-        hosts:
-          - tempo.wakkalabs.com
-  tempoQuery:
-    enabled: true
-    service:
-      port: 16686
-  # Storage configuration for Tempo
-  storage:
-    trace:
-      backend: local
-      local:
-        path: /var/tempo/traces
-    # Configure appropriate retention
-    retention: 168h # 7 days retention
-  # Configure persistent volume for storage
-  persistence:
-    enabled: true
-    size: 50Gi
-    storageClassName: ceph-block # Using the same storage class as other components
-    accessModes:
-      - ReadWriteOnce
-  resources:
-    requests:
-      cpu: 200m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-  # Configure security context
-  securityContext:
-    fsGroup: 1000
-    runAsNonRoot: true
-    runAsUser: 1000
-  # Set the receivers configuration
-  receivers:
-    jaeger:
-      protocols:
-        thrift_compact:
-          endpoint: 0.0.0.0:6831
-        thrift_binary:
-          endpoint: 0.0.0.0:6832
-        grpc:
-          endpoint: 0.0.0.0:14250
-        thrift_http:
-          endpoint: 0.0.0.0:14268
-    zipkin:
-      endpoint: 0.0.0.0:9411
-    otlp:
-      protocols:
-        grpc:
-          endpoint: 0.0.0.0:4317
-        http:
-          endpoint: 0.0.0.0:4318
-  # Configure processors for better performance
-  processors:
-    batch:
-      timeout: 1s
-      send_batch_size: 1000
-  # Configure multi-tenant mode (optional)
-  multitenancy:
-    enabled: false
-  # Configure distributed mode (single binary by default)
-  distributor:
-    log_received_spans:
-      enabled: true
-      include_all_attributes: false
+  enabled: false
