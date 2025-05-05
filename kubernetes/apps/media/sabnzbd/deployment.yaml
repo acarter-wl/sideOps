@@ -81,6 +81,8 @@ spec:
               name: downloads
             - mountPath: /media
               name: media
+            - mountPath: /scripts
+              name: config-scripts
         # VPN container in same pod for direct connectivity
         - name: gluetun
           image: ghcr.io/qdm12/gluetun:v3.40
