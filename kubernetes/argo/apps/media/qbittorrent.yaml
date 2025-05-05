@@ -11,12 +11,12 @@ spec:
   project: media
   sources:
     - repoURL: https://github.com/acarter-wl/sideops.git
+      path: kubernetes/apps/media/qbittorrents
       targetRevision: main
       ref: repo
-      path: kubernetes/apps/media/qbittorrent
     - repoURL: ghcr.io/bjw-s/helm
-      targetRevision: 3.7.3
       chart: app-template
+      targetRevision: 3.7.3
       helm:
         releaseName: qbittorrent
         valueFiles:
