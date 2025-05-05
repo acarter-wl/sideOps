@@ -5,3 +5,4 @@ resources:
   - ./config
   - deployment.yaml
   - ingress.yaml
+  - networkpolicy.yaml
