@@ -12,6 +12,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     # Disable proxy buffer to address potential proxying issues
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # Fix host header issues
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Host $host;
+    nginx.ingress.kubernetes.io/upstream-vhost: "$host"
   labels:
     app: sabnzbd
 spec:
