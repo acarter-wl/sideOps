@@ -9,18 +9,10 @@ metadata:
     argocd.argoproj.io/sync-wave: '8'
 spec:
   project: media
-  sources:
-    - repoURL: https://github.com/acarter-wl/sideops.git
-      path: kubernetes/apps/media/qbittorrents
-      targetRevision: main
-      ref: repo
-    - repoURL: ghcr.io/bjw-s/helm
-      chart: app-template
-      targetRevision: 3.7.3
-      helm:
-        releaseName: qbittorrent
-        valueFiles:
-          - $repo/kubernetes/apps/media/qbittorrent/values.yaml
+  source:
+    repoURL: https://github.com/acarter-wl/sideops.git
+    targetRevision: main
+    path: kubernetes/apps/media/qbittorrent
   destination:
     namespace: media
     server: https://kubernetes.default.svc
