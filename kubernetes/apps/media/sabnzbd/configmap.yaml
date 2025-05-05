@@ -14,17 +14,19 @@ data:
       sleep 2
     done
     
-    # Add proxy configuration to use the sidecar container
-    if ! grep -q "http_proxy = http://localhost:8888" /config/sabnzbd.ini; then
-      echo "Setting up proxy configuration in sabnzbd.ini"
-      cat >> /config/sabnzbd.ini << EOF
+    # Add iptables rules to route only usenet traffic through VPN
+    # This will let all other traffic go directly, allowing web UI to be accessed
+    cat > /scripts/route-usenet.sh << 'EOF'
+    #!/bin/bash
     
-    [misc]
-    http_proxy = http://localhost:8888
-    https_proxy = http://localhost:8888
+    # Add iptables rule to route usenet traffic through VPN proxy
+    iptables -t nat -A OUTPUT -p tcp --dport 119 -j DNAT --to-destination 127.0.0.1:8888
+    iptables -t nat -A OUTPUT -p tcp --dport 563 -j DNAT --to-destination 127.0.0.1:8888
     
+    # Run the command provided
+    exec "$@"
     EOF
-      echo "Proxy configuration added to sabnzbd.ini"
-    else
-      echo "Proxy configuration already exists in sabnzbd.ini"
-    fi
+    
+    chmod +x /scripts/route-usenet.sh
+    
+    echo "Routing configuration complete"

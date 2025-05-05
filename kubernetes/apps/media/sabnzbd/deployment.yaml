@@ -42,9 +42,14 @@ spec:
         - name: sabnzbd
           image: linuxserver/sabnzbd:latest
           imagePullPolicy: Always
+          command: ["/scripts/route-usenet.sh"]
+          args: ["/init"]
           securityContext:
             runAsUser: 0
             runAsGroup: 0
+            capabilities:
+              add:
+                - NET_ADMIN
           env:
             - name: PUID
               value: "0"
