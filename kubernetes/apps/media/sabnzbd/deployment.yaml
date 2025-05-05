@@ -49,7 +49,20 @@ spec:
               value: "*"
             - name: SABNZBD__MISC__HOST_WHITELIST
               value: "*"
+            # Configure SABnzbd to use proxy only for downloads, not web UI
+            - name: SABNZBD__SERVERS__SERVER1__SSL
+              value: "1"
+            - name: SABNZBD__SERVERS__SERVER1__TIMEOUT
+              value: "60"
+            - name: SABNZBD__SERVERS__SERVER1__PRIORITY 
+              value: "0"
+            # Set NO_PROXY for local network and Kubernetes services
+            - name: NO_PROXY
+              value: "127.0.0.1,localhost,10.0.0.0/8,192.168.0.0/16,*.local,*.svc.cluster.local"
+            # Only use proxy for server connections, not web UI
             - name: SABNZBD__MISC__HTTPS_PROXY
+              value: "http://localhost:8888"
+            - name: SABNZBD__MISC__HTTP_PROXY
               value: "http://localhost:8888"
           resources:
             requests:
