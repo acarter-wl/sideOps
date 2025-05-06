@@ -10,11 +10,6 @@ jobs:
       id-token: write
       contents: read
 
-    env:
-      AWS_REGION: us-east-2
-      S3_BUCKET: plts3artifacts
-      DEST_DIR: test-data/${{ github.sha }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,10 +20,15 @@ jobs:
           role-to-assume: arn:aws:iam::654654563406:role/github-actions-oidc
           aws-region: us-east-2
 
+      - name: Create test data
+        run: |
+          mkdir -p test-data
+          echo "Test file content" > test-data/test.txt
+
       - name: Sync to S3
         uses: ./s3-sync-action
-        env:
-          AWS_S3_BUCKET: "plts3artifacts"
-          AWS_REGION: "us-east-2"
-          SOURCE_DIR: "./test-data"
-          DEST_DIR: "test-artifacts/${{ github.sha }}"
+        with:
+          aws_s3_bucket: plts3artifacts
+          source_dir: ./test-data
+          dest_dir: artifacts/${{ github.repository }}/${{ github.ref_name }}
+          aws_region: us-east-2
