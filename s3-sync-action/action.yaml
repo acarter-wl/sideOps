@@ -1,6 +1,6 @@
 name: 'S3 Sync'
 description: 'Sync a directory to an AWS S3 bucket as a GitHub Action'
-author: 'acarter@wakkalabs.com'
+author: 'platform@intelerad.com'
 
 inputs:
   aws_s3_bucket:
@@ -9,7 +9,7 @@ inputs:
   source_dir:
     description: 'Local directory to sync to S3'
     required: true
-    default: '.'
+    default: 'artifacts/'
   dest_dir:
     description: 'Destination path in the S3 bucket'
     required: true
