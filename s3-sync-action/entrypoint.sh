@@ -36,7 +36,6 @@ else
 fi
 
 # Sync to versioned path with repo name and short SHA (idempotent for same source/commit)
-aws s3 sync "$SOURCE_DIR" "s3://$AWS_S3_BUCKET/$DEST_DIR/$REPO_NAME/$SHORT_SHA/" --no-progress $ENDPOINT_ARGS "$@"
-
-# Sync to 'latest' path with repo name (mirror current source, idempotent)
-aws s3 sync "$SOURCE_DIR" "s3://$AWS_S3_BUCKET/$DEST_DIR/$REPO_NAME/latest/" --no-progress --delete $ENDPOINT_ARGS "$@"
+# Remove $REPO_NAME from the path!
+aws s3 sync "$SOURCE_DIR" "s3://$AWS_S3_BUCKET/$DEST_DIR/$SHORT_SHA/" --no-progress $ENDPOINT_ARGS "$@"
+aws s3 sync "$SOURCE_DIR" "s3://$AWS_S3_BUCKET/$DEST_DIR/latest/" --no-progress --delete $ENDPOINT_ARGS "$@"

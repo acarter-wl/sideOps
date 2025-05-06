@@ -26,5 +26,5 @@ jobs:
         with:
           aws_s3_bucket: plts3artifacts
           source_dir: ./test-data
-          dest_dir: artifacts/sideops/${{ github.ref_name }}
+          dest_dir: artifacts/${{ github.ref_name }}
           aws_region: us-east-2
