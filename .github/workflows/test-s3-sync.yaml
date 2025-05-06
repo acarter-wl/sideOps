@@ -23,12 +23,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::654654563406:role/github-actions-oidc
-          aws-region: "us-east-2"
-
-      - name: Create test file
-        run: |
-          mkdir -p ./test-data
-          echo "Hello, S3!" > ./test-data/hello.txt
+          aws-region: us-east-2
 
       - name: Sync to S3
         uses: ./s3-sync-action
