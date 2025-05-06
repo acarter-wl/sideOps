@@ -20,15 +20,11 @@ jobs:
           role-to-assume: arn:aws:iam::654654563406:role/github-actions-oidc
           aws-region: us-east-2
 
-      - name: Create test data
-        run: |
-          mkdir -p test-data
-          echo "Test file content" > test-data/test.txt
 
       - name: Sync to S3
         uses: ./s3-sync-action
         with:
           aws_s3_bucket: plts3artifacts
           source_dir: ./test-data
-          dest_dir: artifacts/${{ github.repository }}/${{ github.ref_name }}
+          dest_dir: artifacts/sideops/${{ github.ref_name }}
           aws_region: us-east-2
