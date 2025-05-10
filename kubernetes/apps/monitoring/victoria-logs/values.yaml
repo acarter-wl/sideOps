@@ -292,7 +292,7 @@ vlselect:
 
 vlinsert:
   # -- Enable deployment of vlinsert component.
-  enabled: true
+  enabled: false
   # -- Override default `app` label name
   name: ""
   # -- vlinsert strategy

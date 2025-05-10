@@ -277,22 +277,6 @@ ingress:
   # -- Additional ingress rules (optional)
   # extraRules: []
 
-    # -- Ingress annotations
-
-    #   kubernetes.io/tls-acme: 'true'
-
-    # -- Ingress extra labels
-    extraLabels: {}
-
-    # -- Array of host objects
-
-
-    # -- Array of TLS objects
-
-    #   - secretName: vmselect-ingress-tls
-    #     hosts:
-    #       - vmselect.local
-
 
   service:
     # -- Service annotations
