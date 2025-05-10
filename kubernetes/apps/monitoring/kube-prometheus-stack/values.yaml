@@ -265,8 +265,8 @@ grafana:
           datasourceUid: loki
         tracesToLogs:
           datasourceUid: loki
-          tags: ['instance', 'pod', 'namespace', 'service.name']
-          mappedTags: [{key: 'service.name', value: 'service'}]
+          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+          mappedTags: [ { key: 'service.name', value: 'service' } ]
           mapTagNamesEnabled: true
           spanStartTimeShift: '-1h'
           spanEndTimeShift: '1h'
@@ -422,9 +422,6 @@ grafana:
         revision: 2
         datasource: Prometheus
 
-# ================================
-# Additional Exporters
-# ================================
 nodeExporter:
   enabled: true
   priorityClassName: system-node-critical
@@ -441,8 +438,6 @@ kubeStateMetrics:
   selfMonitor:
     enabled: true
 
-# ================================
-# Optional Components
-# ================================
+
 loki:
-  enabled: true
+  enabled: false
