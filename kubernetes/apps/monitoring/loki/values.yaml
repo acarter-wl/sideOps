@@ -11,6 +11,13 @@ loki:
           period: 24h
   ingester:
     chunk_encoding: snappy
+    lifecycler:
+      ring:
+        kvstore:
+          store: inmemory
+        replication_factor: 1
+    wal:
+      dir: /tmp/wal
   tracing:
     enabled: true
   querier:
@@ -18,6 +25,13 @@ loki:
     max_concurrent: 4
   common:
     replication_factor: 1
+    ring:
+      kvstore:
+        store: inmemory
+  distributor:
+    ring:
+      kvstore:
+        store: inmemory
   limits:
     reject_old_samples: true
     reject_old_samples_max_age: 168h
