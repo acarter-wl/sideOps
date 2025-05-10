@@ -1,12 +1,6 @@
 global:
   clusterDomain: cluster.local # Default domain unless you really changed it manually
 
-tempo:
-  repository: grafana/tempo
-  tag: 2.4.1 # Explicit stable version, not 'latest'
-  pullPolicy: IfNotPresent
-  replicas: 1
-
   resources:
     requests:
       cpu: 200m
@@ -85,3 +79,49 @@ serviceMonitor:
 extraEnv:
   - name: JAEGER_AGENT_TAGS
     value: "cluster=kubernetes"
+
+# Integration with Grafana
+traces:
+  otlp:
+    grpc:
+      enabled: true
+    http:
+      enabled: true
+  zipkin:
+    enabled: true
+  jaeger:
+    thriftHttp:
+      enabled: true
+
+# OpenTelemetry Collector config
+opentelemetry-collector:
+  enabled: true
+  mode: deployment
+  replicaCount: 1
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+    exporters:
+      logging:
+        verbosity: detailed
+      otlp:
+        endpoint: tempo:4317
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [ otlp ]
+          processors: [ memory_limiter, batch ]
+          exporters: [ otlp ]
