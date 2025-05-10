@@ -17,7 +17,7 @@ loki:
           store: inmemory
         replication_factor: 1
     wal:
-      dir: /tmp/wal
+      dir: /data/loki/wal
   tracing:
     enabled: true
   querier:
