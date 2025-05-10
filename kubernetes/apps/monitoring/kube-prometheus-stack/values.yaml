@@ -246,31 +246,45 @@ grafana:
           - grafana.wakkalabs.com
 
   # Additional Data Sources
-  # additionalDataSources:
-  #   - name: Tempo
-  #     type: tempo
-  #     uid: tempo
-  #     access: proxy
-  #     url: http://tempo.monitoring.svc.cluster.local:3100
-  #     jsonData:
-  #       httpMethod: GET
-  #       lokiSearch:
-  #         datasourceUid: loki
-  #       tracesToLogs:
-  #         datasourceUid: loki
-  #         tags: ['instance', 'pod', 'namespace', 'service.name']
-  #         mappedTags: [{key: 'service.name', value: 'service'}]
-  #         mapTagNamesEnabled: true
-  #         spanStartTimeShift: '-1h'
-  #         spanEndTimeShift: '1h'
-  #         filterByTraceID: true
-  #         filterBySpanID: true
-  #       serviceMap:
-  #         datasourceUid: prometheus
-  #       nodeGraph:
-  #         enabled: true
-  #       search:
-  #         hide: false
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local:80
+      jsonData:
+        maxLines: 1000
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3100
+      jsonData:
+        httpMethod: GET
+        lokiSearch:
+          datasourceUid: loki
+        tracesToLogs:
+          datasourceUid: loki
+          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+          mappedTags: [ { key: 'service.name', value: 'service' } ]
+          mapTagNamesEnabled: true
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+          filterByTraceID: true
+          filterBySpanID: true
+        serviceMap:
+          datasourceUid: prometheus
+        nodeGraph:
+          enabled: true
+        search:
+          hide: false
+    - name: Pyroscope
+      type: grafana-pyroscope-datasource
+      uid: pyroscope
+      access: proxy
+      url: http://pyroscope.monitoring.svc.cluster.local:4040
+      jsonData:
+        minStep: 10s
 
   # Dashboard Providers
   dashboardProviders:
@@ -431,4 +445,4 @@ kubeStateMetrics:
 # Optional Components
 # ================================
 loki:
-  enabled: false
+  enabled: true
