@@ -16,7 +16,7 @@ spec:
       ref: repo
     - repoURL: https://victoriametrics.github.io/helm-charts/
       chart: victoria-logs-single
-      targetRevision: 0.9.0 # Use the desired chart version
+      targetRevision: 0.9.8 # Use the desired chart version
       helm:
         releaseName: victorialogs
         valueFiles:
