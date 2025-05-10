@@ -1,0 +1,37 @@
+# Kubeconform configuration file
+# Use this with: kubeconform -config .kubeconform.yaml *.yaml
+
+# Kubernetes schema version to validate against
+kubernetes-version: "1.27.0"
+
+# Ignore missing schemas (useful for CRDs)
+ignore-missing-schemas: true
+
+# Number of concurrent workers
+n: 4
+
+# Show a summary at the end of validation
+summary: true
+
+# Fail on error
+strict: true
+
+# Skip checking these files
+skip:
+  - templates/
+  - charts/
+  - non-k8s-configs/
+
+# Output format (verbose, json, junit, tap, quiet)
+output: verbose
+
+# Custom schemas location for validating CRDs
+# schema-location:
+#   - default
+#   - /path/to/crds/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json
+
+# Only validate specific Kubernetes resources
+# kinds:
+#   - Deployment
+#   - Service
+#   - StatefulSet

@@ -1,0 +1,43 @@
+# KubeLinter configuration
+# Run with: kube-linter lint --config .kube-linter.yaml .
+
+# Use all checks in the "recommended" checks
+checks:
+  # Add all recommended checks
+  addAllBuiltIn: true
+  # Disable specific checks that might be too strict for your environment
+  doNotAutoAddDefaults: false
+
+# Configuration for specific checks
+check-configs:
+  # Ensure all resources have resource limits defined
+  - name: "resource-requirements"
+    additionalConfig:
+      requireCpuLimit: true
+      requireMemoryLimit: true
+      requireCpuRequest: true
+      requireMemoryRequest: true
+
+  # Only allow certain registries for container images
+  - name: "image-pull-policy"
+    additionalConfig:
+      requireAlways: true
+
+  # Sensitive information should be in Secrets, not ConfigMaps
+  - name: "sensitive-info-configmap"
+    config:
+      pattern: "(?i)key|pass|secret|token|credential"
+
+# Exclude certain files or directories
+exclude:
+  # Exclude test fixtures
+  - "test/fixtures/**/*.yaml"
+  # Exclude temporary files
+  - "**/tmp/**/*.yaml"
+
+# Reporting options
+reporting:
+  # Show the check name that failed
+  style: "standard"
+  # Output format (standard, json, sarif)
+  format: "standard"

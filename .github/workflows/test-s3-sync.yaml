@@ -9,6 +9,7 @@ env:
   DEST_DIR: artifacts/${{ github.ref_name }}
   AWS_REGION: us-east-2
   AWS_ACCOUNT_ID: 654654563406
+  AWS_ROLE_NAME: github-actions-oidc
 
 jobs:
   test-s3-sync:

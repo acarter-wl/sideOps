@@ -1,30 +1,32 @@
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: promtail
-  namespace: argo-system
-spec:
-  project: infrastructure
-  sources:
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/promtail
-      targetRevision: main
-      ref: repo
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: promtail
-      targetRevision: 6.15.3
-      helm:
-        releaseName: promtail
-        valueFiles:
-          - $repo/kubernetes/apps/monitoring/promtail/values.yaml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+
+---                                                                                                                                                           │ │
+apiVersion: argoproj.io/v1alpha1                                                                                                                              │ │
+kind: Application                                                                                                                                             │ │
+metadata:                                                                                                                                                     │ │
+  name: pyroscope                                                                                                                                             │ │
+  namespace: argo-system                                                                                                                                      │ │
+spec:                                                                                                                                                         │ │
+  project: infrastructure                                                                                                                                     │ │
+  sources:                                                                                                                                                    │ │
+    - repoURL: "https://github.com/acarter-wl/sideops.git"                                                                                                    │ │
+      path: kubernetes/apps/monitoring/pyroscope                                                                                                              │ │
+      targetRevision: main                                                                                                                                    │ │
+      ref: repo                                                                                                                                               │ │
+    - repoURL: https://grafana.github.io/helm-charts                                                                                                          │ │
+      chart: pyroscope                                                                                                                                        │ │
+      targetRevision: 1.2.0                                                                                                                                   │ │
+      helm:                                                                                                                                                   │ │
+        releaseName: pyroscope                                                                                                                                │ │
+        valueFiles:                                                                                                                                           │ │
+          - $repo/kubernetes/apps/monitoring/pyroscope/values.yaml                                                                                            │ │
+  destination:                                                                                                                                                │ │
+    server: https://kubernetes.default.svc                                                                                                                    │ │
+    namespace: monitoring                                                                                                                                     │ │
+  syncPolicy:                                                                                                                                                 │ │
+    automated:                                                                                                                                                │ │
+      prune: true                                                                                                                                             │ │
+      selfHeal: true                                                                                                                                          │ │
+    syncOptions:                                                                                                                                              │ │
+      - CreateNamespace=true                                                                                                                                  │ │
       - ServerSideApply=true
+
