@@ -16,8 +16,6 @@ loki:
         kvstore:
           store: inmemory
         replication_factor: 1
-    wal:
-      dir: /data/loki/wal
   tracing:
     enabled: true
   querier:
