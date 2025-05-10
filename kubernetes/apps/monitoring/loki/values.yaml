@@ -16,6 +16,11 @@ loki:
   querier:
     # Default is 4, if you have enough memory and CPU you can increase, reduce if OOMing
     max_concurrent: 4
+  common:
+    replication_factor: 1
+  limits:
+    reject_old_samples: true
+    reject_old_samples_max_age: 168h
 
 deploymentMode: SimpleScalable
 backend:
