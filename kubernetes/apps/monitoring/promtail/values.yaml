@@ -10,7 +10,7 @@ resources:
 # Configuration
 config:
   clients:
-    - url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+    - url: http://loki-gateway
       tenant_id: "1"
 
 # Enable service monitor for Prometheus
