@@ -1,5 +1,5 @@
 pyroscope:
-  config:
+  config: |
     server:
       http_listen_addr: ":4040"
     storage:
