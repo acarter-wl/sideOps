@@ -35,6 +35,12 @@ write:
   persistence:
     enabled: true
     size: 10Gi
+  extraVolumeMounts:
+    - name: wal
+      mountPath: /tmp/wal
+  extraVolumes:
+    - name: wal
+      emptyDir: {}
 # Enable minio for storage
 minio:
   enabled: true
