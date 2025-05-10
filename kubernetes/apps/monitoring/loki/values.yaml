@@ -22,31 +22,23 @@ loki:
     reject_old_samples: true
     reject_old_samples_max_age: 168h
 
-deploymentMode: SimpleScalable
+deploymentMode: SingleBinary
+# Switch to singleBinary mode which is more reliable
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 10Gi
+# Zero out replica counts of other deployment modes
 backend:
-  replicas: 1
-  persistence:
-    enabled: true
-    size: 10Gi
+  replicas: 0
 read:
-  replicas: 1
+  replicas: 0
 write:
-  replicas: 1
-  persistence:
-    enabled: true
-    size: 10Gi
-  extraVolumeMounts:
-    - name: wal
-      mountPath: /tmp/wal
-  extraVolumes:
-    - name: wal
-      emptyDir: {}
+  replicas: 0
 # Enable minio for storage
 minio:
   enabled: true
-# Zero out replica counts of other deployment modes
-singleBinary:
-  replicas: 0
 ingester:
   replicas: 0
 querier:
