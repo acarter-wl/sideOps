@@ -4,24 +4,23 @@ metadata:
   name: velero
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
-    argocd.argoproj.io/helm-skip-secrets: "true"
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: kubernetes
   sources:
-    - repoURL: https://github.com/acarter-wl/sideops.git
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/velero
       targetRevision: main
       ref: repo
     - repoURL: https://vmware-tanzu.github.io/helm-charts
       chart: velero
-      targetRevision: 9.1.1
+      targetRevision: 9.1.2
       helm:
         releaseName: velero
         valueFiles:
           - $repo/kubernetes/apps/velero/values.yaml
   destination:
-    server: https://kubernetes.default.svc
+    name: in-cluster
     namespace: velero
   syncPolicy:
     automated:
@@ -38,3 +37,8 @@ spec:
       kind: VolumeSnapshotClass
       jqPathExpressions:
         - .metadata.annotations
+    # Ignore SOPS fields in all resources
+    - group: "*"
+      kind: "*"
+      jsonPointers:
+        - /sops
