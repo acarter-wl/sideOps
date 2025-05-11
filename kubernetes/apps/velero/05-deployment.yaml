@@ -40,13 +40,13 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              mkdir -p /mnt/nfs/backups
-              mkdir -p /mnt/nfs/restic
-              mkdir -p /mnt/nfs/velero-metadata
-              chmod -R 777 /mnt/nfs || echo "Warning: Could not change permissions"
+              mkdir -p /var/velero-local-volume-provider/velero-nfs/backups
+              mkdir -p /var/velero-local-volume-provider/velero-nfs/restic
+              mkdir -p /var/velero-local-volume-provider/velero-nfs/velero-metadata
+              chmod -R 777 /var/velero-local-volume-provider/velero-nfs || echo "Warning: Could not change permissions"
               echo "NFS directories prepared"
           volumeMounts:
-            - mountPath: /mnt/nfs
+            - mountPath: /var/velero-local-volume-provider/velero-nfs
               name: velero-nfs
       containers:
         - name: velero
@@ -78,10 +78,10 @@ spec:
               name: cloud-credentials
             - mountPath: /scratch
               name: scratch
-            - mountPath: /mnt/nfs/backups
+            - mountPath: /var/velero-local-volume-provider/velero-nfs/backups
               name: velero-nfs
               subPath: backups
-            - mountPath: /mnt/nfs/restic
+            - mountPath: /var/velero-local-volume-provider/velero-nfs/restic
               name: velero-nfs
               subPath: restic
             - mountPath: /etc/velero-plugins/replicated.com/nfs
