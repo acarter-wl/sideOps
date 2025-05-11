@@ -1,5 +1,4 @@
-kubectl delete deployment velero -n velero
-kubectl apply -f kubernetes/argo/apps/velero/velero.yaml---
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
