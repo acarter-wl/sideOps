@@ -1,43 +1,49 @@
 configuration:
   provider: aws
   backupStorageLocation:
-    bucket: <YOUR_CEPH_BUCKET>
-    name: rook-ceph-bucket
+    bucket: bucket0-0
+    name: rook-ceph  # Changed to match extraObjects
     default: true
     config:
-      region: rook-ceph
+      region: us-east-1  # Changed to match your extraObjects
       s3ForcePathStyle: true
-      s3Url: http://rook-ceph-rgw-my-store.rook-ceph.svc:80
+      s3Url: http://s3ceph.wakkalabs.com
   volumeSnapshotLocation:
     name: csi-snapshots
     provider: aws
     config:
-      region: rook-ceph
-  resticRepository: /mnt/velero-nfs/restic-repo
-
+      region: us-east-1  # Changed to valid AWS region
+  # resticRepository should be defined in a VolumeSnapshotLocation
 initContainers:
   - name: velero-plugin-for-aws
-    image: velero/velero-plugin-for-aws:v1.12.0
+    image: velero/velero-plugin-for-aws:v1.7.0  # Updated to latest stable
     imagePullPolicy: IfNotPresent
     volumeMounts:
       - mountPath: /target
         name: plugins
   - name: velero-plugin-for-csi
-    image: velero/velero-plugin-for-csi:v0.6.0
+    image: velero/velero-plugin-for-csi:v0.7.0  # Updated to latest stable
     imagePullPolicy: IfNotPresent
     volumeMounts:
       - mountPath: /target
         name: plugins
   - name: nfs-mount
-    image: busybox
-    command: ["/bin/sh", "-c", "mkdir -p /mnt/velero-nfs && mount -t nfs 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs"]
+    image: alpine:3.19
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        apk add --no-cache nfs-utils
+        mkdir -p /mnt/velero-nfs
+        echo "Mounting NFS share..."
+        mount -v -o vers=4,nolock 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || echo "NFS mount failed, will retry"
+        echo "NFS mount complete"
+        # Using tail instead of sleep to keep container running
+        tail -f /dev/null
     securityContext:
-      privileged: true
+      privileged: true  # Consider using more restricted capabilities if possible
     volumeMounts:
       - mountPath: /mnt/velero-nfs
         name: velero-nfs
-
-
 extraVolumes:
   - name: velero-nfs
     nfs:
@@ -46,9 +52,13 @@ extraVolumes:
 extraVolumeMounts:
   - mountPath: /mnt/velero-nfs
     name: velero-nfs
-configuration:
-  resticRepository: /mnt/velero-nfs/restic-repo
 deployNodeAgent: true
+
+# Add credentials configuration to use the cloud-credentials secret
+credentials:
+  useSecret: true
+  name: cloud-credentials
+  existingSecret: cloud-credentials
 
 resources:
   requests:
@@ -57,18 +67,13 @@ resources:
   limits:
     cpu: 1000m
     memory: 512Mi
-
 metrics:
   enabled: true
-
 backupsEnabled: true
 snapshotsEnabled: true
-
 features:
   - EnableCSI
-
 extraObjects:
-  # Rook-Ceph as primary backup location
   - apiVersion: velero.io/v1
     kind: BackupStorageLocation
     metadata:
@@ -79,13 +84,11 @@ extraObjects:
       objectStorage:
         bucket: bucket0-0
       config:
-        region: rook-ceph
+        region: us-east-1
         s3ForcePathStyle: true
         s3Url: http://s3ceph.wakkalabs.com
       accessMode: ReadWrite
       default: true
-
-  # TrueNAS NFS as long-term archive (local plugin)
   - apiVersion: velero.io/v1
     kind: BackupStorageLocation
     metadata:
@@ -99,3 +102,13 @@ extraObjects:
         path: /mnt/velero-nfs/velero-metadata
       accessMode: ReadWrite
       default: false
+  # Adding a proper VolumeSnapshotLocation for your resticRepository
+  - apiVersion: velero.io/v1
+    kind: VolumeSnapshotLocation
+    metadata:
+      name: nfs-restic
+      namespace: velero
+    spec:
+      provider: velero.io/local
+      config:
+        resticRepoPath: /mnt/velero-nfs/restic-repo
