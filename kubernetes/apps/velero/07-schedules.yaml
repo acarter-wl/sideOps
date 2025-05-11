@@ -2,44 +2,111 @@
 apiVersion: velero.io/v1
 kind: Schedule
 metadata:
-  name: daily-truenas-backup
+  name: hourly-incremental-backup
   namespace: velero
+  labels:
+    velero.io/schedule-type: incremental
 spec:
-  schedule: "0 */4 * * *" # Daily at midnight
+  schedule: "0 * * * *"  # Every hour
   template:
     storageLocation: default
-    ttl: 720h # 30 days
+    ttl: 168h  # 7 days
     includedNamespaces:
       - "*"
     excludedNamespaces:
       - velero
+      - kube-system
     includeClusterResources: true
----
-apiVersion: velero.io/v1
-kind: Schedule
-metadata:
-  name: weekly-truenas-backup
-  namespace: velero
-spec:
-  schedule: "40 5 * * 0,5" # Weekly on Sunday at 2:00 AM
-  template:
-    storageLocation: truenas
-    ttl: 1440h # 60 days
-    includedNamespaces:
-      - "*"
-    excludedNamespaces:
-      - velero
-    includeClusterResources: true
-    # Exclude a specific PVC using a label selector
+    defaultVolumesToFsBackup: true
+    hooks: {}
+    metadata: {}
+    snapshotVolumes: true
     labelSelector:
       matchExpressions:
         - key: velero.io/exclude-pvc
           operator: NotIn
-          values: [ "true" ]
-    # The above selector will include all resources EXCEPT those with label velero.io/exclude-pvc=true
-    # You can then label the PVC you want to exclude:
-    # kubectl label pvc/your-pvc-name velero.io/exclude-pvc=true -n your-namespace
-
-    # Alternative: exclude all PVCs (comment out if not using this approach)
-    # excludedResources:
-    # - persistentvolumeclaims
+          values: ["true"]
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-full-backup
+  namespace: velero
+  labels:
+    velero.io/schedule-type: full
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  template:
+    storageLocation: default
+    ttl: 720h  # 30 days
+    includedNamespaces:
+      - "*"
+    excludedNamespaces:
+      - velero
+      - kube-system
+    includeClusterResources: true
+    defaultVolumesToFsBackup: true
+    hooks: {}
+    metadata: {}
+    snapshotVolumes: true
+    labelSelector:
+      matchExpressions:
+        - key: velero.io/exclude-pvc
+          operator: NotIn
+          values: ["true"]
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: weekly-archive-backup
+  namespace: velero
+  labels:
+    velero.io/schedule-type: arch
+  template:ive
+spec:
+  schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+    storageLocation: truenas
+    ttl: 2160h  # 90 days
+    includedNamespaces:
+      - "*"
+    excludedNamespaces:
+      - velero
+      - kube-system
+    includeClusterResources: true
+    defaultVolumesToFsBackup: true
+    hooks: {}
+    metadata: {}
+    snapshotVolumes: true
+    labelSelector:
+      matchExpressions:
+        - key: velero.io/exclude-pvc
+          operator: NotIn
+          values: ["true"]
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: monthly-archive-backup
+  namespace: velero
+  labels:
+    velero.io/schedule-type: archive
+spec:
+  schedule: "0 4 1 * *"  # 1st day of each month at 4 AM
+  template:
+    storageLocation: truenas
+    ttl: 8760h  # 1 year
+    includedNamespaces:
+      - "*"
+    excludedNamespaces:
+      - velero
+      - kube-system
+    includeClusterResources: true
+    defaultVolumesToFsBackup: true
+    hooks: {}
+    metadata: {}
+    snapshotVolumes: true
+    labelSelector:
+      matchExpressions:
+        - key: velero.io/exclude-pvc
+          operator: NotIn
+          values: ["true"]
