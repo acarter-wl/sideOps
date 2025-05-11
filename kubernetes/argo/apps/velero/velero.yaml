@@ -9,7 +9,7 @@ spec:
   project: kubernetes
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/velero
+      path: kubernetes/apps/velero/schedules
       targetRevision: main
       ref: repo
     - repoURL: https://vmware-tanzu.github.io/helm-charts
@@ -28,10 +28,8 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-      - ApplyOutOfSyncOnly=false
-      - Replace=false
+    - CreateNamespace=true
+    - ServerSideApply=true
   ignoreDifferences:
     - group: snapshot.storage.k8s.io
       kind: VolumeSnapshotClass
