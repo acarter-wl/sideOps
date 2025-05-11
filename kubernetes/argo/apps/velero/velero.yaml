@@ -9,7 +9,7 @@ spec:
   project: kubernetes
   sources:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/velero/schedules
+      path: kubernetes/apps/velero
       targetRevision: main
       ref: repo
     - repoURL: https://vmware-tanzu.github.io/helm-charts
