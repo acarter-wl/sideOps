@@ -36,7 +36,7 @@ spec:
               name: plugins
         # Use a simple init container to create directories in the NFS volume
         - name: prepare-directories
-          image: alpine:3.19
+          image: alpine:3.21
           command: ["/bin/sh", "-c"]
           args:
             - |
