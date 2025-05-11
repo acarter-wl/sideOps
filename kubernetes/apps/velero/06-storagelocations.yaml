@@ -1,9 +1,9 @@
 ---
-# Missing storage locations - adding them here
+# Primary backup storage location (S3-compatible Rook-Ceph)
 apiVersion: velero.io/v1
 kind: BackupStorageLocation
 metadata:
-  name: rook-ceph
+  name: default
   namespace: velero
 spec:
   provider: aws
@@ -37,7 +37,7 @@ spec:
 apiVersion: velero.io/v1
 kind: VolumeSnapshotLocation
 metadata:
-  name: csi-snapshots
+  name: default
   namespace: velero
 spec:
   provider: aws

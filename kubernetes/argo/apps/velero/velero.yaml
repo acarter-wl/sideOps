@@ -11,6 +11,8 @@ spec:
     repoURL: "https://github.com/acarter-wl/sideops.git"
     path: kubernetes/apps/velero
     targetRevision: main
+    kustomize: {}
+    # Explicitly tell Argo CD to use kustomize instead of trying to detect Helm
   destination:
     name: in-cluster
     namespace: velero
