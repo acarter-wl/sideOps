@@ -7,18 +7,10 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: kubernetes
-  sources:
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/velero
-      targetRevision: main
-      ref: repo
-    - repoURL: https://vmware-tanzu.github.io/helm-charts
-      chart: velero
-      targetRevision: 9.1.2
-      helm:
-        releaseName: velero
-        valueFiles:
-          - $repo/kubernetes/apps/velero/values.yaml
+  source:
+    repoURL: "https://github.com/acarter-wl/sideops.git"
+    path: kubernetes/apps/velero
+    targetRevision: main
   destination:
     name: in-cluster
     namespace: velero
@@ -30,6 +22,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - ServerSideApply=true
+    - ApplyOutOfSyncOnly=true
   ignoreDifferences:
     - group: snapshot.storage.k8s.io
       kind: VolumeSnapshotClass

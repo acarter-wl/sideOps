@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-volume-provider-config
+  namespace: velero
+  labels:
+    velero.io/plugin-config: ""
+    replicated.com/nfs: ObjectStore
+data:
+  fileserverImage: ttl.sh/dans/local-volume-provider:12h
+  securityContextRunAsUser: "1001"
+  securityContextFsGroup: "1001"

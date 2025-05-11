@@ -1,0 +1,55 @@
+---
+# Missing storage locations - adding them here
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: rook-ceph
+  namespace: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: bucket0-0
+  config:
+    region: us-east-1
+    s3ForcePathStyle: "true"
+    s3Url: http://s3ceph.wakkalabs.com
+    insecureSkipTLSVerify: "true"
+  accessMode: ReadWrite
+  default: true
+---
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: nfs-backup
+  namespace: velero
+spec:
+  provider: replicated.com/nfs
+  objectStorage:
+    bucket: velero-nfs
+  config:
+    path: /backups
+    server: 192.168.100.94
+    resticRepoPrefix: /mnt/velero-nfs/restic
+  accessMode: ReadWrite
+  default: false
+
+---
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: csi-snapshots
+  namespace: velero
+spec:
+  provider: aws
+  config:
+    region: us-east-1
+---
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: nfs-restic
+  namespace: velero
+spec:
+  provider: velero.io/local
+  config:
+    resticRepoPath: /mnt/velero-nfs/restic

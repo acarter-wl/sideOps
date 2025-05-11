@@ -1,0 +1,35 @@
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-s3-backup
+  namespace: velero
+spec:
+  schedule: "0 0 * * *"  # Daily at midnight
+  template:
+    storageLocation: rook-ceph
+    ttl: 720h  # 30 days
+    includedNamespaces:
+    - "*"
+    excludedNamespaces:
+    - kube-system
+    - velero
+    includeClusterResources: true
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: weekly-nfs-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * 0"  # Weekly on Sunday at 2:00 AM
+  template:
+    storageLocation: nfs-backup
+    ttl: 1440h  # 60 days
+    includedNamespaces:
+    - "*"
+    excludedNamespaces:
+    - kube-system
+    - velero
+    includeClusterResources: true
+    defaultVolumesToRestic: true
