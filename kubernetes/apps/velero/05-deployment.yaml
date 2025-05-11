@@ -15,6 +15,9 @@ spec:
         app: velero
     spec:
       serviceAccountName: velero
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
       initContainers:
         - name: velero-plugin-for-aws
           image: velero/velero-plugin-for-aws:v1.7.0
