@@ -29,7 +29,7 @@ spec:
             - mountPath: /target
               name: plugins
         - name: velero-plugin-for-nfs
-          image: replicated/local-volume-provider:v0.3.3
+          image: replicated/local-volume-provider:0.6.10
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: /target
