@@ -35,8 +35,16 @@ initContainers:
         apk add --no-cache nfs-utils
         mkdir -p /mnt/velero-nfs
         echo "Mounting NFS share..."
-        mount -v -o vers=4,nolock 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || echo "NFS mount failed, will retry"
-        echo "NFS mount complete"
+        echo "Testing NFS capabilities..."
+        mount -V
+        cat /proc/filesystems | grep nfs || echo "NFS not in filesystems"
+        # Try with more debug output and different version options
+        mount -v -o vers=3,nolock,proto=tcp 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
+        mount -v -o vers=4,nolock,proto=tcp 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
+        mount -v -t nfs 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
+        echo "NFS mount failed, creating directory for local testing"
+        mkdir -p /mnt/velero-nfs/velero-metadata /mnt/velero-nfs/restic-repo
+        echo "NFS setup complete"
         # Using tail instead of sleep to keep container running
         tail -f /dev/null
     securityContext:
@@ -85,7 +93,7 @@ extraObjects:
         bucket: bucket0-0
       config:
         region: us-east-1
-        s3ForcePathStyle: true
+        s3ForcePathStyle: "true" # Ensure boolean is quoted
         s3Url: http://s3ceph.wakkalabs.com
       accessMode: ReadWrite
       default: true

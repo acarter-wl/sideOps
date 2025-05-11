@@ -4,3 +4,4 @@ resources:
   - ./config
   - volumesnapshotclass.yaml
   - schedules.yaml
+  - backupstoragelocation.yaml
