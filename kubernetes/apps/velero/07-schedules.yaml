@@ -5,7 +5,7 @@ metadata:
   name: daily-s3-backup
   namespace: velero
 spec:
-  schedule: "0 0 * * *"  # Daily at midnight
+  schedule: "0 */4 * * *"  # Daily at midnight
   template:
     storageLocation: default
     ttl: 720h  # 30 days
@@ -22,7 +22,7 @@ metadata:
   name: weekly-nfs-backup
   namespace: velero
 spec:
-  schedule: "0 2 * * 0"  # Weekly on Sunday at 2:00 AM
+  schedule: "40 5 * * 0,5"  # Weekly on Sunday at 2:00 AM
   template:
     storageLocation: nfs-backup
     ttl: 1440h  # 60 days
@@ -41,7 +41,7 @@ spec:
     # The above selector will include all resources EXCEPT those with label velero.io/exclude-pvc=true
     # You can then label the PVC you want to exclude:
     # kubectl label pvc/your-pvc-name velero.io/exclude-pvc=true -n your-namespace
-    
+
     # Alternative: exclude all PVCs (comment out if not using this approach)
     # excludedResources:
     # - persistentvolumeclaims
