@@ -29,7 +29,19 @@ spec:
     includedNamespaces:
     - "*"
     excludedNamespaces:
-    - kube-system
     - velero
     includeClusterResources: true
     defaultVolumesToRestic: true
+    # Exclude a specific PVC using a label selector
+    labelSelector:
+      matchExpressions:
+        - key: velero.io/exclude-pvc
+          operator: NotIn
+          values: ["true"]
+    # The above selector will include all resources EXCEPT those with label velero.io/exclude-pvc=true
+    # You can then label the PVC you want to exclude:
+    # kubectl label pvc/your-pvc-name velero.io/exclude-pvc=true -n your-namespace
+    
+    # Alternative: exclude all PVCs (comment out if not using this approach)
+    # excludedResources:
+    # - persistentvolumeclaims

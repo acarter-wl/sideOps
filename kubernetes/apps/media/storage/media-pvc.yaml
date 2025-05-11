@@ -4,11 +4,13 @@ kind: PersistentVolume
 metadata:
   name: nfs-media-pv
   namespace: media
+  annotations:
+    backup.velero.io/exclude-from-backup: "true"
 spec:
   capacity:
     storage: 27Ti
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
     - nfsvers=4.1
@@ -29,6 +31,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: downloads-ceph
   namespace: media
+  annotations:
+    backup.velero.io/exclude-from-backup: "true"
 spec:
   accessModes:
     - ReadWriteMany
