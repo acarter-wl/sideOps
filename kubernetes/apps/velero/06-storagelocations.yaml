@@ -29,7 +29,7 @@ spec:
   config:
     path: /backups
     server: 192.168.100.94
-    resticRepoPrefix: /mnt/velero-nfs/restic
+    resticRepoPrefix: /mnt/nfs/restic
   accessMode: ReadWrite
   default: false
 
@@ -52,4 +52,4 @@ metadata:
 spec:
   provider: velero.io/local
   config:
-    resticRepoPath: /mnt/velero-nfs/restic
+    resticRepoPath: /mnt/nfs/restic

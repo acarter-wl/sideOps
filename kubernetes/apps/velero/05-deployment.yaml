@@ -34,28 +34,19 @@ spec:
           volumeMounts:
             - mountPath: /target
               name: plugins
-        - name: nfs-mount
+        # Use a simple init container to create directories in the NFS volume
+        - name: prepare-directories
           image: alpine:3.19
           command: ["/bin/sh", "-c"]
           args:
             - |
-              apk add --no-cache nfs-utils
-              mkdir -p /mnt/velero-nfs
-              echo "Mounting NFS share..."
-              mount -v -o vers=4,nolock 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
-              mount -v -t nfs 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
-              echo "NFS mount failed"
-              # Create necessary directories for Velero
-              mkdir -p /mnt/velero-nfs/backups
-              mkdir -p /mnt/velero-nfs/restic
-              mkdir -p /mnt/velero-nfs/velero-metadata
-              chmod -R 777 /mnt/velero-nfs
-              # Keep container running
-              tail -f /dev/null
-          securityContext:
-            privileged: true
+              mkdir -p /mnt/nfs/backups
+              mkdir -p /mnt/nfs/restic
+              mkdir -p /mnt/nfs/velero-metadata
+              chmod -R 777 /mnt/nfs || echo "Warning: Could not change permissions"
+              echo "NFS directories prepared"
           volumeMounts:
-            - mountPath: /mnt/velero-nfs
+            - mountPath: /mnt/nfs
               name: velero-nfs
       containers:
         - name: velero
@@ -87,8 +78,12 @@ spec:
               name: cloud-credentials
             - mountPath: /scratch
               name: scratch
-            - mountPath: /mnt/velero-nfs
+            - mountPath: /mnt/nfs/backups
               name: velero-nfs
+              subPath: backups
+            - mountPath: /mnt/nfs/restic
+              name: velero-nfs
+              subPath: restic
             - mountPath: /etc/velero-plugins/replicated.com/nfs
               name: nfs-plugin-config
           resources:
@@ -107,9 +102,8 @@ spec:
         - name: scratch
           emptyDir: {}
         - name: velero-nfs
-          nfs:
-            server: 192.168.100.94
-            path: /mnt/zpool-a/root-ds/backups
+          persistentVolumeClaim:
+            claimName: velero-nfs-pvc
         - name: nfs-plugin-config
           configMap:
             name: local-volume-provider-config

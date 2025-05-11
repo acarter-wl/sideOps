@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: velero-nfs-pv
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 192.168.100.94
+    path: /mnt/zpool-a/root-ds/backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: velero-nfs-pvc
+  namespace: velero
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+  volumeName: velero-nfs-pv
+  storageClassName: ""
