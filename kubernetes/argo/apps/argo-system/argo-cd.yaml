@@ -31,5 +31,23 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+    - RespectIgnoreDifferences=true
     - CreateNamespace=true
     - ServerSideApply=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: <fullname>-validation
+      namespace: <k8s-stack-namespace>
+      jsonPointers:
+        - /data
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: <fullname>-admission
+      jqPathExpressions:
+      - '.webhooks[]?.clientConfig.caBundle'
+    # Ignore SOPS fields in all resources
+    - group: "*"
+      kind: "*"
+      jsonPointers:
+        - /sops
