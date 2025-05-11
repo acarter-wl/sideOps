@@ -8,5 +8,6 @@ metadata:
     replicated.com/nfs: ObjectStore
 data:
   fileserverImage: ttl.sh/dans/local-volume-provider:12h
-  securityContextRunAsUser: "1001"
-  securityContextFsGroup: "1001"
+  securityContextRunAsUser: "0"
+  securityContextFsGroup: "0"
+  mountPath: "/var/velero-local-volume-provider/velero-nfs"
