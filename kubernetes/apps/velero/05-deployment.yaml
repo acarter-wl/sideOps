@@ -14,10 +14,6 @@ spec:
       labels:
         app: velero
     spec:
-      serviceAccountName: velero
-      securityContext:
-        fsGroup: 1001
-        runAsUser: 1001
       initContainers:
         - name: velero-plugin-for-aws
           image: velero/velero-plugin-for-aws:v1.7.0
@@ -31,28 +27,28 @@ spec:
           volumeMounts:
             - mountPath: /target
               name: plugins
-        - name: velero-plugin-for-nfs
-          image: replicated/local-volume-provider:v0.3.3
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - mountPath: /target
-              name: plugins
+        # - name: velero-plugin-for-nfs
+        #   image: replicated/local-volume-provider:v0.3.3
+        #   imagePullPolicy: IfNotPresent
+        #   volumeMounts:
+        #     - mountPath: /target
+        #       name: plugins
         # Use a simple init container to create directories in the NFS volume
-        - name: prepare-directories
-          image: alpine:3.19
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              mkdir -p /var/velero-local-volume-provider/velero-nfs/backups
-              mkdir -p /var/velero-local-volume-provider/velero-nfs/restic
-              mkdir -p /var/velero-local-volume-provider/velero-nfs/velero-metadata
-              chmod -R 777 /var/velero-local-volume-provider/velero-nfs || echo "Warning: Could not change permissions"
-          securityContext:
-            privileged: true
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /var/velero-local-volume-provider/velero-nfs
-              name: velero-nfs
+        # - name: prepare-directories
+        #   image: alpine:3.19
+        #   command: ["/bin/sh", "-c"]
+        #   args:
+        #     - |
+        #       mkdir -p /var/velero-local-volume-provider/velero-nfs/backups
+        #       mkdir -p /var/velero-local-volume-provider/velero-nfs/restic
+        #       mkdir -p /var/velero-local-volume-provider/velero-nfs/velero-metadata
+        #       chmod -R 777 /var/velero-local-volume-provider/velero-nfs || echo "Warning: Could not change permissions"
+        #   securityContext:
+        #     privileged: true
+        #     runAsUser: 0
+        #   volumeMounts:
+        #     - mountPath: /var/velero-local-volume-provider/velero-nfs
+        #       name: velero-nfs
       containers:
         - name: velero
           image: velero/velero:v1.12.0
@@ -83,14 +79,14 @@ spec:
               name: cloud-credentials
             - mountPath: /scratch
               name: scratch
-            - mountPath: /var/velero-local-volume-provider/velero-nfs/backups
-              name: velero-nfs
-              subPath: backups
-            - mountPath: /var/velero-local-volume-provider/velero-nfs/restic
-              name: velero-nfs
-              subPath: restic
-            - mountPath: /etc/velero-plugins/replicated.com/nfs
-              name: nfs-plugin-config
+            # - mountPath: /var/velero-local-volume-provider/velero-nfs/backups
+            #   name: velero-nfs
+            #   subPath: backups
+            # - mountPath: /var/velero-local-volume-provider/velero-nfs/restic
+            #   name: velero-nfs
+            #   subPath: restic
+            # - mountPath: /etc/velero-plugins/replicated.com/nfs
+            #   name: nfs-plugin-config
           resources:
             requests:
               cpu: 125m
@@ -106,9 +102,9 @@ spec:
             secretName: cloud-credentials
         - name: scratch
           emptyDir: {}
-        - name: velero-nfs
-          persistentVolumeClaim:
-            claimName: velero-nfs-pvc
-        - name: nfs-plugin-config
-          configMap:
-            name: local-volume-provider-config
+        # - name: velero-nfs
+        #   persistentVolumeClaim:
+        #     claimName: velero-nfs-pvc
+        # - name: nfs-plugin-config
+        #   configMap:
+        #     name: local-volume-provider-config
