@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - crd
-  - config
   - 01-namespace.yaml
   - 02-serviceaccount.yaml
   - 04-plugin-config.yaml
