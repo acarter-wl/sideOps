@@ -27,7 +27,7 @@ spec:
   objectStorage:
     bucket: velero-nfs
   config:
-    path: /backups
+    path: /mnt/nfs/backups
     server: 192.168.100.94
     resticRepoPrefix: /mnt/nfs/restic
   accessMode: ReadWrite
