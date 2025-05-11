@@ -47,7 +47,9 @@ spec:
               mkdir -p /var/velero-local-volume-provider/velero-nfs/restic
               mkdir -p /var/velero-local-volume-provider/velero-nfs/velero-metadata
               chmod -R 777 /var/velero-local-volume-provider/velero-nfs || echo "Warning: Could not change permissions"
-              echo "NFS directories prepared"
+          securityContext:
+            privileged: true
+            runAsUser: 0
           volumeMounts:
             - mountPath: /var/velero-local-volume-provider/velero-nfs
               name: velero-nfs
