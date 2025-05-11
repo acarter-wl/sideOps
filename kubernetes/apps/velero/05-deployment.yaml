@@ -29,7 +29,7 @@ spec:
             - mountPath: /target
               name: plugins
         - name: velero-plugin-for-nfs
-          image: replicated/velero-plugin-for-nfs:latest
+          image: replicated/local-volume-provider:v0.3.3
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: /target
@@ -45,10 +45,12 @@ spec:
               mount -v -o vers=4,nolock 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
               mount -v -t nfs 192.168.100.94:/mnt/zpool-a/root-ds/backups /mnt/velero-nfs || \
               echo "NFS mount failed"
+              # Create necessary directories for Velero
               mkdir -p /mnt/velero-nfs/backups
               mkdir -p /mnt/velero-nfs/restic
               mkdir -p /mnt/velero-nfs/velero-metadata
               chmod -R 777 /mnt/velero-nfs
+              # Keep container running
               tail -f /dev/null
           securityContext:
             privileged: true
