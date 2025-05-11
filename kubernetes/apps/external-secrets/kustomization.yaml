@@ -4,3 +4,4 @@ kind: Kustomization
 
 resources:
 - initialsecretStore.yaml
+- velero-external-secret.yaml
