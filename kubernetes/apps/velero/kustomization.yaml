@@ -11,4 +11,3 @@ resources:
   - 05-deployment.yaml
   - 07-schedules.yaml
   - 08-restic.yaml
-  - velero-nfs-pv.yaml
