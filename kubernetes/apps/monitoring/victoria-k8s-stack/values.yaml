@@ -245,7 +245,11 @@ external:
     write:
       url: ""
 
-# Configures vmsingle params
+# Configures VM deployment mode
+vmsingle:
+  enabled: false
+
+# Configures cluster mode
 vmcluster:
   enabled: true
   annotations:
