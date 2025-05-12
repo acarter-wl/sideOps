@@ -1,133 +1,133 @@
-server:
-  enabled: true
-  replicaCount: 1
-  retentionPeriod: 30d # Matching your cluster setting
-  extraArgs:
-    envflag.enable: true
-    envflag.prefix: VM_
-    loggerFormat: json
-    httpListenAddr: :9428
+# server:
+#   enabled: true
+#   replicaCount: 1
+#   retentionPeriod: 30d # Matching your cluster setting
+#   extraArgs:
+#     envflag.enable: true
+#     envflag.prefix: VM_
+#     loggerFormat: json
+#     httpListenAddr: :9428
 
-  persistentVolume:
-    enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 20Gi # Matching your cluster storage size
-    storageClassName: "ceph-block" # If you have a specific storage class
-    mountPath: /storage
+#   persistentVolume:
+#     enabled: true
+#     accessModes:
+#       - ReadWriteOnce
+#     size: 20Gi # Matching your cluster storage size
+#     storageClassName: "ceph-block" # If you have a specific storage class
+#     mountPath: /storage
 
-  resources:
-    requests:
-      cpu: 500m
-      memory: 512Mi
-    limits:
-      cpu: 2000m
-      memory: 2Gi
+#   resources:
+#     requests:
+#       cpu: 500m
+#       memory: 512Mi
+#     limits:
+#       cpu: 2000m
+#       memory: 2Gi
 
-  securityContext:
-    enabled: true
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
+#   securityContext:
+#     enabled: true
+#     allowPrivilegeEscalation: false
+#     capabilities:
+#       drop:
+#         - ALL
+#     readOnlyRootFilesystem: true
 
-  podSecurityContext:
-    enabled: true
-    fsGroup: 2000
-    runAsNonRoot: true
-    runAsUser: 1000
+#   podSecurityContext:
+#     enabled: true
+#     fsGroup: 2000
+#     runAsNonRoot: true
+#     runAsUser: 1000
 
-  service:
-    type: ClusterIP
-    servicePort: 9428
+#   service:
+#     type: ClusterIP
+#     servicePort: 9428
 
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: internal
-      cert-manager.io/cluster-issuer: letsencrypt-production
-    hosts:
-      - name: logs.wakkalabs.com
-        path:
-          - /
-        port: http
-    tls:
-      - secretName: vlogs-tls
-        hosts:
-          - logs.wakkalabs.com
-    ingressClassName: internal
-    pathType: Prefix
+#   ingress:
+#     enabled: true
+#     annotations:
+#       kubernetes.io/ingress.class: internal
+#       cert-manager.io/cluster-issuer: letsencrypt-production
+#     hosts:
+#       - name: logs.wakkalabs.com
+#         path:
+#           - /
+#         port: http
+#     tls:
+#       - secretName: vlogs-tls
+#         hosts:
+#           - logs.wakkalabs.com
+#     ingressClassName: internal
+#     pathType: Prefix
 
-  vmServiceScrape:
-    enabled: true
-    extraLabels:
-      release: victoria-metrics
+#   vmServiceScrape:
+#     enabled: true
+#     extraLabels:
+#       release: victoria-metrics
 
-# Vector configuration for Talos logs
-vector:
-  enabled: true
-  existingConfigMaps:
-    - vl-vector-talos-config
-  # Environment variables
-  # env:
-  #   - name: VECTOR_SELF_NODE_NAME
-  #     valueFrom:
-  #       fieldRef:
-  #         fieldPath: spec.nodeName
-  #   - name: VECTOR_SELF_POD_NAME
-  #     valueFrom:
-  #       fieldRef:
-  #         fieldPath: metadata.name
-  #   - name: VECTOR_SELF_POD_NAMESPACE
-  #     valueFrom:
-  #       fieldRef:
-  #         fieldPath: metadata.namespace
+# # Vector configuration for Talos logs
+# vector:
+#   enabled: true
+#   existingConfigMaps:
+#     - vl-vector-talos-config
+#   # Environment variables
+#   # env:
+#   #   - name: VECTOR_SELF_NODE_NAME
+#   #     valueFrom:
+#   #       fieldRef:
+#   #         fieldPath: spec.nodeName
+#   #   - name: VECTOR_SELF_POD_NAME
+#   #     valueFrom:
+#   #       fieldRef:
+#   #         fieldPath: metadata.name
+#   #   - name: VECTOR_SELF_POD_NAMESPACE
+#   #     valueFrom:
+#   #       fieldRef:
+#   #         fieldPath: metadata.namespace
 
-  # Service for UDP listeners
-  service:
-    enabled: true
-    type: LoadBalancer
-    ports:
-      - name: talos-kernel
-        port: 6050
-        protocol: UDP
-        targetPort: 6050
-      - name: talos-service
-        port: 6051
-        protocol: UDP
-        targetPort: 6051
+#   # Service for UDP listeners
+#   service:
+#     enabled: true
+#     type: LoadBalancer
+#     ports:
+#       - name: talos-kernel
+#         port: 6050
+#         protocol: UDP
+#         targetPort: 6050
+#       - name: talos-service
+#         port: 6051
+#         protocol: UDP
+#         targetPort: 6051
 
-  # Resources
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 1000m
-      memory: 512Mi
+#   # Resources
+#   resources:
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi
+#     limits:
+#       cpu: 1000m
+#       memory: 512Mi
 
-  # Container arguments
-  args:
-    - -w
-    - --config-dir
-    - /etc/vector/
+#   # Container arguments
+#   args:
+#     - -w
+#     - --config-dir
+#     - /etc/vector/
 
-  # Container ports
-  containerPorts:
-    - name: prom-exporter
-      containerPort: 9090
-      protocol: TCP
-    - name: talos-kernel
-      containerPort: 6050
-      protocol: UDP
-    - name: talos-service
-      containerPort: 6051
-      protocol: UDP
+#   # Container ports
+#   containerPorts:
+#     - name: prom-exporter
+#       containerPort: 9090
+#       protocol: TCP
+#     - name: talos-kernel
+#       containerPort: 6050
+#       protocol: UDP
+#     - name: talos-service
+#       containerPort: 6051
+#       protocol: UDP
 
-# Add dashboards for VictoriaLogs
-dashboards:
-  enabled: true
-  labels:
-    grafana_dashboard: "1"
-  namespace: "monitoring"
+# # Add dashboards for VictoriaLogs
+# dashboards:
+#   enabled: true
+#   labels:
+#     grafana_dashboard: "1"
+#   namespace: "monitoring"
