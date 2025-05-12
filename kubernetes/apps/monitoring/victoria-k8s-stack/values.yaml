@@ -809,7 +809,7 @@ kubeEtcd:
               name: etcd-client-certs
               key: etcd-client.key
             # FIXED: Removed colon
-            insecureSkipVerify: false
+            insecureSkipVerify: true
 
 # FIXED: Added section header for kubeScheduler
 kubeScheduler:
