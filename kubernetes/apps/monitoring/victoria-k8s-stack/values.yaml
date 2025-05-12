@@ -514,11 +514,12 @@ defaultDatasources:
         type: prometheus
         access: proxy
         isDefault: true
-        jsonData:
-          timeInterval: "15s"
-          queryTimeout: "60s"
-      - name: victorialogging
-        type: loki
+      - name: VictoriaMetrics (DS)
+        isDefault: false
+        access: proxy
+        type: victoriametrics-metrics-datasource
+      - name: VictoriaLogs
+        type: victorialogs-datasource
         access: proxy
         url: http://victoria-logs.monitoring.svc.cluster.local:9428
         isDefault: false
@@ -553,7 +554,7 @@ grafana:
   sidecar:
     datasources:
       enabled: true
-      initDatasources: false
+      initDatasources: true
       label: grafana_datasource
     dashboards:
       provider:
