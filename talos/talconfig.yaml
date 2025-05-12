@@ -133,11 +133,11 @@ nodes:
 patches:
   - "@./patches/global/machine-files.yaml"
   - "@./patches/global/machine-kubelet.yaml"
-  #- "@./patches/global/machine-logging.yaml"
+  - "@./patches/global/machine-service-logging.yaml"
   - "@./patches/global/machine-network.yaml"
   - "@./patches/global/machine-sysctls.yaml"
   - "@./patches/global/machine-time.yaml"
-  - "@./patches/global/machine-ts-patch.yaml"
+  - "@./patches/global/machine-kernel-logging.yaml"
 
 # Controller patches
 controlPlane:

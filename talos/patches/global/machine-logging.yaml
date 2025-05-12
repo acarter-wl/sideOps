@@ -1,8 +1,0 @@
-machine:
-  install:
-    extraKernelArgs:
-      - "talos.logging.kernel=tcp://fluent-bit.monitoring:12345"
-  logging:
-    destinations:
-      - endpoint: "tcp://fluent-bit.monitoring:12345"
-        format: json_lines

@@ -122,13 +122,25 @@ vmauth:
 
 # Updated Vector configuration to integrate with Talos
 # Updated Vector configuration for Talos integration with correct VictoriaMetrics endpoints
-
 vector:
   enabled: true
-  # Set role to Stateless-Aggregator as requested
   role: "Stateless-Aggregator"
 
-  # We need to create a service for the UDP sockets
+  # Add environment variables for Kubernetes logs
+  env:
+    - name: VECTOR_SELF_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: VECTOR_SELF_POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: VECTOR_SELF_POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+
   service:
     enabled: true
     type: LoadBalancer
@@ -142,7 +154,6 @@ vector:
         protocol: UDP
         targetPort: 6051
 
-  # Expose the UDP ports in the Vector container
   containerPorts:
     - name: prom-exporter
       containerPort: 9090
@@ -154,7 +165,6 @@ vector:
       containerPort: 6051
       protocol: UDP
 
-  # Custom configuration combining Talos and K8s logs
   customConfig:
     data_dir: /vector-data-dir
     api:
@@ -163,11 +173,10 @@ vector:
 
     # Sources configuration
     sources:
-      # Keep Kubernetes logs source
       k8s:
         type: kubernetes_logs
+        self_node_name: "${VECTOR_SELF_NODE_NAME}"
 
-      # Add Talos-specific sources
       talos_kernel_logs:
         address: 0.0.0.0:6050
         type: socket
@@ -191,7 +200,6 @@ vector:
 
     # Transforms configuration
     transforms:
-      # Transform for Kubernetes logs
       k8s_parser:
         type: remap
         inputs: [ k8s ]
@@ -199,66 +207,58 @@ vector:
           .log = parse_json(.message) ?? .message
           del(.message)
 
-      # Transform for Talos kernel logs
       talos_kernel_logs_xform:
         type: remap
         inputs: [ talos_kernel_logs ]
         source: |
-          # Add any needed transformations for kernel logs
-          # Mark the source type
           .source_type = "talos_kernel"
 
-      # Transform for Talos service logs
       talos_service_logs_xform:
         type: remap
         inputs: [ talos_service_logs ]
         source: |
-          # Add any needed transformations for service logs
-          # Mark the source type
           .source_type = "talos_service"
 
     # Sinks configuration
     sinks:
-      # Send metrics to VictoriaMetrics using your actual service
       metrics:
         type: prometheus_remote_write
         inputs: [ internal_metrics ]
         endpoint: http://vminsert-victoria-metrics-k8s-stack:8480/api/v1/write
 
-      # Send Kubernetes logs to VictoriaLogs
       k8s_logs:
         type: http
         inputs: [ k8s_parser ]
         method: post
-        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-single-server:9428/insert/loki/api/v1/push
         encoding:
           codec: json
-        headers:
-          Content-Type: application/json
-          VL-Time-Field: timestamp
-          VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
-          VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+        request:
+          headers:
+            Content-Type: application/json
+            VL-Time-Field: timestamp
+            VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+            VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
 
-      # Send Talos kernel logs to VictoriaLogs
       talos_kernel:
         type: http
         inputs: [ talos_kernel_logs_xform ]
         method: post
-        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-single-server:9428/insert/loki/api/v1/push
         encoding:
           codec: json
           except_fields:
             - __host
         batch:
           max_bytes: 1048576
-        headers:
-          Content-Type: application/json
-          VL-Time-Field: timestamp
-          VL-Stream-Fields: hostname,facility,source_type
-          VL-Msg-Field: message,msg
-          VL-Out-Of-Order-Action: rewrite_timestamp
+        request:
+          headers:
+            Content-Type: application/json
+            VL-Time-Field: timestamp
+            VL-Stream-Fields: hostname,facility,source_type
+            VL-Msg-Field: message,msg
+            VL-Out-Of-Order-Action: rewrite_timestamp
 
-      # Send Talos service logs to VictoriaLogs
       talos_service:
         type: http
         inputs: [ talos_service_logs_xform ]
@@ -270,9 +270,10 @@ vector:
             - __host
         batch:
           max_bytes: 400000
-        headers:
-          Content-Type: application/json
-          VL-Time-Field: timestamp
-          VL-Stream-Fields: hostname,service,source_type
-          VL-Msg-Field: message,msg
-          VL-Out-Of-Order-Action: rewrite_timestamp
+        request:
+          headers:
+            Content-Type: application/json
+            VL-Time-Field: timestamp
+            VL-Stream-Fields: hostname,service,source_type
+            VL-Msg-Field: message,msg
+            VL-Out-Of-Order-Action: rewrite_timestamp
