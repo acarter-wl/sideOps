@@ -4,35 +4,45 @@ resources:
   - ./config
 
 #   - dashboards/cephfs-overview.json
-# generatorOptions:
-#   disableNameSuffixHash: true
+generatorOptions:
+  disableNameSuffixHash: true
 
-# configMapGenerator:
-#   - name: cephfs-overview
-#     namespace: monitoring
-#     files:
-#       - dashboards/cephfs-overview.json
+configMapGenerator:
+  - name: ceph-overview
+    namespace: monitoring
+    files:
+      - dashboards/ceph-overview.json
 
-#   - name: ceph-host
-#     namespace: monitoring
-#     files:
-#       - dashboards/ceph-host.json
-#   - name: ceph-cluster
-#     namespace: monitoring
-#     files:
-#       - dashboards/ceph-cluster.json
-#   - name: ceph-cluster-advanced
-#     namespace: monitoring
-#     files:
-#       - dashboards/ceph-cluster-advanced.json
-#   - name: osd-device-overview
-#     namespace: monitoring
-#     files:
-#       - dashboards/osd-device-overview.json
-#   - name: osds-overview
-#     namespace: monitoring
-#     files:
-#       - dashboards/osds-overview.json
+  - name: ceph-pools
+    namespace: monitoring
+    files:
+      - dashboards/ceph-pools.json
+
+  - name: ceph-osds
+    namespace: monitoring
+    files:
+      - dashboards/ceph-osds.json
+
+  - name: argo-cd-application-overview
+    namespace: monitoring
+    files:
+      - dashboards/argo-cd-application-overview.json
+
+  - name: argo-cd-notifications-overview
+    namespace: monitoring
+    files:
+      - dashboards/argo-cd-notifications-overview.json
+
+  - name: argo-cd-operational-overview
+    namespace: monitoring
+    files:
+      - dashboards/argo-cd-operational-overview.json
+
+  - name: ceph-cluster-advanced
+    namespace: monitoring
+    files:
+      - dashboards/ceph-cluster-advanced.json
+
 #   - name: pool-detail
 #     namespace: monitoring
 #     files:

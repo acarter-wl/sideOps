@@ -16,7 +16,6 @@ vlselect:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
     hosts:
       - name: logs.wakkalabs.com
@@ -27,7 +26,7 @@ vlselect:
       - secretName: vlogs-select-tls
         hosts:
           - logs.wakkalabs.com
-    ingressClassName: nginx
+    ingressClassName: internal
     pathType: Prefix
   vmServiceScrape:
     enabled: true
@@ -46,7 +45,6 @@ vlinsert:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
     hosts:
       - name: logs.wakkalabs.com
@@ -57,7 +55,7 @@ vlinsert:
       - secretName: vlogs-insert-tls
         hosts:
           - logs.wakkalabs.com
-    ingressClassName: nginx
+    ingressClassName: internal
     pathType: Prefix
   vmServiceScrape:
     enabled: true
@@ -102,7 +100,6 @@ vmauth:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
     hosts:
       - name: logs.wakkalabs.com
@@ -113,7 +110,7 @@ vmauth:
       - secretName: vlogs-vmauth-tls
         hosts:
           - logs.wakkalabs.com
-    ingressClassName: nginx
+    ingressClassName: internal
     pathType: Prefix
   vmServiceScrape:
     enabled: true
