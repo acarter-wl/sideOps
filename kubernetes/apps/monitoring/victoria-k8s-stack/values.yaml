@@ -548,6 +548,8 @@ defaultDatasources:
 
 # -- Grafana dependency chart configuration
 grafana:
+  plugins:
+    - victorialogs-datasource
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
