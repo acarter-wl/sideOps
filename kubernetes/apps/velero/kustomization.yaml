@@ -5,7 +5,6 @@ resources:
   - crd
   - 01-namespace.yaml
   - 02-serviceaccount.yaml
-  - 04-plugin-config.yaml
   - 06-storagelocations.yaml
   - 05-deployment.yaml
   - 07-schedules.yaml
