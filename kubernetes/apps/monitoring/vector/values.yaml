@@ -1,0 +1,80 @@
+role: "Stateless-Aggregator"
+
+# Sources
+sources:
+  talos_kernel_logs:
+    address: 0.0.0.0:6050
+    type: socket
+    mode: udp
+    max_length: 102400
+    decoding:
+      codec: json
+    host_key: __host
+
+  talos_service_logs:
+    address: 0.0.0.0:6051
+    type: socket
+    mode: udp
+    max_length: 102400
+    decoding:
+      codec: json
+    host_key: __host
+
+sinks:
+  talos_kernel:
+    type: loki
+    inputs:
+      - talos_kernel_logs_xform
+    endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+    encoding:
+      codec: json
+      except_fields:
+        - __host
+    batch:
+      max_bytes: 1048576
+    out_of_order_action: rewrite_timestamp
+    labels:
+      hostname: >-
+        {{`{{ __host }}`}}
+      facility: >-
+        {{`{{ facility }}`}}
+
+  talos_service:
+    type: loki
+    inputs:
+      - talos_service_logs_xform
+    endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+    encoding:
+      codec: json
+      except_fields:
+        - __host
+    batch:
+      max_bytes: 400000
+    out_of_order_action: rewrite_timestamp
+    labels:
+      hostname: >-
+        {{`{{ __host }}`}}
+      service: >-
+        {{`{{ "talos-service" }}`}}
+
+# role: "Agent"
+# data_dir: /vector-data-dir
+
+# sources:
+#   kubernetes_logs:
+#     type: kubernetes_logs
+
+# sinks:
+#   loki:
+#     type: loki
+#     inputs:
+#       - kubernetes_logs
+#     endpoint: http://loki.monitoring.svc.cluster.local:3100
+#     encoding:
+#       codec: json
+#     labels:
+#       job: "vector"
+#       host: "{{ host }}"
+#       namespace: "{{ kubernetes.pod_namespace }}"
+#       pod: "{{ kubernetes.pod_name }}"
+#       container: "{{ kubernetes.container_name }}"
