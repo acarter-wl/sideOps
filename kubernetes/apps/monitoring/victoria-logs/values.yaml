@@ -132,7 +132,8 @@ vmauth:
 vector:
   enabled: true
   role: Stateless-Aggregator
-
+  dataDir: /vector-data-dir
+  
   # Add environment variables for Kubernetes logs
   env:
     - name: VECTOR_SELF_NODE_NAME
@@ -147,6 +148,7 @@ vector:
       valueFrom:
         fieldRef:
           fieldPath: metadata.namespace
+          
   service:
     enabled: true
     type: LoadBalancer
@@ -159,7 +161,7 @@ vector:
         port: 6051
         protocol: UDP
         targetPort: 6051
-
+        
   resources:
     requests:
       cpu: 100m
@@ -167,10 +169,12 @@ vector:
     limits:
       cpu: 1000m
       memory: 512Mi
+      
   args:
     - -w
     - --config-dir
     - /etc/vector/
+    
   containerPorts:
     - name: prom-exporter
       containerPort: 9090
@@ -181,6 +185,9 @@ vector:
     - name: talos-service
       containerPort: 6051
       protocol: UDP
+      
+  existingConfigMaps:
+    - victoria-logs-cluster-vector-config
   customConfig:
     data_dir: /vector-data-dir
     api:
