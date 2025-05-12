@@ -35,9 +35,7 @@ spec:
             - /velero
           args:
             - server
-            - --provider aws
             - --plugins velero/velero-plugin-for-aws:v1.2.1
-            - --bucket kubebucket-daily
             - --secret-file /credentials/cloud
             - --use-volume-snapshots=false
             - --backup-location-config region=us-east-1,s3ForcePathStyle="true",s3Url=https://s3api.wakkalabs.com
