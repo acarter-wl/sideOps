@@ -1,22 +1,27 @@
-# vector-config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: vector-talos-config
+  name: vl-vector-talos-config
   namespace: monitoring
 data:
   vector.yaml: |
+    role: Stateless-Aggregator
     data_dir: /vector-data-dir
     api:
       enabled: false
       address: 0.0.0.0:8686
+
     sources:
-      # Changed name from k8s_logs to k8s to match what you have in the logs
+      # Kubernetes logs source
       k8s:
         type: kubernetes_logs
         self_node_name: "${VECTOR_SELF_NODE_NAME}"
+
+      # Internal metrics
       internal_metrics:
         type: internal_metrics
+
+      # Talos kernel logs source
       talos_kernel_logs:
         address: 0.0.0.0:6050
         type: socket
@@ -25,6 +30,8 @@ data:
         decoding:
           codec: json
         host_key: __host
+
+      # Talos service logs source
       talos_service_logs:
         address: 0.0.0.0:6051
         type: socket
@@ -33,35 +40,43 @@ data:
         decoding:
           codec: json
         host_key: __host
+
     transforms:
+      # K8s logs parser
       k8s_parser:
         type: remap
-        # Changed input to match source name 'k8s' instead of 'k8s_logs'
-        inputs: [ k8s ]
+        inputs: [k8s]
         source: |
           .timestamp = now()
-          . = parse_json!(.message)
+          . = parse_json!(.message) ?? .message
+
+      # Talos kernel logs transform
       talos_kernel_logs_xform:
         type: remap
-        inputs: [ talos_kernel_logs ]
+        inputs: [talos_kernel_logs]
         source: |
           .source_type = "talos_kernel"
+
+      # Talos service logs transform
       talos_service_logs_xform:
         type: remap
-        inputs: [ talos_service_logs ]
+        inputs: [talos_service_logs]
         source: |
           .source_type = "talos_service"
+
     sinks:
+      # Metrics sink for VictoriaMetrics
       metrics:
         type: prometheus_remote_write
-        inputs: [ internal_metrics ]
+        inputs: [internal_metrics]
         endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
-      # Renamed from k8s_logs_sink to avoid conflict
+
+      # K8s logs sink
       k8s_logs_sink:
         type: http
-        inputs: [ k8s_parser ]
+        inputs: [k8s_parser]
         method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-single-server.monitoring.svc:9428/insert/loki/api/v1/push
         encoding:
           codec: json
         request:
@@ -70,11 +85,13 @@ data:
             VL-Time-Field: timestamp
             VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
             VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+
+      # Talos kernel logs sink
       talos_kernel:
         type: http
-        inputs: [ talos_kernel_logs_xform ]
+        inputs: [talos_kernel_logs_xform]
         method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-single-server.monitoring.svc:9428/insert/loki/api/v1/push
         encoding:
           codec: json
           except_fields:
@@ -88,11 +105,13 @@ data:
             VL-Stream-Fields: hostname,facility,source_type
             VL-Msg-Field: message,msg
             VL-Out-Of-Order-Action: rewrite_timestamp
+
+      # Talos service logs sink
       talos_service:
         type: http
-        inputs: [ talos_service_logs_xform ]
+        inputs: [talos_service_logs_xform]
         method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-single-server.monitoring.svc:9428/insert/loki/api/v1/push
         encoding:
           codec: json
           except_fields:

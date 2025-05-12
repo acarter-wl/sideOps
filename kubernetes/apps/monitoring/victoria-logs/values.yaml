@@ -1,106 +1,47 @@
-global:
-  imagePullSecrets: []
-  cluster:
-    dnsDomain: cluster.local
-
-vlselect:
+server:
   enabled: true
-  replicaCount: 2
-  service:
-    enabled: true
-    type: ClusterIP
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: internal
-      cert-manager.io/cluster-issuer: letsencrypt-production
-    extraLabels: {}
-    hosts:
-      - name: logs.wakkalabs.com
-        path:
-          - /select
-        port: http
-    tls:
-      - secretName: vlogs-select-tls
-        hosts:
-          - logs.wakkalabs.com
-    ingressClassName: internal
-    pathType: Prefix
-  vmServiceScrape:
-    enabled: true
-    useServiceMonitor: false
-    extraLabels:
-      release: victoria-metrics
+  replicaCount: 1
+  retentionPeriod: 30d # Matching your cluster setting
   extraArgs:
     envflag.enable: true
+    envflag.prefix: VM_
     loggerFormat: json
-    httpListenAddr: :9471
+    httpListenAddr: :9428
 
-vlinsert:
-  enabled: true
-  replicaCount: 2
-  service:
-    enabled: true
-    type: ClusterIP
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: internal
-      cert-manager.io/cluster-issuer: letsencrypt-production
-    hosts:
-      - name: logs.wakkalabs.com
-        path:
-          - /insert
-        port: http
-    tls:
-      - secretName: vlogs-insert-tls
-        hosts:
-          - logs.wakkalabs.com
-    ingressClassName: internal
-    pathType: Prefix
-  vmServiceScrape:
-    enabled: true
-    useServiceMonitor: false
-    extraLabels:
-      release: victoria-metrics
-  extraArgs:
-    envflag.enable: true
-    loggerFormat: json
-    httpListenAddr: :9481
-
-vlstorage:
-  enabled: true
-  replicaCount: 2
   persistentVolume:
     enabled: true
     accessModes:
       - ReadWriteOnce
-    size: 20Gi
-  vmServiceScrape:
-    enabled: true
-    useServiceMonitor: false
-    extraLabels:
-      release: victoria-metrics
-  retentionPeriod: 30d
-  extraArgs:
-    envflag.enable: true
-    loggerFormat: json
-    httpListenAddr: :9491
+    size: 20Gi # Matching your cluster storage size
+    storageClassName: "ceph-block" # If you have a specific storage class
+    mountPath: /storage
 
-vmauth:
-  enabled: false
-  # replicaCount: 2
-  # config:
-  #   users:
-  #     - username: "admin"
-  #       password: "CHANGEME"
-  #       url_map:
-  #         - src_paths:
-  #             - "/select"
-  #           dst_url: "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
-  #         - src_paths:
-  #             - "/insert"
-  #           dst_url: "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+  securityContext:
+    enabled: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+
+  podSecurityContext:
+    enabled: true
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    servicePort: 9428
+
   ingress:
     enabled: true
     annotations:
@@ -112,26 +53,23 @@ vmauth:
           - /
         port: http
     tls:
-      - secretName: vlogs-vmauth-tls
+      - secretName: vlogs-tls
         hosts:
           - logs.wakkalabs.com
     ingressClassName: internal
     pathType: Prefix
+
   vmServiceScrape:
     enabled: true
-    useServiceMonitor: false
     extraLabels:
       release: victoria-metrics
 
-# Vector configuration - the key fix here is using the 'existingConfigMap' approach
+# Vector configuration for Talos logs
 vector:
   enabled: true
-  role: Stateless-Aggregator
-  dataDir: /vector-data-dir
-  # Create the config separately
   existingConfigMaps:
-    - vector-talos-config
-  # Define container environment variables
+    - vl-vector-talos-config
+  # Environment variables
   env:
     - name: VECTOR_SELF_NODE_NAME
       valueFrom:
@@ -145,7 +83,8 @@ vector:
       valueFrom:
         fieldRef:
           fieldPath: metadata.namespace
-  # Define the service
+
+  # Service for UDP listeners
   service:
     enabled: true
     type: LoadBalancer
@@ -158,6 +97,7 @@ vector:
         port: 6051
         protocol: UDP
         targetPort: 6051
+
   # Resources
   resources:
     requests:
@@ -166,11 +106,13 @@ vector:
     limits:
       cpu: 1000m
       memory: 512Mi
+
   # Container arguments
   args:
     - -w
     - --config-dir
     - /etc/vector/
+
   # Container ports
   containerPorts:
     - name: prom-exporter
@@ -182,9 +124,10 @@ vector:
     - name: talos-service
       containerPort: 6051
       protocol: UDP
-  # Define the Vector config separately in a ConfigMap
-  customConfig:
-    data_dir: /vector-data-dir
-    api:
-      enabled: false
-      address: 0.0.0.0:8686
+
+# Add dashboards for VictoriaLogs
+dashboards:
+  enabled: true
+  labels:
+    grafana_dashboard: "1"
+  namespace: "monitoring"
