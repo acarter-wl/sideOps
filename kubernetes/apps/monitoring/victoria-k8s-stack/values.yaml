@@ -518,10 +518,10 @@ defaultDatasources:
         isDefault: false
         access: proxy
         type: victoriametrics-metrics-datasource
-      - name: VictoriaLogs
+      - name: Victorialogs
         type: victorialogs-datasource
         access: proxy
-        url: http://victoria-logs.monitoring.svc.cluster.local:9428
+        url: http://victoria-logs-single-server.monitoring.svc.cluster.local:9428
         isDefault: false
         jsonData:
           maxLines: 1000
@@ -572,8 +572,6 @@ grafana:
       enabled: true
       initDatasources: true
       label: grafana_datasource
-    plugins:
-      - victorialogs-datasource
     additionalDataSources:
       - name: victorialogs-datasource
         type: victorialogs-datasource
