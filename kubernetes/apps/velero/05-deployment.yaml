@@ -34,6 +34,7 @@ spec:
           command:
             - /velero
           args:
+            - server
             - --provider aws
             - --plugins velero/velero-plugin-for-aws:v1.2.1
             - --bucket kubebucket-daily
