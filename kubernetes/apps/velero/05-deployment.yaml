@@ -38,8 +38,8 @@ spec:
             # - --plugins velero/velero-plugin-for-aws:v1.2.1
             # - --secret-file /credentials/cloud
             # - --use-volume-snapshots=false
-            - --backup-location-config region=us-east-1,s3ForcePathStyle="true",s3Url=https://s3api.wakkalabs.com
-            - --use-node-agent
+            # - --backup-location-config region=us-east-1,s3ForcePathStyle="true",s3Url=https://s3api.wakkalabs.com
+            # - --use-node-agent
           env:
             - name: VELERO_NAMESPACE
               valueFrom:
