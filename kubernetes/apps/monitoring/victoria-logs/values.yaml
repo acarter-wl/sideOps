@@ -1,5 +1,3 @@
-# VictoriaLogs Cluster configuration with Talos integration
-
 global:
   imagePullSecrets: []
   cluster:
@@ -125,101 +123,15 @@ vmauth:
     extraLabels:
       release: victoria-metrics
 
+# Vector configuration - the key fix here is using the 'existingConfigMap' approach
 vector:
   enabled: true
   role: Stateless-Aggregator
   dataDir: /vector-data-dir
-  customConfig:
-    data_dir: /vector-data-dir
-    api:
-      enabled: false
-      address: 0.0.0.0:8686
-    sources:
-      k8s_logs:
-        type: kubernetes_logs
-      internal_metrics:
-        type: internal_metrics
-      talos_kernel_logs:
-        type: file
-        include:
-          - /var/log/pods/**/talos-kernel*.log
-        read_from: beginning
-      talos_service_logs:
-        type: file
-        include:
-          - /var/log/pods/**/talos-service*.log
-        read_from: beginning
-    transforms:
-      k8s_parser:
-        type: remap
-        inputs: [ k8s_logs ]
-        source: |
-          .timestamp = now()
-          . = parse_json!(.message)
-      talos_kernel_logs_xform:
-        type: remap
-        inputs: [ talos_kernel_logs ]
-        source: |
-          .source_type = "talos_kernel"
-      talos_service_logs_xform:
-        type: remap
-        inputs: [ talos_service_logs ]
-        source: |
-          .source_type = "talos_service"
-    sinks:
-      metrics:
-        type: prometheus_remote_write
-        inputs: [ internal_metrics ]
-        endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
-      k8s_logs_sink:
-        type: http
-        inputs: [ k8s_parser ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
-            VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
-      talos_kernel:
-        type: http
-        inputs: [ talos_kernel_logs_xform ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-          except_fields:
-            - __host
-        batch:
-          max_bytes: 1048576
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: hostname,facility,source_type
-            VL-Msg-Field: message,msg
-            VL-Out-Of-Order-Action: rewrite_timestamp
-      talos_service:
-        type: http
-        inputs: [ talos_service_logs_xform ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-          except_fields:
-            - __host
-        batch:
-          max_bytes: 400000
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: hostname,service,source_type
-            VL-Msg-Field: message,msg
-            VL-Out-Of-Order-Action: rewrite_timestamp
+  # Create the config separately
+  existingConfigMaps:
+    - vector-talos-config
+  # Define container environment variables
   env:
     - name: VECTOR_SELF_NODE_NAME
       valueFrom:
@@ -233,6 +145,7 @@ vector:
       valueFrom:
         fieldRef:
           fieldPath: metadata.namespace
+  # Define the service
   service:
     enabled: true
     type: LoadBalancer
@@ -245,6 +158,7 @@ vector:
         port: 6051
         protocol: UDP
         targetPort: 6051
+  # Resources
   resources:
     requests:
       cpu: 100m
@@ -252,10 +166,12 @@ vector:
     limits:
       cpu: 1000m
       memory: 512Mi
+  # Container arguments
   args:
     - -w
     - --config-dir
     - /etc/vector/
+  # Container ports
   containerPorts:
     - name: prom-exporter
       containerPort: 9090
@@ -266,3 +182,9 @@ vector:
     - name: talos-service
       containerPort: 6051
       protocol: UDP
+  # Define the Vector config separately in a ConfigMap
+  customConfig:
+    data_dir: /vector-data-dir
+    api:
+      enabled: false
+      address: 0.0.0.0:8686
