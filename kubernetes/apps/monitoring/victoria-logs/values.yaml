@@ -88,19 +88,19 @@ vlstorage:
     httpListenAddr: :9491
 
 vmauth:
-  enabled: true
-  replicaCount: 2
-  config:
-    users:
-      - username: "admin"
-        password: "CHANGE_ME"
-        url_map:
-          - src_paths:
-              - "/select"
-            dst_url: "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
-          - src_paths:
-              - "/insert"
-            dst_url: "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
+  enabled: false
+  # replicaCount: 2
+  # config:
+  #   users:
+  #     - username: "admin"
+  #       password: "CHANGEME"
+  #       url_map:
+  #         - src_paths:
+  #             - "/select"
+  #           dst_url: "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
+  #         - src_paths:
+  #             - "/insert"
+  #           dst_url: "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
   ingress:
     enabled: true
     annotations:
