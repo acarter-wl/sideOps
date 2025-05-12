@@ -226,7 +226,7 @@ customConfig:
       type: prometheus_remote_write
       inputs: [ internal_metrics ]
       endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
-    k8s_logs:
+    k8s_logs_sink:
       type: http
       inputs: [ k8s_parser ]
       method: post
