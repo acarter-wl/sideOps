@@ -4,7 +4,6 @@ resources:
   - ./config
   - vlogs-cm.yaml
   - vlogs-dash-cm.yaml
-  - vlogs-dash2-cm.yaml
 generatorOptions:
   disableNameSuffixHash: true
 
