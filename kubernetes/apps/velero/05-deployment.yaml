@@ -37,7 +37,7 @@ spec:
             - server
             - --features=EnableCSI
             - --default-volumes-to-fs-backup
-            - --backup-location-config=region=us-east-1,s3ForcePathStyle=true,s3Url=https://s3api.wakkalabs.com
+            # - --backup-location-config=region=us-east-1,s3ForcePathStyle=true,s3Url=https://s3api.wakkalabs.com
           env:
             - name: VELERO_NAMESPACE
               valueFrom:
