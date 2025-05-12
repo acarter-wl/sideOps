@@ -8,16 +8,15 @@ metadata:
 spec:
   project: infrastructure
   sources:
-    # yamllint disable-line rule:line-length
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/victoria-k8s-stack
       targetRevision: main
       ref: repo
     - repoURL: https://victoriametrics.github.io/helm-charts/
-      chart: victoria-k8s-stack
+      chart: victoria-metrics-k8s-stack
       targetRevision: 0.46.0
       helm:
-        releaseName: victoria-k8s-stack
+        releaseName: victoria-metrics-k8s-stack
         valueFiles:
           - $repo/kubernetes/apps/monitoring/victoria-k8s-stack/values.yaml
   destination:
