@@ -549,9 +549,6 @@ grafana:
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
-  env:
-    GF_INSTALL_PLUGINS: "victorialogs-datasource,victoriametrics-logs-datasource"
-
   resources:
     limits:
       cpu: 500m
