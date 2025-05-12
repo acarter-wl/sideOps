@@ -21,7 +21,7 @@ global:
       storage:
         path: /var/tempo/generator/wal
         remote_write:
-          - url: http://kube-prometheus-stack-prometheus:9090
+          - url: ttp://victoria-metrics-k8s-stack-victoria-metrics.monitoring.svc.cluster.local:8428
             send_exemplars: true
     storage:
       trace:
