@@ -348,7 +348,7 @@ vmcluster:
         - vmstorage.wakkalabs.com
       extraPaths: []
       tls:
-        - secretName: vmstorage-ingress-tls
+        - secretName: monitoring-wildcard-tls
           hosts:
             - vmstorage.wakkalabs.com
     select:
@@ -365,7 +365,7 @@ vmcluster:
         - vmselect.wakkalabs.com
       extraPaths: []
       tls:
-        - secretName: vmselect-ingress-tls
+        - secretName: monitoring-wildcard-tls
           hosts:
             - vmselect.wakkalabs.com
     insert:
@@ -382,7 +382,7 @@ vmcluster:
         - vminsert.wakkalabs.com
       extraPaths: []
       tls:
-        - secretName: vminsert-ingress-tls
+        - secretName: monitoring-wildcard-tls
           hosts:
             - vminsert.wakkalabs.com
 
@@ -419,7 +419,7 @@ alertmanager:
       - alertmanager.wakkalabs.com
     extraPaths: []
     tls:
-      - secretName: alertmanager-ingress-tls
+      - secretName: monitoring-wildcard-tls
         hosts:
           - alertmanager.wakkalabs.com
 
@@ -448,7 +448,7 @@ vmalert:
       - vmalert.wakkalabs.com
     extraPaths: []
     tls:
-      - secretName: vmalert-ingress-tls
+      - secretName: monitoring-wildcard-tls
         hosts:
           - vmalert.wakkalabs.com
 
@@ -494,7 +494,7 @@ vmagent:
       - vmagent.wakkalabs.com
     extraPaths: []
     tls:
-      - secretName: vmagent-ingress-tls
+      - secretName: monitoring-wildcard-tls
         hosts:
           - vmagent.wakkalabs.com
 
@@ -582,7 +582,7 @@ grafana:
       - grafana.wakkalabs.com
     extraPaths: []
     tls:
-      - secretName: grafana-ingress-tls
+      - secretName: monitoring-wildcard-tls
         hosts:
           - grafana.wakkalabs.com
   vmScrape:

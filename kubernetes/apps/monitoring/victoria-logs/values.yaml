@@ -14,7 +14,7 @@ vlselect:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
@@ -44,7 +44,7 @@ vlinsert:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
@@ -91,6 +91,7 @@ vmauth:
           - src_paths:
               - "/select"
             dst_urls:
+              - "http://vlogs-vlselect:8481/select"
               - "http://vlogs-vlselect:9471"
           - src_paths:
               - "/insert"
@@ -99,7 +100,7 @@ vmauth:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     extraLabels: {}
