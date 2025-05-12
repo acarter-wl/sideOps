@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: victoria-logs
+  name: victoria-log-stack
   namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: '0'
@@ -15,10 +15,10 @@ spec:
       targetRevision: main
       ref: repo
     - repoURL: https://victoriametrics.github.io/helm-charts/
-      chart: victoria-logs-single
-      targetRevision: 0.9.8 # Use the desired chart version
+      chart: victoria-logs-cluster
+      targetRevision: 0.0.2 # Use the desired chart version
       helm:
-        releaseName: victoria-logs-single
+        releaseName: victoria-logs-cluster
         valueFiles:
           - $repo/kubernetes/apps/monitoring/victoria-logs/values.yaml
   destination:

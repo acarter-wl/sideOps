@@ -1,10 +1,10 @@
 # VictoriaLogs Cluster configuration with Talos integration
 
-# Global settings (keeping the same)
 global:
   imagePullSecrets: []
+  cluster:
+    dnsDomain: cluster.local
 
-# Keep your existing VictoriaLogs components the same
 vlselect:
   enabled: true
   replicaCount: 2
@@ -33,6 +33,10 @@ vlselect:
     useServiceMonitor: false
     extraLabels:
       release: victoria-metrics
+  extraArgs:
+    envflag.enable: true
+    loggerFormat: json
+    httpListenAddr: :9471
 
 vlinsert:
   enabled: true
@@ -62,6 +66,10 @@ vlinsert:
     useServiceMonitor: false
     extraLabels:
       release: victoria-metrics
+  extraArgs:
+    envflag.enable: true
+    loggerFormat: json
+    httpListenAddr: :9481
 
 vlstorage:
   enabled: true
@@ -76,25 +84,28 @@ vlstorage:
     useServiceMonitor: false
     extraLabels:
       release: victoria-metrics
+  retentionPeriod: 30d
+  extraArgs:
+    envflag.enable: true
+    loggerFormat: json
+    httpListenAddr: :9491
 
-# VMAuth configuration remains the same
 vmauth:
   enabled: true
   replicaCount: 2
   config:
     users:
       - username: "admin"
-        password: "CHANGE_ME_AFTER_INSTALL"
+        password: "CHANGE_ME"
         url_map:
           - src_paths:
               - "/select"
             dst_urls:
-              - "http://vlogs-vlselect:8481/select"
-              - "http://vlogs-vlselect:9471"
+              - "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
           - src_paths:
               - "/insert"
             dst_urls:
-              - "http://vlogs-vlinsert:9481"
+              - "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
   ingress:
     enabled: true
     annotations:
@@ -118,8 +129,6 @@ vmauth:
     extraLabels:
       release: victoria-metrics
 
-# Updated Vector configuration to integrate with Talos
-# Updated Vector configuration for Talos integration with correct VictoriaMetrics endpoints
 vector:
   enabled: true
   role: "Stateless-Aggregator"
@@ -138,7 +147,6 @@ vector:
       valueFrom:
         fieldRef:
           fieldPath: metadata.namespace
-
   service:
     enabled: true
     type: LoadBalancer
@@ -152,6 +160,18 @@ vector:
         protocol: UDP
         targetPort: 6051
 
+  dataDir: /vector-data-dir
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  args:
+    - -w
+    - --config-dir
+    - /etc/vector/
   containerPorts:
     - name: prom-exporter
       containerPort: 9090
@@ -162,73 +182,54 @@ vector:
     - name: talos-service
       containerPort: 6051
       protocol: UDP
-
   customConfig:
     data_dir: /vector-data-dir
     api:
       enabled: true
       address: 0.0.0.0:8686
 
-    # Sources configuration
     sources:
-      k8s:
+      k8s_logs:
         type: kubernetes_logs
-        self_node_name: "${VECTOR_SELF_NODE_NAME}"
-
-      talos_kernel_logs:
-        address: 0.0.0.0:6050
-        type: socket
-        mode: udp
-        max_length: 102400
-        decoding:
-          codec: json
-        host_key: __host
-
-      talos_service_logs:
-        address: 0.0.0.0:6051
-        type: socket
-        mode: udp
-        max_length: 102400
-        decoding:
-          codec: json
-        host_key: __host
-
       internal_metrics:
         type: internal_metrics
-
-    # Transforms configuration
+      talos_kernel_logs:
+        type: file
+        include:
+          - /var/log/pods/**/talos-kernel*.log
+        read_from: beginning
+      talos_service_logs:
+        type: file
+        include:
+          - /var/log/pods/**/talos-service*.log
+        read_from: beginning
     transforms:
       k8s_parser:
         type: remap
-        inputs: [ k8s ]
+        inputs: [ k8s_logs ]
         source: |
-          .log = parse_json(.message) ?? .message
-          del(.message)
-
+          .timestamp = now()
+          . = parse_json!(.message)
       talos_kernel_logs_xform:
         type: remap
         inputs: [ talos_kernel_logs ]
         source: |
           .source_type = "talos_kernel"
-
       talos_service_logs_xform:
         type: remap
         inputs: [ talos_service_logs ]
         source: |
           .source_type = "talos_service"
-
-    # Sinks configuration
     sinks:
       metrics:
         type: prometheus_remote_write
         inputs: [ internal_metrics ]
-        endpoint: http://vminsert-victoria-metrics-k8s-stack:8480/api/v1/write
-
+        endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
       k8s_logs:
         type: http
         inputs: [ k8s_parser ]
         method: post
-        uri: http://victoria-logs-single-server:9428/insert/loki/api/v1/push
+        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
         encoding:
           codec: json
         request:
@@ -237,12 +238,11 @@ vector:
             VL-Time-Field: timestamp
             VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
             VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
-
       talos_kernel:
         type: http
         inputs: [ talos_kernel_logs_xform ]
         method: post
-        uri: http://victoria-logs-single-server:9428/insert/loki/api/v1/push
+        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
         encoding:
           codec: json
           except_fields:
@@ -256,12 +256,11 @@ vector:
             VL-Stream-Fields: hostname,facility,source_type
             VL-Msg-Field: message,msg
             VL-Out-Of-Order-Action: rewrite_timestamp
-
       talos_service:
         type: http
         inputs: [ talos_service_logs_xform ]
         method: post
-        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
         encoding:
           codec: json
           except_fields:
