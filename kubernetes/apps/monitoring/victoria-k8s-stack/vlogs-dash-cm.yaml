@@ -1,0 +1,284 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: victorialogs-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"
+data:
+  victorialogs-dashboard.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 1,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": "VictoriaLogs",
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 12,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "# Kubernetes Logs Explorer\nUse the fields below to search and explore logs from your Talos Kubernetes cluster.",
+            "mode": "markdown"
+          },
+          "type": "text"
+        },
+        {
+          "datasource": "VictoriaLogs",
+          "description": "Log volume distribution by namespace",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 4
+          },
+          "id": 4,
+          "options": {
+            "displayLabels": ["name", "percent"],
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": ["sum"],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "bucketAggs": [
+                {
+                  "field": "kubernetes.pod_namespace",
+                  "id": "2",
+                  "settings": {
+                    "min_doc_count": "1",
+                    "order": "desc",
+                    "orderBy": "_count",
+                    "size": "10"
+                  },
+                  "type": "terms"
+                }
+              ],
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "refId": "A",
+              "timeField": "timestamp"
+            }
+          ],
+          "title": "Log Volume by Namespace",
+          "type": "piechart"
+        },
+        {
+          "datasource": "VictoriaLogs",
+          "description": "Log entries by time",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 30,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 4
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "bucketAggs": [
+                {
+                  "field": "timestamp",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto"
+                  },
+                  "type": "date_histogram"
+                }
+              ],
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "refId": "A",
+              "timeField": "timestamp"
+            }
+          ],
+          "title": "Log Volume Over Time",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "VictoriaLogs",
+          "description": "Search and filter logs",
+          "gridPos": {
+            "h": 14,
+            "w": 24,
+            "x": 0,
+            "y": 12
+          },
+          "id": 2,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "bucketAggs": [],
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "logs"
+                }
+              ],
+              "query": "$Query",
+              "refId": "A",
+              "timeField": "timestamp"
+            }
+          ],
+          "title": "Log Search",
+          "type": "logs"
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["victorialogs", "logs", "talos"],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": "",
+              "value": ""
+            },
+            "name": "Query",
+            "options": [
+              {
+                "selected": true,
+                "text": "",
+                "value": ""
+              }
+            ],
+            "query": "",
+            "skipUrlSync": false,
+            "type": "textbox"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timezone": "",
+      "title": "VictoriaLogs Dashboard",
+      "uid": "victorialogs-overview",
+      "version": 1,
+      "weekStart": ""
+    }

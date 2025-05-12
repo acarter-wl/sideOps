@@ -586,13 +586,28 @@ grafana:
         hosts:
           - grafana.wakkalabs.com
   vmScrape:
-    enabled: true
     spec:
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: '{{ include "grafana.name" .Subcharts.grafana }}'
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
       endpoints:
-        - port: '{{ .Values.grafana.service.portName }}'
+        - port: http-metrics
+          scheme: https
+          tlsConfig:
+            # caFile, certFile, and keyFile from Neil's post
+            ca:
+              secret:
+                # can reference the secret directly instead of needing
+                # to add it somewhere else
+                name: etcd-client-certs
+                key: etcd-ca.crt
+            cert:
+              secret:
+                name: etcd-client-certs
+                key: etcd-client.crt
+            keySecret:
+              name: etcd-client-certs
+              key: etcd-client.key
 
 prometheus-node-exporter:
   enabled: true

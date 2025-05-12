@@ -13,7 +13,7 @@ global:
       adaptSecurityContext: "auto"
   # -- k8s cluster domain suffix, uses for building storage pods' FQDN. Details are [here](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)
   cluster:
-    dnsDomain: cluster.local.
+    dnsDomain: cluster.local
 
 # -- Print information after deployment
 printNotes: true
@@ -25,7 +25,7 @@ common:
 
 serviceAccount:
   # -- Specifies whether a service account should be created
-  create: false
+  create: true
 
   # -- The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
@@ -133,27 +133,23 @@ vlselect:
     behavior: {}
 
   # -- Extra Volumes for the pod
-  extraVolumes:
-    []
+  extraVolumes: []
     # - name: example
     #   configMap:
     #     name: example
 
   # -- Extra Volume Mounts for the container
-  extraVolumeMounts:
-    []
+  extraVolumeMounts: []
     # - name: example
     #   mountPath: /example
 
   # -- Extra containers to run in a pod with vlselect
-  extraContainers:
-    []
+  extraContainers: []
     # - name: config-reloader
     #   image: reloader-image
 
   # -- Init containers for vlselect
-  initContainers:
-    []
+  initContainers: []
     # - name: example
     #   image: example-image
 
@@ -237,23 +233,21 @@ vlselect:
     # -- List of service IP families. Check [here](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services) for details.
     ipFamilies: []
   ingress:
-    # -- Enable deployment of ingress for vlselect component
-    enabled: false
-
-    # -- Ingress annotations
-    annotations: {}
-    #   kubernetes.io/ingress.class: nginx
-    #   kubernetes.io/tls-acme: 'true'
-
-    # -- Ingress extra labels
-    extraLabels: {}
-
-    # -- Array of host objects
+    enabled: true
+    ingressClassName: "internal"
+    annotations:
+      kubernetes.io/cluster-issuer: "letsencrypt-production"
+    # Corrected hosts format
     hosts:
-      - name: vlselect.local
-        path:
-          - /select
-        port: http
+      - logs.wakkalabs.com  # Simple hostname without 'name' field
+    paths:
+      - /select  # Path separated from host
+    pathType: Prefix  # Add pathType
+    tls:
+      - secretName: vlselect-ingress-tls
+        hosts:
+          - logs.wakkalabs.com
+
 
     # -- Array of TLS objects
     tls: []
@@ -297,10 +291,10 @@ vlinsert:
   name: ""
   # -- vlinsert strategy
   strategy: {}
-   # rollingUpdate:
-   #  maxSurge: 25%
-   #  maxUnavailable: 25%
-   # type: RollingUpdate
+    # rollingUpdate:
+    #  maxSurge: 25%
+    #  maxUnavailable: 25%
+    # type: RollingUpdate
   image:
     # -- Image registry
     registry: ""
@@ -368,7 +362,7 @@ vlinsert:
     # -- vlinsert startup probe
     startup: {}
 
-# Horizontal Pod Autoscaling
+  # Horizontal Pod Autoscaling
   horizontalPodAutoscaler:
     # -- Use HPA for vlinsert component
     enabled: false
@@ -382,27 +376,23 @@ vlinsert:
     behavior: {}
 
   # -- Extra Volumes for the pod
-  extraVolumes:
-    []
+  extraVolumes: []
     # - name: example
     #   configMap:
     #     name: example
 
   # -- Extra Volume Mounts for the container
-  extraVolumeMounts:
-    []
+  extraVolumeMounts: []
     # - name: example
     #   mountPath: /example
 
   # -- Extra containers to run in a pod with vlinsert
-  extraContainers:
-    []
+  extraContainers: []
     # - name: config-reloader
     #   image: reloader-image
 
   # -- Init containers for vlinsert
-  initContainers:
-    []
+  initContainers: []
     # - name: example
     #   image: example-image
 
@@ -586,27 +576,23 @@ vlstorage:
     httpListenAddr: :9491
 
   # -- Extra Volumes for the pod
-  extraVolumes:
-    []
+  extraVolumes: []
     # - name: example
     #   configMap:
     #     name: example
 
   # -- Extra Volume Mounts for the container
-  extraVolumeMounts:
-    []
+  extraVolumeMounts: []
     # - name: example
     #   mountPath: /example
 
   # -- Extra containers to run in a pod with vlstorage
-  extraContainers:
-    []
+  extraContainers: []
     # - name: config-reloader
     #   image: reloader-image
 
   # -- Init containers for vlstorage
-  initContainers:
-    []
+  initContainers: []
 
   # -- See `kubectl explain poddisruptionbudget.spec` for more. Details are [here](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
   podDisruptionBudget:
@@ -616,8 +602,7 @@ vlstorage:
     labels: {}
 
   # -- Array of tolerations object. Node tolerations for server scheduling to nodes with taints. Details are [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
-  tolerations:
-    []
+  tolerations: []
     # - key: "key"
     #   operator: "Equal|Exists"
     #   value: "value"
@@ -627,8 +612,7 @@ vlstorage:
   nodeSelector: {}
 
   # -- Pod affinity
-  affinity: {}
-    # -- Pod topologySpreadConstraints
+  affinity: {} # -- Pod topologySpreadConstraints
   topologySpreadConstraints: []
 
   # -- Empty dir configuration if persistence is disabled
@@ -781,10 +765,10 @@ vmauth:
   config: {}
   # -- VMAuth Deployment strategy
   strategy: {}
-   # rollingUpdate:
-   #  maxSurge: 25%
-   #  maxUnavailable: 25%
-   # type: RollingUpdate
+    # rollingUpdate:
+    #  maxSurge: 25%
+    #  maxUnavailable: 25%
+    # type: RollingUpdate
   image:
     # -- Image registry
     registry: ""
@@ -843,7 +827,7 @@ vmauth:
     # -- VMAuth startup probe
     startup: {}
 
-# Horizontal Pod Autoscaling
+  # Horizontal Pod Autoscaling
   horizontalPodAutoscaler:
     # -- Use HPA for vmauth component
     enabled: false
@@ -857,28 +841,23 @@ vmauth:
     behavior: {}
 
   # -- Extra Volumes for the pod
-  extraVolumes:
-    []
+  extraVolumes: []
     # - name: example
     #   configMap:
     #     name: example
 
   # -- Extra Volume Mounts for the container
-  extraVolumeMounts:
-    []
+  extraVolumeMounts: []
     # - name: example
     #   mountPath: /example
 
-
   # -- Extra containers to run in a pod with vmauth
-  extraContainers:
-    []
+  extraContainers: []
     # - name: config-reloader
     #   image: reloader-image
 
   # -- Init containers for vmauth
-  initContainers:
-    []
+  initContainers: []
     # - name: example
     #   image: example-image
 
@@ -1008,7 +987,7 @@ vmauth:
           # -- vmServiceScrape metricRelabelings
           # metricRelabelings: []
 
-# -- Values for [vector helm chart](https://github.com/vectordotdev/helm-charts/tree/develop/charts/vector)
+          # -- Values for [vector helm chart](https://github.com/vectordotdev/helm-charts/tree/develop/charts/vector)
 vector:
   # -- Enable deployment of vector
   enabled: false
@@ -1043,7 +1022,7 @@ vector:
     transforms:
       parser:
         type: remap
-        inputs: [k8s]
+        inputs: [ k8s ]
         source: |
           .log = parse_json(.message) ?? .message
           del(.message)
@@ -1051,11 +1030,11 @@ vector:
       exporter:
         type: prometheus_exporter
         address: 0.0.0.0:9090
-        inputs: [internal_metrics]
+        inputs: [ internal_metrics ]
       vlogs:
         type: elasticsearch
-        inputs: [parser]
-        endpoints: << include "vlogs.es.urls" . >>
+        inputs: [ parser ]
+        endpoints: ["http://victoria-logs-vlselect:9471"]
         mode: bulk
         api_version: v8
         compression: gzip
@@ -1064,8 +1043,7 @@ vector:
         request:
           headers:
             VL-Time-Field: timestamp
-            VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+            VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace,node
             VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
             AccountID: "0"
             ProjectID: "0"
-
