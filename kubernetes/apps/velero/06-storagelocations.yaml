@@ -8,7 +8,7 @@ metadata:
 spec:
   provider: aws
   objectStorage:
-    bucket: kubebucket-daily
+    bucket: backups
   config:
     region: us-east-1
     s3ForcePathStyle: "true"
@@ -19,12 +19,42 @@ spec:
 apiVersion: velero.io/v1
 kind: BackupStorageLocation
 metadata:
-  name: truenas
+  name: truenas-daily
   namespace: velero
 spec:
   provider: aws
   objectStorage:
-    bucket: kubebucket-weekly
+    bucket: backups-daily
+  config:
+    region: us-east-1
+    s3ForcePathStyle: "true"
+    s3Url: https://s3api.wakkalabs.com
+  accessMode: ReadWrite
+---
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: truenas-weekly
+  namespace: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: backups-weekly
+  config:
+    region: us-east-1
+    s3ForcePathStyle: "true"
+    s3Url: https://s3api.wakkalabs.com
+  accessMode: ReadWrite
+---
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: truenas-monthly
+  namespace: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: backups-monthly
   config:
     region: us-east-1
     s3ForcePathStyle: "true"
@@ -46,23 +76,3 @@ spec:
 #     resticRepoPrefix: /var/velero-local-volume-provider/velero-nfs
 #   accessMode: ReadWrite
 #   default: false
----
-apiVersion: velero.io/v1
-kind: VolumeSnapshotLocation
-metadata:
-  name: default
-  namespace: velero
-spec:
-  provider: aws
-  config:
-    region: us-east-1
----
-apiVersion: velero.io/v1
-kind: VolumeSnapshotLocation
-metadata:
-  name: truenas
-  namespace: velero
-spec:
-  provider: aws
-  config:
-    region: us-east-1

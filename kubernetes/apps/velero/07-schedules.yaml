@@ -17,10 +17,13 @@ spec:
       - velero
       - kube-system
     includeClusterResources: true
-    defaultVolumesToFsBackup: true
+    # Whether pod volume file system backup should be used for all volumes by default.
+    # If false, only PV snapshots will be taken.
+    # Velero docs recommend setting this to false, since it's faster and more efficient.
+    defaultVolumesToFsBackup: false
     hooks: {}
     metadata: {}
-    snapshotVolumes: true
+    snapshotVolumes: false
     labelSelector:
       matchExpressions:
         - key: velero.io/exclude-pvc
@@ -37,7 +40,7 @@ metadata:
 spec:
   schedule: "0 2 * * *" # Daily at 2 AM
   template:
-    storageLocation: default
+    storageLocation: truenas-daily
     ttl: 720h # 30 days
     includedNamespaces:
       - "*"
@@ -45,10 +48,10 @@ spec:
       - velero
       - kube-system
     includeClusterResources: true
-    defaultVolumesToFsBackup: true
+    defaultVolumesToFsBackup: false
     hooks: {}
     metadata: {}
-    snapshotVolumes: true
+    snapshotVolumes: false
     labelSelector:
       matchExpressions:
         - key: velero.io/exclude-pvc
@@ -65,7 +68,7 @@ metadata:
 spec:
   schedule: "0 3 * * 0" # Weekly on Sunday at 3 AM
   template:
-    storageLocation: truenas
+    storageLocation: truenas-weekly
     ttl: 2160h # 90 days
     includedNamespaces:
       - "*"
@@ -73,10 +76,10 @@ spec:
       - velero
       - kube-system
     includeClusterResources: true
-    defaultVolumesToFsBackup: true
+    defaultVolumesToFsBackup: false
     hooks: {}
     metadata: {}
-    snapshotVolumes: true
+    snapshotVolumes: false
     labelSelector:
       matchExpressions:
         - key: velero.io/exclude-pvc
@@ -93,7 +96,7 @@ metadata:
 spec:
   schedule: "0 4 1 * *" # 1st day of each month at 4 AM
   template:
-    storageLocation: truenas
+    storageLocation: truenas-monthly
     ttl: 8760h # 1 year
     includedNamespaces:
       - "*"
@@ -101,10 +104,10 @@ spec:
       - velero
       - kube-system
     includeClusterResources: true
-    defaultVolumesToFsBackup: true
+    defaultVolumesToFsBackup: false
     hooks: {}
     metadata: {}
-    snapshotVolumes: true
+    snapshotVolumes: false
     labelSelector:
       matchExpressions:
         - key: velero.io/exclude-pvc
