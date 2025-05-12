@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+  labels:
+    argocd.argoproj.io/instance: loki
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/loki
+      targetRevision: main
+      ref: repo
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 6.29.0 # Use the desired chart version
+      helm:
+        releaseName: loki
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/loki/values.yaml
+  destination:
+    name: in-cluster
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
