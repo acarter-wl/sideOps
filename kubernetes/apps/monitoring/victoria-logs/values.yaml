@@ -100,12 +100,10 @@ vmauth:
         url_map:
           - src_paths:
               - "/select"
-            dst_urls:
-              - "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
+            dst_url: "http://victoria-logs-cluster-vlselect.monitoring.svc:9471/select"
           - src_paths:
               - "/insert"
-            dst_urls:
-              - "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
+            dst_url: "http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert"
   ingress:
     enabled: true
     annotations:
@@ -132,6 +130,43 @@ vmauth:
 vector:
   enabled: true
   role: Stateless-Aggregator
+  dataDir: /vector-data-dir
+
+  # Add environment variables for Kubernetes logs
+  env:
+    - name: VECTOR_SELF_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: VECTOR_SELF_POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: VECTOR_SELF_POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+
+  service:
+    enabled: true
+    type: LoadBalancer
+    ports:
+      - name: talos-kernel
+        port: 6050
+        protocol: UDP
+        targetPort: 6050
+      - name: talos-service
+        port: 6051
+        protocol: UDP
+        targetPort: 6051
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
 
   args:
     - -w
@@ -148,98 +183,95 @@ vector:
     - name: talos-service
       containerPort: 6051
       protocol: UDP
+customConfig:
+  data_dir: /vector-data-dir
+  api:
+    enabled: false
+    address: 0.0.0.0:8686
 
-  customConfig:
-    data_dir: /vector-data-dir
-    api:
-      enabled: false
-      address: 0.0.0.0:8686
-
-    sources:
-      k8s_logs:
-        type: kubernetes_logs
-      internal_metrics:
-        type: internal_metrics
-      talos_kernel_logs:
-        type: file
-        include:
-          - /var/log/pods/**/talos-kernel*.log
-        read_from: beginning
-      talos_service_logs:
-        type: file
-        include:
-          - /var/log/pods/**/talos-service*.log
-        read_from: beginning
-
-    transforms:
-      k8s_parser:
-        type: remap
-        inputs: [ k8s_logs ]
-        source: |
-          .timestamp = now()
-          . = parse_json!(.message)
-      talos_kernel_logs_xform:
-        type: remap
-        inputs: [ talos_kernel_logs ]
-        source: |
-          .source_type = "talos_kernel"
-      talos_service_logs_xform:
-        type: remap
-        inputs: [ talos_service_logs ]
-        source: |
-          .source_type = "talos_service"
-
-    sinks:
-      metrics:
-        type: prometheus_remote_write
-        inputs: [ internal_metrics ]
-        endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
-      k8s_logs:
-        type: http
-        inputs: [ k8s_parser ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
-            VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
-      talos_kernel:
-        type: http
-        inputs: [ talos_kernel_logs_xform ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-          except_fields:
-            - __host
-        batch:
-          max_bytes: 1048576
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: hostname,facility,source_type
-            VL-Msg-Field: message,msg
-            VL-Out-Of-Order-Action: rewrite_timestamp
-      talos_service:
-        type: http
-        inputs: [ talos_service_logs_xform ]
-        method: post
-        uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
-        encoding:
-          codec: json
-          except_fields:
-            - __host
-        batch:
-          max_bytes: 400000
-        request:
-          headers:
-            Content-Type: application/json
-            VL-Time-Field: timestamp
-            VL-Stream-Fields: hostname,service,source_type
-            VL-Msg-Field: message,msg
-            VL-Out-Of-Order-Action: rewrite_timestamp
+  sources:
+    k8s_logs:
+      type: kubernetes_logs
+    internal_metrics:
+      type: internal_metrics
+    talos_kernel_logs:
+      type: file
+      include:
+        - /var/log/pods/**/talos-kernel*.log
+      read_from: beginning
+    talos_service_logs:
+      type: file
+      include:
+        - /var/log/pods/**/talos-service*.log
+      read_from: beginning
+  transforms:
+    k8s_parser:
+      type: remap
+      inputs: [ k8s_logs ]
+      source: |
+        .timestamp = now()
+        . = parse_json!(.message)
+    talos_kernel_logs_xform:
+      type: remap
+      inputs: [ talos_kernel_logs ]
+      source: |
+        .source_type = "talos_kernel"
+    talos_service_logs_xform:
+      type: remap
+      inputs: [ talos_service_logs ]
+      source: |
+        .source_type = "talos_service"
+  sinks:
+    metrics:
+      type: prometheus_remote_write
+      inputs: [ internal_metrics ]
+      endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
+    k8s_logs:
+      type: http
+      inputs: [ k8s_parser ]
+      method: post
+      uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+      encoding:
+        codec: json
+      request:
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+          VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+    talos_kernel:
+      type: http
+      inputs: [ talos_kernel_logs_xform ]
+      method: post
+      uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+      encoding:
+        codec: json
+        except_fields:
+          - __host
+      batch:
+        max_bytes: 1048576
+      request:
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: hostname,facility,source_type
+          VL-Msg-Field: message,msg
+          VL-Out-Of-Order-Action: rewrite_timestamp
+    talos_service:
+      type: http
+      inputs: [ talos_service_logs_xform ]
+      method: post
+      uri: http://victoria-logs-cluster-vlinsert.monitoring.svc:9481/insert/loki/api/v1/push
+      encoding:
+        codec: json
+        except_fields:
+          - __host
+      batch:
+        max_bytes: 400000
+      request:
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: hostname,service,source_type
+          VL-Msg-Field: message,msg
+          VL-Out-Of-Order-Action: rewrite_timestamp
