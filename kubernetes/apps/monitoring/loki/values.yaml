@@ -1,8 +1,3 @@
-global:
-  clusterDomain: kubernetes
-
-deploymentMode: SingleBinary
-
 loki:
   auth_enabled: false
   commonConfig:
@@ -27,13 +22,29 @@ loki:
           period: 24h
         object_store: s3
         schema: v13
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3
+          key: AWS_SECRET_ACCESS_KEY
+
 chunksCache:
   allocatedMemory: 1024
+
 singleBinary:
   replicas: 1
+
 read:
   replicas: 0
+
 backend:
   replicas: 0
+
 write:
   replicas: 0
