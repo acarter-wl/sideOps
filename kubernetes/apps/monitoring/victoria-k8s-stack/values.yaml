@@ -548,11 +548,14 @@ defaultDatasources:
 
 # -- Grafana dependency chart configuration
 grafana:
-  plugins:
-    - victorialogs-datasource
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
+  env:
+    GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+    GF_SECURITY_ADMIN_USER: admin
+    # GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    GF_INSTALL_PLUGINS: victorialogs-datasource
   resources:
     limits:
       cpu: 500m
@@ -569,6 +572,16 @@ grafana:
       enabled: true
       initDatasources: true
       label: grafana_datasource
+    plugins:
+      - victorialogs-datasource
+    additionalDataSources:
+      - name: victorialogs-datasource
+        type: victorialogs-datasource
+        access: proxy
+        url: http://victoria-logs-single-server.monitoringsvc.cluster.local:9428
+        isDefault: false
+        jsonData:
+          maxLines: 1000
     dashboards:
       provider:
         name: default
