@@ -24,14 +24,6 @@ server:
       cpu: 2000m
       memory: 2Gi
 
-  securityContext:
-    enabled: true
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
-
   podSecurityContext:
     enabled: true
     fsGroup: 2000
