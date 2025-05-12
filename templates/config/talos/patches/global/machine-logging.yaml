@@ -1,8 +1,0 @@
-machine:
-  install:
-    extraKernelArgs:
-      - "talos.logging.kernel="tcp://loki.monitoring:1313
-  logging:
-    destinations:
-      - endpoint: "tcp://loki.monitoring:1313"
-        format: json_lines

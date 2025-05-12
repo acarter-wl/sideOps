@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '0'
   labels:
-    argocd.argoproj.io/instance: victorialogs
+    argocd.argoproj.io/instance: victoria-log-stack
 spec:
   project: infrastructure
   sources:

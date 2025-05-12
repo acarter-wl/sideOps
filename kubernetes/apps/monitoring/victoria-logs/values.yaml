@@ -131,7 +131,7 @@ vmauth:
 
 vector:
   enabled: true
-  role: "Stateless-Aggregator"
+  role: Stateless-Aggregator
 
   # Add environment variables for Kubernetes logs
   env:
@@ -160,7 +160,6 @@ vector:
         protocol: UDP
         targetPort: 6051
 
-  dataDir: /vector-data-dir
   resources:
     requests:
       cpu: 100m
@@ -185,7 +184,7 @@ vector:
   customConfig:
     data_dir: /vector-data-dir
     api:
-      enabled: true
+      enabled: false
       address: 0.0.0.0:8686
 
     sources:
