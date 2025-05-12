@@ -517,6 +517,13 @@ defaultDatasources:
         jsonData:
           timeInterval: "15s"
           queryTimeout: "60s"
+      - name: victorialogging
+        type: loki
+        access: proxy
+        url: http://victoria-logs.monitoring.svc.cluster.local:9428
+        isDefault: false
+        jsonData:
+          maxLines: 1000
 
   alertmanager:
     perReplica: false
