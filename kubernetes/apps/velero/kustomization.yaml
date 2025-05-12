@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - crd
-  - 00-velero-nfs-pv.yaml
   - 01-namespace.yaml
   - 02-serviceaccount.yaml
   - 04-plugin-config.yaml
