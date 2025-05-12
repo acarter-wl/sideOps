@@ -49,7 +49,6 @@ vlinsert:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
-    extraLabels: {}
     hosts:
       - name: logs.wakkalabs.com
         path:
@@ -109,7 +108,6 @@ vmauth:
     annotations:
       kubernetes.io/ingress.class: internal
       cert-manager.io/cluster-issuer: letsencrypt-production
-    extraLabels: {}
     hosts:
       - name: logs.wakkalabs.com
         path:
