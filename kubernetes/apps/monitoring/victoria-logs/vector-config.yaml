@@ -1,3 +1,4 @@
+# vector-config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,8 +11,10 @@ data:
       enabled: false
       address: 0.0.0.0:8686
     sources:
-      k8s_logs:
+      # Changed name from k8s_logs to k8s to match what you have in the logs
+      k8s:
         type: kubernetes_logs
+        self_node_name: "${VECTOR_SELF_NODE_NAME}"
       internal_metrics:
         type: internal_metrics
       talos_kernel_logs:
@@ -33,7 +36,8 @@ data:
     transforms:
       k8s_parser:
         type: remap
-        inputs: [ k8s_logs ]
+        # Changed input to match source name 'k8s' instead of 'k8s_logs'
+        inputs: [ k8s ]
         source: |
           .timestamp = now()
           . = parse_json!(.message)
@@ -52,6 +56,7 @@ data:
         type: prometheus_remote_write
         inputs: [ internal_metrics ]
         endpoint: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc:8480/api/v1/write
+      # Renamed from k8s_logs_sink to avoid conflict
       k8s_logs_sink:
         type: http
         inputs: [ k8s_parser ]
