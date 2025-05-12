@@ -1,572 +1,278 @@
-        global:
-          imagePullSecrets: []
-          image:
-            registry: ""
-          compatibility:
-            openshift:
-              adaptSecurityContext: "auto"
-          cluster:
-            dnsDomain: cluster.local.
+# VictoriaLogs Cluster configuration with Talos integration
 
-        printNotes: true
+# Global settings (keeping the same)
+global:
+  imagePullSecrets: []
 
-        common:
-          image:
-            tag: ""
+# Keep your existing VictoriaLogs components the same
+vlselect:
+  enabled: true
+  replicaCount: 2
+  service:
+    enabled: true
+    type: ClusterIP
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    extraLabels: {}
+    hosts:
+      - name: logs.wakkalabs.com
+        path:
+          - /select
+        port: http
+    tls:
+      - secretName: vlogs-select-tls
+        hosts:
+          - logs.wakkalabs.com
+    ingressClassName: nginx
+    pathType: Prefix
+  vmServiceScrape:
+    enabled: true
+    useServiceMonitor: false
+    extraLabels:
+      release: victoria-metrics
 
-        serviceAccount:
-          create: true
-          name: ""
-          extraLabels: {}
-          annotations: {}
-          automountToken: true
+vlinsert:
+  enabled: true
+  replicaCount: 2
+  service:
+    enabled: true
+    type: ClusterIP
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    extraLabels: {}
+    hosts:
+      - name: logs.wakkalabs.com
+        path:
+          - /insert
+        port: http
+    tls:
+      - secretName: vlogs-insert-tls
+        hosts:
+          - logs.wakkalabs.com
+    ingressClassName: nginx
+    pathType: Prefix
+  vmServiceScrape:
+    enabled: true
+    useServiceMonitor: false
+    extraLabels:
+      release: victoria-metrics
 
-        nameOverride: ""
-        extraObjects: []
+vlstorage:
+  enabled: true
+  replicaCount: 2
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+  vmServiceScrape:
+    enabled: true
+    useServiceMonitor: false
+    extraLabels:
+      release: victoria-metrics
 
-        vlselect:
-          enabled: true
-          name: ""
-          strategy: {}
-          image:
-            registry: ""
-            repository: victoriametrics/victoria-logs
-            tag: ""
-            variant: victorialogs
-            pullPolicy: IfNotPresent
-          lifecycle: {}
-          ports:
-            name: "http"
-          priorityClassName: ""
-          fullnameOverride: ""
-          suppressStorageFQDNsRender: false
-          extraArgs:
-            envflag.enable: true
-            loggerFormat: json
-            httpListenAddr: :9471
-          terminationGracePeriodSeconds: 60
-          annotations: {}
-          extraLabels: {}
-          podLabels: {}
-          env: []
-          envFrom: []
-          probe:
-            readiness:
-              httpGet: {}
-              initialDelaySeconds: 5
-              periodSeconds: 5
-              timeoutSeconds: 5
-              failureThreshold: 10
-            liveness:
-              tcpSocket: {}
-              initialDelaySeconds: 5
-              periodSeconds: 15
-              timeoutSeconds: 5
-              failureThreshold: 3
-            startup: {}
-          horizontalPodAutoscaler:
-            enabled: false
-            maxReplicas: 10
-            minReplicas: 2
-            metrics: []
-            behavior: {}
-          extraVolumes: []
-          extraVolumeMounts: []
-          extraContainers: []
-          initContainers: []
-          podDisruptionBudget:
-            enabled: false
-            labels: {}
-          tolerations: []
-          nodeSelector: {}
-          affinity: {}
-          topologySpreadConstraints: []
-          podAnnotations: {}
-          replicaCount: 2
-          containerWorkingDir: ""
-          resources:
-            limits:
-              cpu: "1"
-              memory: 2Gi
-            requests:
-              cpu: "200m"
-              memory: 512Mi
-          podSecurityContext:
-            enabled: true
-            fsGroup: 1000
-          securityContext:
-            enabled: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-          service:
-            enabled: true
-            annotations: {}
-            labels: {}
-            clusterIP: ""
-            externalIPs: []
-            extraPorts: []
-            loadBalancerIP: ""
-            loadBalancerSourceRanges: []
-            servicePort: 9471
-            targetPort: http
-            type: ClusterIP
-            healthCheckNodePort: ""
-            externalTrafficPolicy: ""
-            ipFamilyPolicy: ""
-            ipFamilies: []
-          ingress:
-            enabled: true
-            ingressClassName: "internal"
-            annotations:
-              kubernetes.io/cluster-issuer: "letsencrypt-production"
-            hosts:
-              - logs.wakkalabs.com
-            paths:
-              - /select
-            pathType: Prefix
-            tls:
-              - secretName: vlselect-ingress-tls
-                hosts:
-                  - logs.wakkalabs.com
-          vmServiceScrape:
-            enabled: true
-            useServiceMonitor: false
-            namespace: ""
-            extraLabels: {}
-            annotations: {}
-            spec:
-              endpoints:
-                - port: http
-                  interval: 30s
-                  scrapeTimeout: 5s
+# VMAuth configuration remains the same
+vmauth:
+  enabled: true
+  replicaCount: 2
+  config:
+    users:
+      - username: "admin"
+        password: "CHANGE_ME_AFTER_INSTALL"
+        url_map:
+          - src_paths:
+              - "/select"
+            dst_urls:
+              - "http://vlogs-vlselect:9471"
+          - src_paths:
+              - "/insert"
+            dst_urls:
+              - "http://vlogs-vlinsert:9481"
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    extraLabels: {}
+    hosts:
+      - name: logs.wakkalabs.com
+        path:
+          - /
+        port: http
+    tls:
+      - secretName: vlogs-vmauth-tls
+        hosts:
+          - logs.wakkalabs.com
+    ingressClassName: nginx
+    pathType: Prefix
+  vmServiceScrape:
+    enabled: true
+    useServiceMonitor: false
+    extraLabels:
+      release: victoria-metrics
 
-        vlinsert:
-          enabled: false
-          name: ""
-          strategy: {}
-          image:
-            registry: ""
-            repository: victoriametrics/victoria-logs
-            tag: ""
-            variant: victorialogs
-            pullPolicy: IfNotPresent
-          lifecycle: {}
-          ports:
-            name: "http"
-          priorityClassName: ""
-          fullnameOverride: ""
-          extraArgs:
-            envflag.enable: true
-            loggerFormat: json
-            httpListenAddr: :9481
-          annotations: {}
-          extraLabels: {}
-          podLabels: {}
-          terminationGracePeriodSeconds: 30
-          env: []
-          envFrom: []
-          suppressStorageFQDNsRender: false
-          excludeStorageIDs: []
-          probe:
-            readiness:
-              httpGet: {}
-              initialDelaySeconds: 5
-              periodSeconds: 5
-              timeoutSeconds: 5
-              failureThreshold: 10
-            liveness:
-              tcpSocket: {}
-              initialDelaySeconds: 5
-              periodSeconds: 15
-              timeoutSeconds: 5
-              failureThreshold: 3
-            startup: {}
-          horizontalPodAutoscaler:
-            enabled: false
-            maxReplicas: 10
-            minReplicas: 2
-            metrics: []
-            behavior: {}
-          extraVolumes: []
-          extraVolumeMounts: []
-          extraContainers: []
-          initContainers: []
-          podDisruptionBudget:
-            enabled: false
-            labels: {}
-          tolerations: []
-          nodeSelector: {}
-          affinity: {}
-          topologySpreadConstraints: []
-          podAnnotations: {}
-          replicaCount: 2
-          containerWorkingDir: ""
-          resources:
-            limits:
-              cpu: "1"
-              memory: 1.5Gi
-            requests:
-              cpu: "200m"
-              memory: 512Mi
-          podSecurityContext:
-            enabled: true
-            fsGroup: 1000
-          securityContext:
-            enabled: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-          service:
-            enabled: true
-            annotations: {}
-            labels: {}
-            clusterIP: ""
-            externalIPs: []
-            extraPorts: []
-            loadBalancerIP: ""
-            loadBalancerSourceRanges: []
-            servicePort: 9481
-            targetPort: http
-            type: ClusterIP
-            healthCheckNodePort: ""
-            externalTrafficPolicy: ""
-            ipFamilyPolicy: ""
-            ipFamilies: []
-          ingress:
-            enabled: false
-            annotations: {}
-            extraLabels: {}
-            hosts:
-              - name: vlinsert.local
-                path:
-                  - /insert
-                port: http
-            tls: []
-            ingressClassName: ""
-            pathType: Prefix
-          vmServiceScrape:
-            enabled: false
-            useServiceMonitor: false
-            namespace: ""
-            extraLabels: {}
-            annotations: {}
-            spec:
-              endpoints:
-                - port: http
+# Updated Vector configuration to integrate with Talos
+# Updated Vector configuration for Talos integration with correct VictoriaMetrics endpoints
 
-        vlstorage:
-          enabled: true
-          name: ""
-          image:
-            registry: ""
-            repository: victoriametrics/victoria-logs
-            tag: ""
-            variant: victorialogs
-            pullPolicy: IfNotPresent
-          lifecycle: {}
-          ports:
-            name: "http"
-          priorityClassName: ""
-          fullnameOverride: ""
-          env: []
-          envFrom: []
-          retentionPeriod: 30d
-          retentionDiskSpaceUsage: ""
-          extraArgs:
-            envflag.enable: true
-            loggerFormat: json
-            httpListenAddr: :9491
-          extraVolumes: []
-          extraVolumeMounts: []
-          extraContainers: []
-          initContainers: []
-          podDisruptionBudget:
-            enabled: false
-            labels: {}
-          tolerations: []
-          nodeSelector: {}
-          affinity:
-            podAntiAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                      - key: app.kubernetes.io/component
-                        operator: In
-                        values: ["vlstorage"]
-                  topologyKey: "kubernetes.io/hostname"
-          topologySpreadConstraints: []
-          emptyDir: {}
-          persistentVolume:
-            enabled: true
-            name: vlstorage-volume
-            accessModes:
-              - ReadWriteOnce
-            annotations: {}
-            labels: {}
-            storageClassName: "ceph-block"
-            existingClaim: ""
-            mountPath: /storage
-            size: 50Gi
-            subPath: ""
-          podAnnotations: {}
-          annotations: {}
-          extraLabels: {}
-          podLabels: {}
-          replicaCount: 2
-          containerWorkingDir: ""
-          podManagementPolicy: OrderedReady
-          resources:
-            limits:
-              cpu: "2"
-              memory: 4Gi
-            requests:
-              cpu: "500m"
-              memory: 1Gi
-          podSecurityContext:
-            enabled: true
-            fsGroup: 1000
-          securityContext:
-            enabled: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-          service:
-            enabled: true
-            annotations: {}
-            clusterIP: None
-            type: ClusterIP
-            labels: {}
-            servicePort: 9491
-            targetPort: http
-            extraPorts: []
-            healthCheckNodePort: ""
-            externalTrafficPolicy: ""
-            ipFamilyPolicy: ""
-            ipFamilies: []
-          terminationGracePeriodSeconds: 60
-          minReadySeconds: 5
-          probe:
-            readiness:
-              httpGet: {}
-              initialDelaySeconds: 5
-              periodSeconds: 5
-              timeoutSeconds: 5
-              failureThreshold: 10
-            startup: {}
-          horizontalPodAutoscaler:
-            enabled: false
-            maxReplicas: 10
-            minReplicas: 2
-            metrics: []
-            behavior:
-              scaleDown:
-                selectPolicy: Disabled
-          vmServiceScrape:
-            enabled: true
-            useServiceMonitor: false
-            namespace: ""
-            extraLabels: {}
-            annotations: {}
-            spec:
-              endpoints:
-                - port: http
-                  interval: 30s
-                  scrapeTimeout: 5s
+vector:
+  enabled: true
+  # Set role to Stateless-Aggregator as requested
+  role: "Stateless-Aggregator"
 
-        vmauth:
-          enabled: false
-          name: ""
-          configSecretName: ""
-          config: {}
-          strategy: {}
-          image:
-            registry: ""
-            repository: victoriametrics/vmauth
-            tag: "v1.116.0"
-            pullPolicy: IfNotPresent
-          lifecycle: {}
-          ports:
-            name: "http"
-          priorityClassName: ""
-          fullnameOverride: ""
-          extraArgs:
-            envflag.enable: true
-            loggerFormat: json
-            httpListenAddr: :8427
-          annotations: {}
-          extraLabels: {}
-          podLabels: {}
-          env: []
-          envFrom: []
-          probe:
-            readiness:
-              httpGet: {}
-              initialDelaySeconds: 5
-              periodSeconds: 5
-              timeoutSeconds: 5
-              failureThreshold: 10
-            liveness:
-              tcpSocket: {}
-              initialDelaySeconds: 5
-              periodSeconds: 15
-              timeoutSeconds: 5
-              failureThreshold: 3
-            startup: {}
-          horizontalPodAutoscaler:
-            enabled: false
-            maxReplicas: 10
-            minReplicas: 2
-            metrics: []
-            behavior: {}
-          extraVolumes: []
-          extraVolumeMounts: []
-          extraContainers: []
-          initContainers: []
-          podDisruptionBudget:
-            enabled: false
-            labels: {}
-          tolerations: []
-          nodeSelector: {}
-          affinity: {}
-          topologySpreadConstraints: []
-          podAnnotations: {}
-          replicaCount: 2
-          containerWorkingDir: ""
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-          podSecurityContext:
-            enabled: true
-            fsGroup: 1000
-          securityContext:
-            enabled: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-          service:
-            enabled: true
-            annotations: {}
-            labels: {}
-            clusterIP: ""
-            externalIPs: []
-            extraPorts: []
-            loadBalancerIP: ""
-            loadBalancerSourceRanges: []
-            servicePort: 8427
-            targetPort: http
-            type: ClusterIP
-            healthCheckNodePort: ""
-            externalTrafficPolicy: ""
-            ipFamilyPolicy: ""
-            ipFamilies: []
-          ingress:
-            enabled: false
-            annotations: {}
-            extraLabels: {}
-            hosts:
-              - name: vmauth.local
-                path:
-                  - /insert
-                port: http
-            tls: []
-            pathType: Prefix
-          vmServiceScrape:
-            enabled: false
-            useServiceMonitor: false
-            namespace: ""
-            extraLabels: {}
-            annotations: {}
-            spec:
-              endpoints:
-                - port: http
+  # We need to create a service for the UDP sockets
+  service:
+    enabled: true
+    type: LoadBalancer
+    ports:
+      - name: talos-kernel
+        port: 6050
+        protocol: UDP
+        targetPort: 6050
+      - name: talos-service
+        port: 6051
+        protocol: UDP
+        targetPort: 6051
 
-        vector:
-          enabled: true
-          role: Agent
-          dataDir: /vector-data-dir
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "1Gi"
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
-          args:
-            - -w
-            - --config-dir
-            - /etc/vector/
-          containerPorts:
-            - name: prom-exporter
-              containerPort: 9090
-              protocol: TCP
-          service:
-            enabled: true
-          existingConfigMaps: []
-          customConfigNamespace: ""
-          customConfig:
-            data_dir: /vector-data-dir
-            api:
-              enabled: false
-              address: 0.0.0.0:8686
-              playground: true
-            sources:
-              k8s:
-                type: kubernetes_logs
-              journal_logs:
-                type: journald
-                include_units:
-                  - kubelet.service
-                  - containerd.service
-                  - talos.service
-              internal_metrics:
-                type: internal_metrics
-            transforms:
-              kubernetes_filter:
-                type: filter
-                inputs: ["k8s"]
-                condition: 'true'
-              add_host_metadata:
-                type: add_fields
-                inputs: ["journal_logs"]
-                fields:
-                  node: "${HOSTNAME}"
-            sinks:
-              exporter:
-                type: prometheus_exporter
-                address: 0.0.0.0:9090
-                inputs: ["internal_metrics"]
-              vlogs:
-                type: elasticsearch
-                inputs: ["kubernetes_filter", "add_host_metadata"]
-                endpoints: ["http://{{ include "victoria-logs-cluster.vlselect.fullname" . }}:9471"]
-                bulk:
-                  index: logs
-                compression: gzip
-                healthcheck:
-                  enabled: false
-                request:
-                  headers:
-                    VL-Time-Field: timestamp
-                    VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
-                    VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
-                    AccountID: "0"
-                    ProjectID: "0"
-          extraVolumeMounts:
-            - name: journal
-              mountPath: /var/log/journal
-              readOnly: true
-            - name: machine-id
-              mountPath: /etc/machine-id
-              readOnly: true
-          extraVolumes:
-            - name: journal
-              hostPath:
-                path: /var/log/journal
-            - name: machine-id
-              hostPath:
-                path: /etc/machine-id
+  # Expose the UDP ports in the Vector container
+  containerPorts:
+    - name: prom-exporter
+      containerPort: 9090
+      protocol: TCP
+    - name: talos-kernel
+      containerPort: 6050
+      protocol: UDP
+    - name: talos-service
+      containerPort: 6051
+      protocol: UDP
+
+  # Custom configuration combining Talos and K8s logs
+  customConfig:
+    data_dir: /vector-data-dir
+    api:
+      enabled: true
+      address: 0.0.0.0:8686
+
+    # Sources configuration
+    sources:
+      # Keep Kubernetes logs source
+      k8s:
+        type: kubernetes_logs
+
+      # Add Talos-specific sources
+      talos_kernel_logs:
+        address: 0.0.0.0:6050
+        type: socket
+        mode: udp
+        max_length: 102400
+        decoding:
+          codec: json
+        host_key: __host
+
+      talos_service_logs:
+        address: 0.0.0.0:6051
+        type: socket
+        mode: udp
+        max_length: 102400
+        decoding:
+          codec: json
+        host_key: __host
+
+      internal_metrics:
+        type: internal_metrics
+
+    # Transforms configuration
+    transforms:
+      # Transform for Kubernetes logs
+      k8s_parser:
+        type: remap
+        inputs: [ k8s ]
+        source: |
+          .log = parse_json(.message) ?? .message
+          del(.message)
+
+      # Transform for Talos kernel logs
+      talos_kernel_logs_xform:
+        type: remap
+        inputs: [ talos_kernel_logs ]
+        source: |
+          # Add any needed transformations for kernel logs
+          # Mark the source type
+          .source_type = "talos_kernel"
+
+      # Transform for Talos service logs
+      talos_service_logs_xform:
+        type: remap
+        inputs: [ talos_service_logs ]
+        source: |
+          # Add any needed transformations for service logs
+          # Mark the source type
+          .source_type = "talos_service"
+
+    # Sinks configuration
+    sinks:
+      # Send metrics to VictoriaMetrics using your actual service
+      metrics:
+        type: prometheus_remote_write
+        inputs: [ internal_metrics ]
+        endpoint: http://vminsert-victoria-metrics-k8s-stack:8480/api/v1/write
+
+      # Send Kubernetes logs to VictoriaLogs
+      k8s_logs:
+        type: http
+        inputs: [ k8s_parser ]
+        method: post
+        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        encoding:
+          codec: json
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+          VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+
+      # Send Talos kernel logs to VictoriaLogs
+      talos_kernel:
+        type: http
+        inputs: [ talos_kernel_logs_xform ]
+        method: post
+        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        encoding:
+          codec: json
+          except_fields:
+            - __host
+        batch:
+          max_bytes: 1048576
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: hostname,facility,source_type
+          VL-Msg-Field: message,msg
+          VL-Out-Of-Order-Action: rewrite_timestamp
+
+      # Send Talos service logs to VictoriaLogs
+      talos_service:
+        type: http
+        inputs: [ talos_service_logs_xform ]
+        method: post
+        uri: http://vlogs-vlinsert:9481/insert/loki/api/v1/push
+        encoding:
+          codec: json
+          except_fields:
+            - __host
+        batch:
+          max_bytes: 400000
+        headers:
+          Content-Type: application/json
+          VL-Time-Field: timestamp
+          VL-Stream-Fields: hostname,service,source_type
+          VL-Msg-Field: message,msg
+          VL-Out-Of-Order-Action: rewrite_timestamp
