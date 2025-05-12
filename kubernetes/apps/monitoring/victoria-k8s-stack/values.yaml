@@ -508,7 +508,7 @@ defaultDatasources:
           dashboards: grafana
       allowCrossNamespaceImport: false
   victoriametrics:
-    perReplica: true
+    perReplica: false
     datasources:
       - name: VictoriaMetrics
         type: prometheus
@@ -517,17 +517,7 @@ defaultDatasources:
         jsonData:
           timeInterval: "15s"
           queryTimeout: "60s"
-          httpMethod: "POST"
-          exemplarTraceIdDestinations:
-            - name: traceID
-              datasourceUid: tempo
-      - name: VictoriaMetrics (DS)
-        isDefault: false
-        access: proxy
-        type: victoriametrics-metrics-datasource
-        jsonData:
-          timeInterval: "15s"
-          queryTimeout: "60s"
+
   alertmanager:
     perReplica: false
     datasources:
@@ -556,7 +546,7 @@ grafana:
   sidecar:
     datasources:
       enabled: true
-      initDatasources: true
+      initDatasources: false
       label: grafana_datasource
     dashboards:
       provider:
@@ -567,8 +557,8 @@ grafana:
       enabled: true
       multicluster: false
   forceDeployDatasource: false
-  plugins:
-    - victoriametrics-metrics-datasource
+  # plugins:
+  #   - victoriametrics-metrics-datasource
   ingress:
     enabled: true
     ingressClassName: "internal"
