@@ -1,0 +1,839 @@
+global:
+  # -- Cluster label to use for dashboards and rules
+  clusterLabel: cluster
+  # -- Global license configuration
+  license:
+    key: ""
+    keyRef: {}
+      # name: secret-license
+      # key: license
+  cluster:
+    # -- K8s cluster domain suffix, uses for building storage pods' FQDN.
+    dnsDomain: cluster.local
+
+# -- Override chart name
+nameOverride: ""
+# -- Resource full name override
+fullnameOverride: ""
+# -- Tenant to use for Grafana datasources and remote write
+tenant: "0"
+# -- If this chart is used in "Argocd" with "releaseName" field then
+# VMServiceScrapes couldn't select the proper services.
+argocdReleaseOverride: "argo-cd"
+
+# -- VictoriaMetrics Operator dependency chart configuration
+victoria-metrics-operator:
+  enabled: true
+  crds:
+    plain: true
+    cleanup:
+      enabled: true
+      image:
+        repository: bitnami/kubectl
+        pullPolicy: IfNotPresent
+  serviceMonitor:
+    enabled: true
+  operator:
+    # -- By default, operator converts prometheus-operator objects.
+    disable_prometheus_converter: false
+
+defaultDashboards:
+  # -- Enable custom dashboards installation
+  enabled: true
+  defaultTimezone: utc
+  labels: {}
+  annotations: {}
+  grafanaOperator:
+    # -- Create dashboards as CRDs (requires grafana-operator to be installed)
+    enabled: false
+    spec:
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      allowCrossNamespaceImport: true
+  # -- Create dashboards as ConfigMap despite dependency it requires is not installed
+  dashboards:
+    victoriametrics-vmalert:
+      enabled: true
+    victoriametrics-operator:
+      enabled: true
+    # -- In ArgoCD using client-side apply this dashboard reaches annotations size limit
+    node-exporter-full:
+      enabled: true
+
+# -- Create default rules for monitoring the cluster
+defaultRules:
+  # -- Labels, which are used for grouping results of the queries
+  additionalGroupByLabels: []
+  create: true
+
+  # -- Common properties for VMRule groups
+  group:
+    spec:
+      # -- Optional HTTP URL parameters added to each rule request
+      params: {}
+
+  # -- Common properties for all VMRules
+  rule:
+    spec:
+      # -- Additional labels for all VMRules
+      labels: {}
+      # -- Additional annotations for all VMRules
+      annotations: {}
+
+  # -- Common properties for VMRules alerts
+  alerting:
+    spec:
+      # -- Additional labels for VMRule alerts
+      labels: {}
+      # -- Additional annotations for VMRule alerts
+      annotations: {}
+
+  # -- Common properties for VMRules recording rules
+  recording:
+    spec:
+      # -- Additional labels for VMRule recording rules
+      labels: {}
+      # -- Additional annotations for VMRule recording rules
+      annotations: {}
+
+  # -- Per rule properties
+  rules: {}
+  # -- Rule group properties
+  groups:
+    etcd:
+      create: true
+      rules: {}
+    general:
+      create: true
+      rules: {}
+    k8sContainerCpuLimits:
+      create: true
+      rules: {}
+    k8sContainerCpuRequests:
+      create: true
+      rules: {}
+    k8sContainerCpuUsageSecondsTotal:
+      create: true
+      rules: {}
+    k8sContainerMemoryLimits:
+      create: true
+      rules: {}
+    k8sContainerMemoryRequests:
+      create: true
+      rules: {}
+    k8sContainerMemoryRss:
+      create: true
+      rules: {}
+    k8sContainerMemoryCache:
+      create: true
+      rules: {}
+    k8sContainerMemoryWorkingSetBytes:
+      create: true
+      rules: {}
+    k8sContainerMemorySwap:
+      create: true
+      rules: {}
+    k8sPodOwner:
+      create: true
+      rules: {}
+    k8sContainerResource:
+      create: true
+      rules: {}
+    kubeApiserver:
+      create: true
+      rules: {}
+    kubeApiserverAvailability:
+      create: true
+      rules: {}
+    kubeApiserverBurnrate:
+      create: true
+      rules: {}
+    kubeApiserverHistogram:
+      create: true
+      rules: {}
+    kubeApiserverSlos:
+      create: true
+      rules: {}
+    kubelet:
+      create: true
+      rules: {}
+    kubePrometheusGeneral:
+      create: true
+      rules: {}
+    kubePrometheusNodeRecording:
+      create: true
+      rules: {}
+    kubernetesApps:
+      create: true
+      rules: {}
+      targetNamespace: ".*"
+    kubernetesResources:
+      create: true
+      rules: {}
+    kubernetesStorage:
+      create: true
+      rules: {}
+      targetNamespace: ".*"
+    kubernetesSystem:
+      create: true
+      rules: {}
+    kubernetesSystemKubelet:
+      create: true
+      rules: {}
+    kubernetesSystemApiserver:
+      create: true
+      rules: {}
+    kubernetesSystemControllerManager:
+      create: true
+      rules: {}
+    kubeScheduler:
+      create: true
+      rules: {}
+    kubernetesSystemScheduler:
+      create: true
+      rules: {}
+    kubeStateMetrics:
+      create: true
+      rules: {}
+    nodeNetwork:
+      create: true
+      rules: {}
+    node:
+      create: true
+      rules: {}
+    vmagent:
+      create: true
+      rules: {}
+    vmsingle:
+      create: true
+      rules: {}
+    vmcluster:
+      create: true
+      rules: {}
+    vmHealth:
+      create: true
+      rules: {}
+    vmoperator:
+      create: true
+      rules: {}
+    alertmanager:
+      create: true
+      rules: {}
+
+  # -- Runbook url prefix for default rules
+  runbookUrl: https://runbooks.prometheus-operator.dev/runbooks
+
+  # -- Labels for default rules
+  labels: {}
+  # -- Annotations for default rules
+  annotations: {}
+
+# -- Provide custom recording or alerting rules to be deployed into the cluster.
+additionalVictoriaMetricsMap: {}
+
+external:
+  grafana:
+    # -- External Grafana host
+    host: ""
+    # -- External Grafana datasource name
+    datasource: VictoriaMetrics
+  # -- External VM read and write URLs
+  vm:
+    read:
+      url: ""
+    write:
+      url: ""
+
+# Configures vmsingle params
+vmcluster:
+  enabled: true
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8428"
+  spec:
+    # FIXED: Changed from "3m" to "30d" for proper month-long retention
+    retentionPeriod: "90d"
+    replicationFactor: 2
+
+    # STORAGE NODES - Core persistent storage
+    vmstorage:
+      replicaCount: 3
+      storageDataPath: /vm-data
+      terminationGracePeriodSeconds: 300
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values: [ "vmstorage" ]
+              topologyKey: "kubernetes.io/hostname"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      extraArgs:
+        dedup.minScrapeInterval: "15s"
+        search.maxUniqueTimeseries: "300000000"
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: "ceph-block"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 100Gi
+      # FIXED: Removed invalid empty map
+      resources:
+        limits:
+          cpu: "4"
+          memory: 8Gi
+        requests:
+          cpu: "2"
+          memory: 4Gi
+    vmselect:
+      enabled: true
+      port: "8481"
+      replicaCount: 2
+      cacheMountPath: /select-cache
+      extraArgs: {}
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: "ceph-block"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+      resources:
+        limits:
+          cpu: "2"
+          memory: "3Gi"
+        requests:
+          cpu: "0.5"
+          memory: "1Gi"
+    vminsert:
+      enabled: true
+      port: "8480"
+      replicaCount: 2
+      extraArgs: {}
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1.5Gi
+        requests:
+          cpu: "0.5"
+          memory: "512Mi"
+
+  ingress:
+    storage:
+      enabled: true
+      annotations:
+        kubernetes.io/cluster-issuer: "letsencrypt-production"
+      labels:
+        app: victoria-metrics
+        component: storage
+      ingressClassName: "internal"
+      pathType: Prefix
+      path: "/"
+      hosts:
+        - vmstorage.wakkalabs.com
+      extraPaths: []
+      tls:
+        - secretName: vmstorage-ingress-tls
+          hosts:
+            - vmstorage.wakkalabs.com
+    select:
+      enabled: true
+      annotations:
+        kubernetes.io/cluster-issuer: "letsencrypt-production"
+      labels:
+        app: victoria-metrics
+        component: select
+      ingressClassName: "internal"
+      pathType: Prefix
+      path: '{{ dig "extraArgs" "http.pathPrefix" "/" .Values.vmcluster.spec.vmselect }}'
+      hosts:
+        - vmselect.wakkalabs.com
+      extraPaths: []
+      tls:
+        - secretName: vmselect-ingress-tls
+          hosts:
+            - vmselect.wakkalabs.com
+    insert:
+      enabled: true
+      annotations:
+        kubernetes.io/cluster-issuer: "letsencrypt-production"
+      labels:
+        app: victoria-metrics
+        component: insert
+      ingressClassName: "internal"
+      pathType: Prefix
+      path: '{{ dig "extraArgs" "http.pathPrefix" "/" .Values.vmcluster.spec.vminsert }}'
+      hosts:
+        - vminsert.wakkalabs.com
+      extraPaths: []
+      tls:
+        - secretName: vminsert-ingress-tls
+          hosts:
+            - vminsert.wakkalabs.com
+
+alertmanager:
+  enabled: true
+  annotations: {}
+  spec:
+    replicaCount: 1
+    port: "9093"
+    selectAllByDefault: true
+    image:
+      tag: v0.28.1
+    externalURL: "https://alertmanager.wakkalabs.com"
+    routePrefix: /
+    configSecret: ""
+  useManagedConfig: false
+  config:
+    route:
+      receiver: "blackhole"
+    receivers:
+      - name: blackhole
+  monzoTemplate:
+    enabled: true
+  templateFiles: {}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/cluster-issuer: "letsencrypt-production"
+    labels: {}
+    ingressClassName: "internal"
+    path: '{{ .Values.alertmanager.spec.routePrefix | default "/" }}'
+    pathType: Prefix
+    hosts:
+      - alertmanager.wakkalabs.com
+    extraPaths: []
+    tls:
+      - secretName: alertmanager-ingress-tls
+        hosts:
+          - alertmanager.wakkalabs.com
+
+vmalert:
+  annotations: {}
+  enabled: true
+  remoteWriteVMAgent: false
+  spec:
+    port: "8080"
+    selectAllByDefault: true
+    evaluationInterval: 20s
+    extraArgs:
+      http.pathPrefix: "/"
+    externalLabels: {}
+  templateFiles: {}
+  additionalNotifierConfigs: {}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/cluster-issuer: "letsencrypt-production"
+    labels: {}
+    ingressClassName: "internal"
+    path: ""
+    pathType: Prefix
+    hosts:
+      - vmalert.wakkalabs.com
+    extraPaths: []
+    tls:
+      - secretName: vmalert-ingress-tls
+        hosts:
+          - vmalert.wakkalabs.com
+
+vmauth:
+  enabled: false
+  annotations: {}
+  spec:
+    port: "8427"
+    unauthorizedUserAccessSpec:
+      disabled: false
+      discover_backend_ips: true
+      url_map:
+        - src_paths:
+            - '{{ .vm.read.path }}/.*'
+          url_prefix:
+            - '{{ urlJoin (omit .vm.read "path") }}/'
+        - src_paths:
+            - '{{ .vm.write.path }}/.*'
+          url_prefix:
+            - '{{ urlJoin (omit .vm.write "path") }}/'
+
+vmagent:
+  enabled: true
+  annotations: {}
+  additionalRemoteWrites: []
+  spec:
+    port: "8429"
+    selectAllByDefault: true
+    scrapeInterval: 20s
+    externalLabels: {}
+    extraArgs:
+      promscrape.streamParse: "true"
+      promscrape.dropOriginalLabels: "true"
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/cluster-issuer: "letsencrypt-production"
+    labels: {}
+    ingressClassName: "internal"
+    path: ""
+    pathType: Prefix
+    hosts:
+      - vmagent.wakkalabs.com
+    extraPaths: []
+    tls:
+      - secretName: vmagent-ingress-tls
+        hosts:
+          - vmagent.wakkalabs.com
+
+defaultDatasources:
+  grafanaOperator:
+    enabled: false
+    annotations: {}
+    spec:
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      allowCrossNamespaceImport: false
+  victoriametrics:
+    perReplica: true
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        access: proxy
+        isDefault: true
+        jsonData:
+          timeInterval: "15s"
+          queryTimeout: "60s"
+          httpMethod: "POST"
+          exemplarTraceIdDestinations:
+            - name: traceID
+              datasourceUid: tempo
+      - name: VictoriaMetrics (DS)
+        isDefault: false
+        access: proxy
+        type: victoriametrics-metrics-datasource
+        jsonData:
+          timeInterval: "15s"
+          queryTimeout: "60s"
+  alertmanager:
+    perReplica: false
+    datasources:
+      - name: Alertmanager
+        access: proxy
+        jsonData:
+          implementation: prometheus
+  extra: []
+
+# -- Grafana dependency chart configuration
+grafana:
+  enabled: true
+  adminPassword: admin
+  defaultDashboardsEnabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    storageClassName: "ceph-block"
+    size: 10Gi
+  sidecar:
+    datasources:
+      enabled: true
+      initDatasources: true
+      label: grafana_datasource
+    dashboards:
+      provider:
+        name: default
+        orgid: 1
+      folder: /var/lib/grafana/dashboards
+      defaultFolderName: default
+      enabled: true
+      multicluster: false
+  forceDeployDatasource: false
+  plugins:
+    - victoriametrics-metrics-datasource
+  ingress:
+    enabled: true
+    ingressClassName: "internal"
+    annotations:
+      kubernetes.io/cluster-issuer: "letsencrypt-production"
+    labels:
+      app: grafana
+    path: /
+    pathType: Prefix
+    hosts:
+      - grafana.wakkalabs.com
+    extraPaths: []
+    tls:
+      - secretName: grafana-ingress-tls
+        hosts:
+          - grafana.wakkalabs.com
+  vmScrape:
+    enabled: true
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: '{{ include "grafana.name" .Subcharts.grafana }}'
+      endpoints:
+        - port: '{{ .Values.grafana.service.portName }}'
+
+prometheus-node-exporter:
+  enabled: true
+  service:
+    labels:
+      jobLabel: node-exporter
+  extraArgs:
+    - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$
+  vmScrape:
+    enabled: true
+    spec:
+      jobLabel: jobLabel
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: '{{ include "prometheus-node-exporter.name" (index .Subcharts "prometheus-node-exporter") }}'
+      endpoints:
+        - port: metrics
+          metricRelabelConfigs:
+            - action: drop
+              source_labels: [ mountpoint ]
+              regex: "/var/lib/kubelet/pods.+"
+
+kube-state-metrics:
+  enabled: true
+  vmScrape:
+    enabled: true
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: '{{ include "kube-state-metrics.name" (index .Subcharts "kube-state-metrics") }}'
+          app.kubernetes.io/instance: '{{ include "vm.release" . }}'
+      endpoints:
+        - port: http
+          honorLabels: true
+          metricRelabelConfigs:
+            - action: labeldrop
+              regex: (uid|container_id|image_id)
+      jobLabel: app.kubernetes.io/name
+
+kubelet:
+  enabled: true
+  vmScrapes:
+    cadvisor:
+      enabled: true
+      spec:
+        path: /metrics/cadvisor
+    probes:
+      enabled: true
+      spec:
+        path: /metrics/probes
+    resources:
+      enabled: true
+      spec:
+        path: /metrics/resource
+    kubelet:
+      spec: {}
+  vmScrape:
+    kind: VMNodeScrape
+    spec:
+      scheme: "https"
+      honorLabels: true
+      interval: "30s"
+      scrapeTimeout: "5s"
+      tlsConfig:
+        insecureSkipVerify: true
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      metricRelabelConfigs:
+        - action: labeldrop
+          regex: (uid)
+        - action: labeldrop
+          regex: (id|name)
+        - action: drop
+          source_labels: [ __name__ ]
+          regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+      relabelConfigs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - sourceLabels: [ __metrics_path__ ]
+          targetLabel: metrics_path
+        - targetLabel: job
+          replacement: kubelet
+      honorTimestamps: false
+
+kubeApiServer:
+  enabled: true
+  vmScrape:
+    spec:
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: https
+          scheme: https
+          tlsConfig:
+            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            serverName: kubernetes
+      jobLabel: component
+      namespaceSelector:
+        any: true
+      selector:
+        matchLabels:
+          component: apiserver
+          provider: kubernetes
+
+kubeControllerManager:
+  enabled: true
+  endpoints: []
+  service:
+    enabled: true
+    port: 10257
+    targetPort: 10257
+    selector:
+      component: kube-controller-manager
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            serverName: kubernetes
+
+kubeDns:
+  enabled: false
+  service:
+    enabled: false
+    ports:
+      dnsmasq:
+        port: 10054
+        targetPort: 10054
+      skydns:
+        port: 10055
+        targetPort: 10055
+    selector:
+      k8s-app: kube-dns
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - port: http-metrics-dnsmasq
+          bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        - port: http-metrics-skydns
+          bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+coreDns:
+  enabled: true
+  service:
+    enabled: true
+    port: 9153
+    targetPort: 9153
+    selector:
+      k8s-app: kube-dns
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - port: http-metrics
+          bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# FIXED: Properly structured etcd configuration
+kubeEtcd:
+  enabled: true
+  endpoints:
+    - 192.168.101.120
+    - 192.168.101.121
+    - 192.168.101.122
+  service:
+    enabled: true
+    port: 2379
+    targetPort: 2379
+    selector:
+      component: etcd
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - port: metrics
+          scheme: https
+          tlsConfig:
+            ca:
+              secret:
+                name: etcd-client-certs
+                key: etcd-ca.crt
+            cert:
+              secret:
+                name: etcd-client-certs
+                key: etcd-client.crt
+            keySecret:
+              name: etcd-client-certs
+              key: etcd-client.key
+            # FIXED: Removed colon
+            insecureSkipVerify: false
+
+# FIXED: Added section header for kubeScheduler
+kubeScheduler:
+  enabled: true
+  endpoints: []
+  service:
+    enabled: true
+    port: 10259
+    targetPort: 10259
+    selector:
+      component: kube-scheduler
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+kubeProxy:
+  enabled: false
+  endpoints: []
+  service:
+    enabled: true
+    port: 10249
+    targetPort: 10249
+    selector:
+      k8s-app: kube-proxy
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+# FIXED: Removed duplicate ServiceMonitor and PodMonitor since they're already covered
+extraObjects: []

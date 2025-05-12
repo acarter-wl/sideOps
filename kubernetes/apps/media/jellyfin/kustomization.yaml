@@ -4,3 +4,4 @@ namespace: media
 resources:
   - service.yaml
   - deployment.yaml
+  - monitoring/vmservicescrape.yaml
