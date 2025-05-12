@@ -34,10 +34,13 @@ spec:
           command:
             - /velero
           args:
-            - server
-            - --features=EnableCSI
-            - --default-volumes-to-fs-backup
-            # - --backup-location-config=region=us-east-1,s3ForcePathStyle=true,s3Url=https://s3api.wakkalabs.com
+            - --provider aws
+            - --plugins velero/velero-plugin-for-aws:v1.2.1
+            - --bucket kubebucket-daily
+            - --secret-file /credentials/cloud
+            - --use-volume-snapshots=false
+            - --backup-location-config region=us-east-1,s3ForcePathStyle="true",s3Url=https://s3api.wakkalabs.com
+            - --use-node-agent
           env:
             - name: VELERO_NAMESPACE
               valueFrom:
@@ -74,6 +77,3 @@ spec:
             secretName: cloud-credentials
         - name: scratch
           emptyDir: {}
-      securityContext:
-        fsGroup: 1001
-        runAsUser: 1001
