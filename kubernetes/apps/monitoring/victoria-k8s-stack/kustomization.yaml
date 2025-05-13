@@ -7,21 +7,21 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-configMapGenerator:
-  - name: cephfs-overview
-    namespace: monitoring
-    files:
-      - dashboards/cephfs-overview.json
+# configMapGenerator:
+#   - name: cephfs-overview
+#     namespace: monitoring
+#     files:
+#       - dashboards/cephfs-overview.json
 
-  - name: pool-detail
-    namespace: monitoring
-    files:
-      - dashboards/pool-detail.json
+#   - name: pool-detail
+#     namespace: monitoring
+#     files:
+#       - dashboards/pool-detail.json
 
-  - name: rbd-overview
-    namespace: monitoring
-    files:
-      - dashboards/rbd-overview.json
+#   - name: rbd-overview
+#     namespace: monitoring
+#     files:
+#       - dashboards/rbd-overview.json
 
 #   - name: pool-detail
 #     namespace: monitoring
