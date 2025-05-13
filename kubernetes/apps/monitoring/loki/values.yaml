@@ -39,14 +39,41 @@ loki:
 chunksCache:
   allocatedMemory: 1024
 
+# Ensure these settings are correct for single binary mode
 singleBinary:
   replicas: 1
+  persistence:
+    enabled: false  # Set to true if you want PVC for local storage
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+# Disable microservices components
+gateway:
+  enabled: true  # Keep gateway for external access
 
 read:
   replicas: 0
+  persistence:
+    enabled: false
 
 backend:
   replicas: 0
+  persistence:
+    enabled: false
 
 write:
   replicas: 0
+  persistence:
+    enabled: false
+
+ruler:
+  enabled: false
+
+# Verify monolithic mode is enabled
+loki:
+  structuredConfig:
+    target: all  # Ensures single binary runs all componentssss
