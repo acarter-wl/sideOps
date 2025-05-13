@@ -234,31 +234,31 @@ grafana:
       jsonData:
         maxLines: 1000
         timeout: 60
-    # Tempo datasource commented out until Tempo is deployed
-    # - name: Tempo
-    #   type: tempo
-    #   uid: tempo
-    #   access: proxy
-    #   url: http://tempo.monitoring.svc.cluster.local:3100
-    #   jsonData:
-    #     httpMethod: GET
-    #     lokiSearch:
-    #       datasourceUid: loki
-    #     tracesToLogs:
-    #       datasourceUid: loki
-    #       tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
-    #       mappedTags: [ { key: 'service.name', value: 'service' } ]
-    #       mapTagNamesEnabled: true
-    #       spanStartTimeShift: '-1h'
-    #       spanEndTimeShift: '1h'
-    #       filterByTraceID: true
-    #       filterBySpanID: true
-    #     serviceMap:
-    #       datasourceUid: Prometheus
-    #     nodeGraph:
-    #       enabled: true
-    #     search:
-    #       hide: false
+    #Tempo datasource commented out until Tempo is deployed
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3100
+      jsonData:
+        httpMethod: GET
+        lokiSearch:
+          datasourceUid: loki
+        tracesToLogs:
+          datasourceUid: loki
+          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+          mappedTags: [ { key: 'service.name', value: 'service' } ]
+          mapTagNamesEnabled: true
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+          filterByTraceID: true
+          filterBySpanID: true
+        serviceMap:
+          datasourceUid: Prometheus
+        nodeGraph:
+          enabled: true
+        search:
+          hide: false
     # Pyroscope datasource commented out until Pyroscope is deployed
     # - name: Pyroscope
     #   type: grafana-pyroscope-datasource
