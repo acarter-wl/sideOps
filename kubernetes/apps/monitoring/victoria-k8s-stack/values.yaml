@@ -45,7 +45,7 @@ defaultDashboards:
   annotations: {}
   grafanaOperator:
     # -- Create dashboards as CRDs (requires grafana-operator to be installed)
-    enabled: false
+    enabled: true
     spec:
       instanceSelector:
         matchLabels:
@@ -498,13 +498,13 @@ vmagent:
 
 defaultDatasources:
   grafanaOperator:
-    enabled: false
+    enabled: true
     annotations: {}
     spec:
       instanceSelector:
         matchLabels:
           dashboards: grafana
-      allowCrossNamespaceImport: false
+      allowCrossNamespaceImport: true
   victoriametrics:
     perReplica: false
     datasources:
