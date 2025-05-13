@@ -25,7 +25,7 @@ kubeEtcd:
       component: etcd
   serviceMonitor:
     scheme: https
-    insecureSkipVerify: false
+    insecureSkipVerify: true
     serverName: localhost
     caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
     certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
@@ -51,6 +51,8 @@ kubeScheduler:
 # ================================
 prometheus:
   prometheusSpec:
+    remoteWrite:
+      - url: http://mimir-distributed-nginx.monitoring.svc.cluster.local/api/v1/push
     secrets:
       - etcd-client-certs
     podDisruptionBudget:
@@ -92,7 +94,7 @@ prometheus:
           accessModes: [ "ReadWriteOnce" ]
           resources:
             requests:
-              storage: 50Gi
+              storage: 10Gi
     additionalScrapeConfigs:
       - job_name: 'blackbox-homelab'
         metrics_path: /probe
@@ -228,7 +230,7 @@ grafana:
     type: pvc
     accessModes:
       - ReadWriteOnce
-    size: 100Gi
+    size: 30Gi
     storageClassName: ceph-block
   ingress:
     enabled: true
@@ -254,39 +256,39 @@ grafana:
       url: http://loki-gateway.monitoring.svc.cluster.local:80
       jsonData:
         maxLines: 1000
-    - name: Tempo
-      type: tempo
-      uid: tempo
-      access: proxy
-      url: http://tempo.monitoring.svc.cluster.local:3100
-      jsonData:
-        httpMethod: GET
-        lokiSearch:
-          datasourceUid: loki
-        tracesToLogs:
-          datasourceUid: loki
-          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
-          mappedTags: [ { key: 'service.name', value: 'service' } ]
-          mapTagNamesEnabled: true
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-          filterByTraceID: true
-          filterBySpanID: true
-        serviceMap:
-          datasourceUid: prometheus
-        nodeGraph:
-          enabled: true
-        search:
-          hide: false
-    - name: Pyroscope
-      type: grafana-pyroscope-datasource
-      uid: pyroscope
-      access: proxy
-      url: http://pyroscope.monitoring.svc.cluster.local:4040
-      jsonData:
-        minStep: 10s
+    # - name: Tempo
+    #   type: tempo
+    #   uid: tempo
+    #   access: proxy
+    #   url: http://tempo.monitoring.svc.cluster.local:3100
+    #   jsonData:
+    #     httpMethod: GET
+    #     lokiSearch:
+    #       datasourceUid: loki
+    #     tracesToLogs:
+    #       datasourceUid: loki
+    #       tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+    #       mappedTags: [ { key: 'service.name', value: 'service' } ]
+    #       mapTagNamesEnabled: true
+    #       spanStartTimeShift: '-1h'
+    #       spanEndTimeShift: '1h'
+    #       filterByTraceID: true
+    #       filterBySpanID: true
+    #     serviceMap:
+    #       datasourceUid: prometheus
+    #     nodeGraph:
+    #       enabled: true
+    #     search:
+    #       hide: false
+    # - name: Pyroscope
+    #   type: grafana-pyroscope-datasource
+    #   uid: pyroscope
+    #   access: proxy
+    #   url: http://pyroscope.monitoring.svc.cluster.local:4040
+    #   jsonData:
+    #     minStep: 10s
 
-  # Dashboard Providers
+    # Dashboard Providers
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -327,20 +329,24 @@ grafana:
   # Dashboards
   dashboards:
     default:
+      argocd-operational-overview:
+        gnetId: 19993
+        revision: 3
+        datasource: Prometheus
+      argocd-application-overview:
+        gnetId: 19974
+        revision: 3
+        datasource: Prometheus
       kubernetes-cluster-monitoring:
         gnetId: 13770
         revision: 1
         datasource: Prometheus
       proxmox-overview:
-        gnetId: 10347
-        revision: 5
+        gnetId: 10048
+        revision: 4
         datasource: Prometheus
-      kubernetes-capacity-planning:
-        gnetId: 5309
-        revision: 1
-        datasource: Prometheus
-      kubernetes-cluster-autoscaler:
-        gnetId: 3831
+      kubernetes-dashboard:
+        gnetId: 15757
         revision: 1
         datasource: Prometheus
       etcd-cluster:
@@ -422,22 +428,10 @@ grafana:
         revision: 2
         datasource: Prometheus
 
-nodeExporter:
-  enabled: true
-  priorityClassName: system-node-critical
-  resources:
-    limits:
-      cpu: 200m
-      memory: 200Mi
-    requests:
-      cpu: 100m
-      memory: 100Mi
-
 kubeStateMetrics:
   enabled: true
   selfMonitor:
     enabled: true
-
 
 loki:
   enabled: false

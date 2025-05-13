@@ -8,40 +8,20 @@ generatorOptions:
   disableNameSuffixHash: true
 
 configMapGenerator:
-  - name: ceph-overview
+  - name: cephfs-overview
     namespace: monitoring
     files:
-      - dashboards/ceph-overview.json
+      - dashboards/cephfs-overview.json
 
-  - name: ceph-pools
+  - name: pool-detail
     namespace: monitoring
     files:
-      - dashboards/ceph-pools.json
+      - dashboards/pool-detail.json
 
-  - name: ceph-osds
+  - name: rbd-overview
     namespace: monitoring
     files:
-      - dashboards/ceph-osds.json
-
-  - name: argo-cd-application-overview
-    namespace: monitoring
-    files:
-      - dashboards/argo-cd-application-overview.json
-
-  - name: argo-cd-notifications-overview
-    namespace: monitoring
-    files:
-      - dashboards/argo-cd-notifications-overview.json
-
-  - name: argo-cd-operational-overview
-    namespace: monitoring
-    files:
-      - dashboards/argo-cd-operational-overview.json
-
-  - name: ceph-cluster-advanced
-    namespace: monitoring
-    files:
-      - dashboards/ceph-cluster-advanced.json
+      - dashboards/rbd-overview.json
 
 #   - name: pool-detail
 #     namespace: monitoring

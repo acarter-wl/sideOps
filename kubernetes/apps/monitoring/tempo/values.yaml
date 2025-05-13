@@ -21,7 +21,7 @@ global:
       storage:
         path: /var/tempo/generator/wal
         remote_write:
-          - url: ttp://victoria-metrics-k8s-stack-victoria-metrics.monitoring.svc.cluster.local:8428
+          - url: http://kube-prometheus-stack.monitoring.svc.cluster.local:8428
             send_exemplars: true
     storage:
       trace:
@@ -92,36 +92,3 @@ traces:
   jaeger:
     thriftHttp:
       enabled: true
-
-# OpenTelemetry Collector config
-opentelemetry-collector:
-  enabled: true
-  mode: deployment
-  replicaCount: 1
-  config:
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-          http:
-            endpoint: 0.0.0.0:4318
-    processors:
-      batch: {}
-      memory_limiter:
-        check_interval: 1s
-        limit_percentage: 80
-        spike_limit_percentage: 25
-    exporters:
-      logging:
-        verbosity: detailed
-      otlp:
-        endpoint: tempo:4317
-        tls:
-          insecure: true
-    service:
-      pipelines:
-        traces:
-          receivers: [ otlp ]
-          processors: [ memory_limiter, batch ]
-          exporters: [ otlp ]

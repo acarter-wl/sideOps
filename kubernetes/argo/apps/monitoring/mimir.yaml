@@ -1,24 +1,26 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: mimir
   namespace: argo-system
+  labels:
+    argocd.argoproj.io/instance: mimir
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: infrastructure
   sources:
-    # yamllint disable-line rule:line-length
     - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/kube-prometheus-stack
+      path: kubernetes/apps/monitoring/mimir
       targetRevision: main
       ref: repo
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 72.3.0
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: mimir-distributed
+      targetRevision: 5.7.0
       helm:
-        releaseName: kube-prometheus-stack
+        releaseName: mimir
         valueFiles:
-          - $repo/kubernetes/apps/monitoring/kube-prometheus-stack/values.yaml
+          - $repo/kubernetes/apps/monitoring/mimir/mimir.yaml
   destination:
     namespace: monitoring
     server: https://kubernetes.default.svc
