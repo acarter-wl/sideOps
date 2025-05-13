@@ -50,14 +50,14 @@ kubeScheduler:
 # ================================
 prometheus:
   prometheusSpec:
-    # Commenting out Mimir remote write until it's deployed
-    # remoteWrite:
-    #   - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
-    #     # Initially use limited set of metrics for testing
-    #     writeRelabelConfigs:
-    #       - sourceLabels: [ __name__ ]
-    #         action: keep
-    #         regex: (.+) # Include all metrics once you confirm it's working
+    #Commenting out Mimir remote write until it's deployed
+    remoteWrite:
+      - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
+        # Initially use limited set of metrics for testing
+        writeRelabelConfigs:
+          - sourceLabels: [ __name__ ]
+            action: keep
+            regex: (.+) # Include all metrics once you confirm it's working
     secrets:
       - etcd-client-certs
     podDisruptionBudget:
