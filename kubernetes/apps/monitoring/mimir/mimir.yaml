@@ -53,7 +53,7 @@ ingester_limits:
   max_samples_per_user: 10000000
 
 limits:
-  max_global_series_per_user: 10000000
+  max_global_series_per_user: 100000000
   max_global_samples_per_user: 100000000
   ingestion_rate: 1000000
   ingestion_burst_size: 2000000
