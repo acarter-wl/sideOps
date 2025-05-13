@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: victoria-k8s-stack
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/victoria-k8s-stack
+      targetRevision: main
+      ref: repo
+    - repoURL: https://victoriametrics.github.io/helm-charts/
+      chart: victoria-metrics-k8s-stack
+      targetRevision: 0.46.0
+      helm:
+        releaseName: victoria-metrics-k8s-stack
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/victoria-k8s-stack/values.yaml
+  destination:
+    name: in-cluster
+    namespace: monitoring
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: etcd-client-certs
+      namespace: monitoring
+      jsonPointers:
+        - /data
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: etcd-client-certs
+      jqPathExpressions:
+        - '.webhooks[]?.clientConfig.caBundle'
