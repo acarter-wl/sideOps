@@ -62,6 +62,14 @@ prometheus:
             regex: (.+)
     secrets:
       - etcd-client-certs
+    extraVolumes:
+      - name: etcd-certs
+        secret:
+          secretName: etcd-client-certs
+    extraVolumeMounts:
+      - name: etcd-certs
+        mountPath: /etc/prometheus/secrets/etcd-certs
+        readOnly: true
     podDisruptionBudget:
       enabled: true
       minAvailable: 1
