@@ -532,6 +532,7 @@ defaultDatasources:
               name: TraceID
               url: "$${__value.raw}"
               datasourceUid: tempo
+        plugins: loki
       - name: Tempo
         type: tempo
         access: proxy
@@ -552,6 +553,7 @@ defaultDatasources:
             enabled: true
           lokiSearch:
             datasourceUid: "loki"
+        plugins: tempo
 
   alertmanager:
     perReplica: false
@@ -594,8 +596,8 @@ grafana:
       multicluster: false
   forceDeployDatasource: true
   plugins:
-    - name: victoriametrics-metrics-datasource
-    - name: grafana-loki-datasource
+    - victoriametrics-metrics-datasource
+    - grafana-loki-datasource
   ingress:
     enabled: true
     ingressClassName: "internal"
