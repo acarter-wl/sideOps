@@ -94,33 +94,7 @@ prometheus:
           accessModes: [ "ReadWriteOnce" ]
           resources:
             requests:
-              storage: 10Gi
-    additionalScrapeConfigs:
-      - job_name: 'blackbox-homelab'
-        metrics_path: /probe
-        params:
-          module: [ http_2xx ]
-        static_configs:
-          - targets:
-              - https://sonarr.wakkalabs.com
-              - https://radarr.wakkalabs.com
-              - https://prowlarr.wakkalabs.com
-              - https://ceph.wakkalabs.com
-              - https://jellyfin.wakkalabs.com
-              - https://jellyseerr.wakkalabs.com
-              - https://nzbhydra.wakkalabs.com
-              - https://sabnzbd.wakkalabs.com
-              - https://qbittorrent.wakkalabs.com
-              - https://argo.wakkalabs.com
-              - https://alertmanager.wakkalabs.com
-              - https://prometheus.wakkalabs.com
-        relabel_configs:
-          - source_labels: [ __address__ ]
-            target_label: __param_target
-          - source_labels: [ __param_target ]
-            target_label: instance
-          - target_label: __address__
-            replacement: blackbox-exporter.monitoring.svc.cluster.local:9115
+              storage: 30Gi
   ingress:
     enabled: true
     ingressClassName: internal
@@ -256,11 +230,11 @@ grafana:
       url: http://loki-gateway.monitoring.svc.cluster.local:80
       jsonData:
         maxLines: 1000
-    # - name: Tempo
-    #   type: tempo
-    #   uid: tempo
-    #   access: proxy
-    #   url: http://tempo.monitoring.svc.cluster.local:3100
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3100
     #   jsonData:
     #     httpMethod: GET
     #     lokiSearch:
