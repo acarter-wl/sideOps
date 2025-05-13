@@ -52,13 +52,18 @@ kubeScheduler:
 prometheus:
   prometheusSpec:
     remoteWrite:
-      - url: http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push
+      - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
+        # Initially use limited set of metrics for testing
+        writeRelabelConfigs:
+          - sourceLabels: [ __name__ ]
+            action: keep
+            regex: (.+) # Include all metrics once you confirm it's working
     secrets:
       - etcd-client-certs
     podDisruptionBudget:
       enabled: true
       minAvailable: 1
-    scrapeInterval: 30s
+    scrapeInterval: 15s
     evaluationInterval: 30s
     replicas: 2
     resources:
@@ -230,38 +235,38 @@ grafana:
       url: http://loki-gateway.monitoring.svc.cluster.local:80
       jsonData:
         maxLines: 1000
+        timeout: 60
     - name: Tempo
       type: tempo
       uid: tempo
       access: proxy
       url: http://tempo.monitoring.svc.cluster.local:3100
-    #   jsonData:
-    #     httpMethod: GET
-    #     lokiSearch:
-    #       datasourceUid: loki
-    #     tracesToLogs:
-    #       datasourceUid: loki
-    #       tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
-    #       mappedTags: [ { key: 'service.name', value: 'service' } ]
-    #       mapTagNamesEnabled: true
-    #       spanStartTimeShift: '-1h'
-    #       spanEndTimeShift: '1h'
-    #       filterByTraceID: true
-    #       filterBySpanID: true
-    #     serviceMap:
-    #       datasourceUid: prometheus
-    #     nodeGraph:
-    #       enabled: true
-    #     search:
-    #       hide: false
-    # - name: Pyroscope
-    #   type: grafana-pyroscope-datasource
-    #   uid: pyroscope
-    #   access: proxy
-    #   url: http://pyroscope.monitoring.svc.cluster.local:4040
-    #   jsonData:
-    #     minStep: 10s
-
+      jsonData:
+        httpMethod: GET
+        lokiSearch:
+          datasourceUid: loki
+        tracesToLogs:
+          datasourceUid: loki
+          tags: [ 'instance', 'pod', 'namespace', 'service.name' ]
+          mappedTags: [ { key: 'service.name', value: 'service' } ]
+          mapTagNamesEnabled: true
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+          filterByTraceID: true
+          filterBySpanID: true
+        serviceMap:
+          datasourceUid: Prometheus
+        nodeGraph:
+          enabled: true
+        search:
+          hide: false
+    - name: Pyroscope
+      type: grafana-pyroscope-datasource
+      uid: pyroscope
+      access: proxy
+      url: http://pyroscope.monitoring.svc.cluster.local:4040
+      jsonData:
+        minStep: 10s
     # Dashboard Providers
   dashboardProviders:
     dashboardproviders.yaml:
@@ -299,6 +304,14 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards/storage
+        - name: 'logging'
+          orgId: 1
+          folder: 'Logging'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/logging
 
   # Dashboards
   dashboards:
@@ -337,10 +350,6 @@ grafana:
         gnetId: 8171
         revision: 1
         datasource: Prometheus
-      logs-dashboard:
-        gnetId: 12611
-        revision: 1
-        datasource: Loki
       kubernetes-apiserver:
         gnetId: 12006
         revision: 1
@@ -402,10 +411,30 @@ grafana:
         revision: 2
         datasource: Prometheus
 
+    # Add dedicated logging dashboards folder
+    logging:
+      loki-logs:
+        gnetId: 15141
+        revision: 1
+        datasource: Loki
+      kubernetes-logs:
+        gnetId: 15365
+        revision: 1
+        datasource: Loki
+      loki-dashboard:
+        gnetId: 12019
+        revision: 2
+        datasource:
+          - name: DS_LOKI
+            value: Loki
+          - name: DS_PROMETHEUS
+            value: Prometheus
+
 kubeStateMetrics:
   enabled: true
   selfMonitor:
     enabled: true
 
+# Keep Loki disabled since you're deploying it separately
 loki:
   enabled: false
