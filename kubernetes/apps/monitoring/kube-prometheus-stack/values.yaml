@@ -346,14 +346,6 @@ grafana:
         gnetId: 15757
         revision: 1
         datasource: Prometheus
-      etcd-cluster:
-        gnetId: 9733
-        revision: 3
-        datasource: Prometheus
-      kubernetes-pv-usage:
-        gnetId: 13646
-        revision: 2
-        datasource: Prometheus
 
     kubernetes:
       k8s-node-rsrc-use:
