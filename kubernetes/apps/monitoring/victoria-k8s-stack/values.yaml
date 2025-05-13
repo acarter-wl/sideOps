@@ -522,18 +522,26 @@ defaultDatasources:
         access: proxy
         url: http://loki-gateway.monitoring.svc.cluster.local:80
         isDefault: false
+        uid: loki
         jsonData:
           maxLines: 1000
           timeout: 60
+          derivedFields:
+            - datasourceName: Tempo
+              matcherRegex: "traceID=(\\w+)"
+              name: TraceID
+              url: "$${__value.raw}"
+              datasourceUid: tempo
       - name: Tempo
         type: tempo
         access: proxy
         url: http://tempo.monitoring.svc.cluster.local:3100
         isDefault: false
+        uid: tempo
         jsonData:
           httpMethod: GET
           tracesToLogsV2:
-            datasourceUid: "Loki"
+            datasourceUid: "loki"
             spanStartTimeShift: "-1h"
             spanEndTimeShift: "1h"
             tags: [ "instance", "pod", "namespace" ]
@@ -542,6 +550,8 @@ defaultDatasources:
             datasourceUid: "VictoriaMetrics"
           nodeGraph:
             enabled: true
+          lokiSearch:
+            datasourceUid: "loki"
 
   alertmanager:
     perReplica: false
@@ -573,6 +583,7 @@ grafana:
       enabled: true
       initDatasources: true
       label: grafana_datasource
+      searchNamespace: ALL
     dashboards:
       provider:
         name: default
@@ -581,9 +592,10 @@ grafana:
       defaultFolderName: default
       enabled: true
       multicluster: false
-  forceDeployDatasource: false
+  forceDeployDatasource: true
   plugins:
     - victoriametrics-metrics-datasource
+    - grafana-loki-datasource
   ingress:
     enabled: true
     ingressClassName: "internal"

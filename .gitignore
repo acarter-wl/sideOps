@@ -23,3 +23,4 @@ Thumbs.db
 .nx/installation
 .nx/cache
 .nx/workspace-data
+**/.claude/settings.local.json
