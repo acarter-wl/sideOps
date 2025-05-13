@@ -54,7 +54,7 @@ prometheus:
       - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
         # Add headers for Mimir authentication
         headers:
-          X-Scope-OrgID: "anonymous" # Use the default anonymous org ID
+          X-Scope-OrgID: "1" # Use the default anonymous org ID
         writeRelabelConfigs:
           # Initially include everything - you can limit later if needed
           - sourceLabels: [ __name__ ]
