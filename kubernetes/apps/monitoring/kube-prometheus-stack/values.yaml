@@ -5,12 +5,11 @@ fullnameOverride: kube-prometheus-stack
 global:
   rbac:
     create: true
-    pspEnabled: false # PSPs are deprecated in Kubernetes 1.25+
 
 crds:
   enabled: true
   upgradeJob:
-    enabled: true
+    enabled: false
 
 # ================================
 # ETCD Scraping for Talos
