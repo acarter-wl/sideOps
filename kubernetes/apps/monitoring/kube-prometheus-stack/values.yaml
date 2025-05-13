@@ -50,14 +50,16 @@ kubeScheduler:
 # ================================
 prometheus:
   prometheusSpec:
-    #Commenting out Mimir remote write until it's deployed
     remoteWrite:
       - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
-        # Initially use limited set of metrics for testing
+        # Add headers for Mimir authentication
+        headers:
+          X-Scope-OrgID: "anonymous" # Use the default anonymous org ID
         writeRelabelConfigs:
+          # Initially include everything - you can limit later if needed
           - sourceLabels: [ __name__ ]
             action: keep
-            regex: (.+) # Include all metrics once you confirm it's working
+            regex: (.+)
     secrets:
       - etcd-client-certs
     podDisruptionBudget:
