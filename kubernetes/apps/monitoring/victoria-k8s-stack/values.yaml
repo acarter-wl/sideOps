@@ -594,8 +594,8 @@ grafana:
       multicluster: false
   forceDeployDatasource: true
   plugins:
-    - victoriametrics-metrics-datasource
-    - grafana-loki-datasource
+    - name: victoriametrics-metrics-datasource
+    - name: grafana-loki-datasource
   ingress:
     enabled: true
     ingressClassName: "internal"
