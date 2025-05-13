@@ -63,3 +63,5 @@ nginx:
   enabled: true
   service:
     type: ClusterIP
+minio:
+  enabled: false
