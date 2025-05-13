@@ -20,7 +20,7 @@ spec:
       helm:
         releaseName: mimir
         valueFiles:
-          - $repo/kubernetes/apps/monitoring/mimir/mimir.yaml
+          - $repo/kubernetes/apps/monitoring/mimir/values.yaml
   destination:
     namespace: monitoring
     server: https://kubernetes.default.svc
