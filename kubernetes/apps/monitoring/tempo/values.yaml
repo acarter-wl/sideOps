@@ -21,7 +21,7 @@ global:
       storage:
         path: /var/tempo/generator/wal
         remote_write:
-          - url: http://kube-prometheus-stack.monitoring.svc.cluster.local:8428
+          - url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
             send_exemplars: true
     storage:
       trace:

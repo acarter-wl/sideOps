@@ -53,7 +53,7 @@ prometheus:
     remoteWrite:
       - url: http://mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push
         headers:
-          X-Scope-OrgID: "anonymous"
+          X-Scope-OrgID: "1" # Use the default anonymous org ID
         # Add write relabel configs to limit metrics
         writeRelabelConfigs:
           # Only send important metrics, filter out high-cardinality ones
@@ -64,14 +64,6 @@ prometheus:
           - sourceLabels: [__name__]
             action: drop
             regex: (container_memory_working_set_bytes|kubelet_pleg_relist_duration_seconds_bucket|.+_bucket)
-        # Add headers for Mimir authentication
-        headers:
-          X-Scope-OrgID: "1" # Use the default anonymous org ID
-        writeRelabelConfigs:
-          # Initially include everything - you can limit later if needed
-          - sourceLabels: [ __name__ ]
-            action: keep
-            regex: (.+)
     secrets:
       - etcd-client-certs
     extraVolumes:

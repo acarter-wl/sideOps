@@ -2,6 +2,8 @@ role: "Stateless-Aggregator"
 
 # Sources
 sources:
+  kubernetes_logs:
+    type: kubernetes_logs
   talos_kernel_logs:
     address: 0.0.0.0:6050
     type: socket
@@ -56,25 +58,3 @@ sinks:
         {{`{{ __host }}`}}
       service: >-
         {{`{{ "talos-service" }}`}}
-
-# role: "Agent"
-# data_dir: /vector-data-dir
-
-# sources:
-#   kubernetes_logs:
-#     type: kubernetes_logs
-
-# sinks:
-#   loki:
-#     type: loki
-#     inputs:
-#       - kubernetes_logs
-#     endpoint: http://loki.monitoring.svc.cluster.local:3100
-#     encoding:
-#       codec: json
-#     labels:
-#       job: "vector"
-#       host: "{{ host }}"
-#       namespace: "{{ kubernetes.pod_namespace }}"
-#       pod: "{{ kubernetes.pod_name }}"
-#       container: "{{ kubernetes.container_name }}"
