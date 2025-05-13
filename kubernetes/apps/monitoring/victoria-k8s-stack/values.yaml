@@ -518,10 +518,10 @@ defaultDatasources:
         isDefault: false
         access: proxy
         type: victoriametrics-metrics-datasource
-      - name: VictoriaLogs
-        type: victoriametrics-logs-datasource
+      - name: loki
+        type: loki
         access: proxy
-        url: http://victoria-logs-single-server.monitoring.svc.cluster.local:9428
+        url: http://loki-gateway.monitoring.svc.cluster.local:80
         isDefault: true
       - name: Tempo
         type: tempo
@@ -566,10 +566,10 @@ grafana:
       initDatasources: true
       label: grafana_datasource
     additionalDataSources:
-      - name: victorialogs-datasource
-        type: victorialogs-datasource
+      - name: loki-datasource
+        type: loki
         access: proxy
-        url: http://victoria-logs-single-server.monitoringsvc.cluster.local:9428
+        url: http://loki-gateway.monitoring.svc.cluster.local:80
         isDefault: false
         jsonData:
           maxLines: 1000
