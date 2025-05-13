@@ -745,6 +745,15 @@ kubeControllerManager:
     targetPort: 10257
     selector:
       component: kube-controller-manager
+    tlsConfig:
+      insecureSkipVerify: true
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            insecureSkipVerify: true
   vmScrape:
     spec:
       jobLabel: jobLabel
