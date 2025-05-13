@@ -51,7 +51,19 @@ kubeScheduler:
 prometheus:
   prometheusSpec:
     remoteWrite:
-      - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
+      - url: http://mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push
+        headers:
+          X-Scope-OrgID: "anonymous"
+        # Add write relabel configs to limit metrics
+        writeRelabelConfigs:
+          # Only send important metrics, filter out high-cardinality ones
+          - sourceLabels: [__name__]
+            action: keep
+            regex: (node_.*|kube_.*|container_.*|apiserver_.*|etcd_.*|kubelet_.*|up|rate|latency)
+          # Exclude some high-cardinality metrics
+          - sourceLabels: [__name__]
+            action: drop
+            regex: (container_memory_working_set_bytes|kubelet_pleg_relist_duration_seconds_bucket|.+_bucket)
         # Add headers for Mimir authentication
         headers:
           X-Scope-OrgID: "1" # Use the default anonymous org ID
