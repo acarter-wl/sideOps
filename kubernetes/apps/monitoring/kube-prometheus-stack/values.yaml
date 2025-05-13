@@ -416,6 +416,7 @@ grafana:
 
     # Add dedicated logging dashboards folder
     logging:
+      # Keep Loki dashboards since Loki is deployed
       loki-logs:
         gnetId: 15141
         revision: 1
