@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vector-udp
+  namespace: monitoring
+spec:
+  type: LoadBalancer
+  ports:
+    - name: talos-kernel
+      port: 6050
+      targetPort: 6050
+      protocol: UDP
+    - name: talos-service
+      port: 6051
+      targetPort: 6051
+      protocol: UDP
+  selector:
+    app.kubernetes.io/name: vector
