@@ -105,7 +105,6 @@ prometheus:
     ingressClassName: internal
     annotations:
       kubernetes.io/ingress.class: internal
-      internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
     hosts:
       - prometheus.wakkalabs.com
@@ -134,7 +133,6 @@ alertmanager:
     ingressClassName: internal
     annotations:
       kubernetes.io/ingress.class: internal
-      internal-dns.alpha.kubernetes.io/enabled: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-production"
     hosts:
       - alertmanager.wakkalabs.com
