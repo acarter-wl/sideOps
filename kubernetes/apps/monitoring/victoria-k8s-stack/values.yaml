@@ -19,7 +19,7 @@ fullnameOverride: ""
 tenant: "wakkalabs"
 # -- If this chart is used in "Argocd" with "releaseName" field then
 # VMServiceScrapes couldn't select the proper services.
-argocdReleaseOverride: "argo-cd"
+argocdReleaseOverride: ""
 
 # -- VictoriaMetrics Operator dependency chart configuration
 victoria-metrics-operator:
