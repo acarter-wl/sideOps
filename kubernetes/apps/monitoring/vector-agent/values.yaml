@@ -73,7 +73,7 @@ customConfig:
     loki_kubernetes:
       type: loki
       inputs: [kubernetes_logs_transform]
-      endpoint: http://loki-gateway.loki.svc.cluster.local
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -90,7 +90,7 @@ customConfig:
     loki_talos_kernel:
       type: loki
       inputs: [talos_kernel_transform]
-      endpoint: http://loki-gateway.loki.svc.cluster.local
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -106,7 +106,7 @@ customConfig:
     loki_talos_service:
       type: loki
       inputs: [talos_service_transform]
-      endpoint: http://loki-gateway.loki.svc.cluster.local
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
