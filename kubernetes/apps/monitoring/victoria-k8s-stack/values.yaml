@@ -532,6 +532,7 @@ defaultDatasources:
               name: TraceID
               url: "$${__value.raw}"
               datasourceUid: tempo
+        # Fix: Remove plugins property or make it a proper map
       - name: Tempo
         type: tempo
         access: proxy
@@ -552,6 +553,7 @@ defaultDatasources:
             enabled: true
           lokiSearch:
             datasourceUid: "loki"
+        # Fix: Remove plugins property or make it a proper map
 
   alertmanager:
     perReplica: false
