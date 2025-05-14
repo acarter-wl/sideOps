@@ -1,3 +1,4 @@
+# kubernetes/apps/logging/vector-agent/values.yaml
 role: "Agent"
 
 customConfig:
@@ -7,10 +8,10 @@ customConfig:
   sources:
     kubernetes_logs:
       type: kubernetes_logs
-      include_paths:
+      include_paths_glob_patterns:  # Changed from include_paths
         - /var/log/pods/*/*.log
         - /var/lib/docker/containers/*/*.log
-      exclude_paths:
+      exclude_paths_glob_patterns:  # Changed from exclude_paths
         - /var/log/pods/*/kube-proxy/**/*.log
         - /var/log/pods/vector-*/vector/*.log
 
