@@ -36,7 +36,6 @@ customConfig:
         .container = .kubernetes.container_name
         .pod = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
-        # This is still ok because get_env_var() can fail
         .node = get_env_var("HOSTNAME") ?? "unknown"
         .log_type = "kubernetes"
         .timestamp = now()
@@ -46,7 +45,6 @@ customConfig:
       inputs: [talos_kernel_logs]
       source: |
         .node = .__host
-        # Use if/else expression for explicit default value assignment
         .facility = if exists(.facility) && .facility != null { .facility } else { "kernel" }
         .log_type = "talos_kernel"
         .timestamp = now()
@@ -56,7 +54,6 @@ customConfig:
       inputs: [talos_service_logs]
       source: |
         .node = .__host
-        # Use if/else expression for explicit default value assignment
         .service = if exists(.service) && .service != null { .service } else { "talos-service" }
         if exists(.msg) {
           msg = to_string(.msg) ?? ""
@@ -83,10 +80,10 @@ customConfig:
       encoding:
         codec: json
       labels:
-        pod: "{{ pod }}"
-        namespace: "{{ namespace }}"
-        container: "{{ container }}"
-        node: "{{ node }}"
+        pod: "{{`{{ pod }}`}}"
+        namespace: "{{`{{ namespace }}`}}"
+        container: "{{`{{ container }}`}}"
+        node: "{{`{{ node }}`}}"
         log_type: "kubernetes"
       batch:
         max_bytes: 1048576
@@ -101,8 +98,8 @@ customConfig:
         codec: json
         except_fields: [__host]
       labels:
-        hostname: "{{ node }}"
-        facility: "{{ facility }}"
+        hostname: "{{`{{ node }}`}}"
+        facility: "{{`{{ facility }}`}}"
         log_type: "talos_kernel"
       batch:
         max_bytes: 1048576
@@ -117,8 +114,8 @@ customConfig:
         codec: json
         except_fields: [__host]
       labels:
-        hostname: "{{ node }}"
-        service: "{{ service }}"
+        hostname: "{{`{{ node }}`}}"
+        service: "{{`{{ service }}`}}"
         log_type: "talos_service"
       batch:
         max_bytes: 1048576
@@ -134,14 +131,12 @@ customConfig:
       encoding:
         codec: json
 
-    # Prometheus metrics for Vector itself
     prometheus:
       type: prometheus_exporter
       inputs:
         - internal_metrics
       address: "0.0.0.0:9598"
 
-# Tolerations to run on all nodes
 tolerations:
   - operator: Exists
 
