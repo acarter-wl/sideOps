@@ -55,27 +55,28 @@ customConfig:
         - route_logs.talos_service
       source: |
         .timestamp = now()
+
+        # Ensure service exists
         if !exists(.service) {
           .service = "unknown"
         }
 
         if exists(.msg) {
+          # Convert message to string safely
           msg_str = to_string(.msg) ?? ""
 
+          # Check for machined service logs
           if contains(msg_str, "MachineService") {
             .service = "machined"
-            parts = split!(msg_str, "[")
-            if length(parts) >= 2 {
-              api_part_array = split!(parts[1], "]")
-              if length(api_part_array) > 0 {
-                api_part = api_part_array[0]
-                if length(api_part) > 0 {
-                  .api_call = api_part
-                }
-              }
+
+            # Try to extract API call
+            parsed = parse_regex(msg_str, r'\[(?P<api_call>/[^]]+)\]') ?? {}
+            if exists(parsed.api_call) {
+              .api_call = parsed.api_call
             }
           }
 
+          # Extract duration if present
           duration_match = parse_regex(msg_str, r'(?P<duration>\d+\.\d+)(µ|m|n)?s') ?? {}
           if exists(duration_match.duration) {
             .duration = to_float(duration_match.duration) ?? 0.0
