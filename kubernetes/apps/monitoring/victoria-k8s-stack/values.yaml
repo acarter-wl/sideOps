@@ -372,23 +372,12 @@ defaultDatasources:
     enabled: true
     default: true
   loki:
-    enabled: true
+    enabled: false
     default: false
   alertmanager:
     enabled: true
     default: false
-  extra:
-    - name: Loki
-      type: loki
-      access: proxy
-      url: http://loki-gateway.monitoring.svc.cluster.local:80
-      jsonData:
-        maxLines: 5000
-        derivedFields:
-          - datasourceName: Tempo
-            matcherRegex: "traceID=(\\w+)"
-            name: TraceID
-            url: "$${__value.raw}"
+
 
 grafana:
   enabled: true
