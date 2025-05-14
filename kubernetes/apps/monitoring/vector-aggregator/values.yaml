@@ -25,6 +25,15 @@ customConfig:
         kubernetes: .log_type == "kubernetes"
         talos_kernel: .log_type == "talos_kernel"
         talos_service: .log_type == "talos_service"
+        unmatched: true  # Catch all other logs
+
+    unmatched_logs:
+      type: remap
+      inputs:
+        - route_logs.unmatched
+      source: |
+        .timestamp = now()
+        .log_type = "unmatched"
 
     # Final processing for each log type
     kubernetes_final:
