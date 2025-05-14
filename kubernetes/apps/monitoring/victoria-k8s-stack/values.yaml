@@ -546,7 +546,6 @@ grafana:
       multicluster: false
   forceDeployDatasource: true
   plugins:
-    - victoriametrics-metrics-datasource
     - grafana-loki-datasource
   # Manually configure datasources directly in Grafana
   datasources:
@@ -558,10 +557,7 @@ grafana:
           access: proxy
           url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
           isDefault: true
-        - name: VictoriaMetrics (DS)
-          isDefault: false
-          access: proxy
-          type: victoriametrics-metrics-datasource
+        # Victoria Metrics datasource removed due to plugin compatibility issues
         - name: Loki
           type: loki
           access: proxy
