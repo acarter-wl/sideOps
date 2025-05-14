@@ -572,18 +572,25 @@ defaultDatasources:
 
 # -- Grafana dependency chart configuration
 grafana:
-persistence:
   enabled: true
-  storageClassName: "ceph-block"
-  size: 30Gi
-  accessModes:
-    - ReadWriteOnce
-  annotations: {}
-  # Add security context to fix FSGroup issues with Ceph
-  securityContext:
-    fsGroup: 10001
-    runAsUser: 10001
-    runAsGroup: 10001
+  adminPassword: admin
+  defaultDashboardsEnabled: true
+  persistence:
+    enabled: true
+    storageClassName: "ceph-block"
+    size: 30Gi
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    # Add security context to fix FSGroup issues with Ceph
+    securityContext:
+      fsGroup: 10001
+      runAsUser: 10001
+      runAsGroup: 10001
+  sidecar:
+    datasources:
+      enabled: true
+      initDatasources: true
       label: grafana_datasource
       searchNamespace: ALL
     dashboards:
