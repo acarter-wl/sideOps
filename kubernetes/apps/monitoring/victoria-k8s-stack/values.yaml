@@ -558,6 +558,7 @@ grafana:
           url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
           isDefault: true
         # Victoria Metrics datasource removed due to plugin compatibility issues
+        # DO NOT add the victoriametrics-metrics-datasource datasource here
         - name: Loki
           type: loki
           access: proxy
