@@ -3,11 +3,6 @@ kind: Kustomization
 resources:
 - ns.yaml
 - ./config
-- pvc.yaml
-- proxyclass.yaml
-- proxygroup.yaml
-- proxy-rbac.yaml
-- connector.yaml
+- loadbalancer.yaml
+- advertisement.yaml
 - metrics.yaml
-- tailscale-subnet.yaml
-- ingressclass.yaml
