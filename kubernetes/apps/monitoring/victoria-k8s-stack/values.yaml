@@ -16,7 +16,7 @@ nameOverride: ""
 # -- Resource full name override
 fullnameOverride: ""
 # -- Tenant to use for Grafana datasources and remote write
-tenant: "0"
+tenant: "wakkalabs"
 # -- If this chart is used in "Argocd" with "releaseName" field then
 # VMServiceScrapes couldn't select the proper services.
 argocdReleaseOverride: "argo-cd"
@@ -316,26 +316,12 @@ vmcluster:
               - ReadWriteOnce
             resources:
               requests:
-                storage: 20Gi
-      resources:
-        limits:
-          cpu: "2"
-          memory: "3Gi"
-        requests:
-          cpu: "0.5"
-          memory: "1Gi"
+                storage: 30Gi
     vminsert:
       enabled: true
       port: "8480"
       replicaCount: 2
       extraArgs: {}
-      resources:
-        limits:
-          cpu: "2"
-          memory: 1.5Gi
-        requests:
-          cpu: "0.5"
-          memory: "512Mi"
 
   ingress:
     storage:
@@ -397,8 +383,6 @@ alertmanager:
     replicaCount: 1
     port: "9093"
     selectAllByDefault: true
-    image:
-      tag: v0.28.1
     externalURL: "https://alertmanager.wakkalabs.com"
     routePrefix: /
     configSecret: "alertmanager-config"
@@ -527,9 +511,17 @@ grafana:
       cpu: 200m
       memory: 512Mi
   persistence:
-    enabled: false  # Disabled to address FSGroup bugs with Ceph
+    enabled: true
     storageClassName: "ceph-block"
     size: 30Gi
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    # Add security context to fix FSGroup issues with Ceph
+    securityContext:
+      fsGroup: 10001
+      runAsUser: 10001
+      runAsGroup: 10001
   sidecar:
     datasources:
       enabled: false
@@ -546,7 +538,7 @@ grafana:
       multicluster: false
   forceDeployDatasource: true
   plugins: ""
-  # Manually configure datasources directly in Grafana
+  # Configure datasources directly in Grafana
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -556,8 +548,18 @@ grafana:
           access: proxy
           url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
           isDefault: true
-        # Victoria Metrics datasource removed due to plugin compatibility issues
-        # DO NOT add the victoriametrics-metrics-datasource datasource here
+          uid: victoriametrics
+          jsonData:
+            timeInterval: 15s
+            exemplarTraceIdDestinations:
+              - name: traceID
+                datasourceUid: tempo
+        - name: VictoriaMetrics-DS
+          type: victoriametrics-datasource
+          access: proxy
+          url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
+          isDefault: false
+          uid: victoriametrics-ds
         - name: Loki
           type: loki
           access: proxy
@@ -588,17 +590,20 @@ grafana:
               tags: [ "instance", "pod", "namespace" ]
               filterByTraceID: true
             serviceMap:
-              datasourceUid: "VictoriaMetrics"
+              datasourceUid: "victoriametrics"
             nodeGraph:
               enabled: true
             lokiSearch:
               datasourceUid: "loki"
         - name: Alertmanager
-          type: prometheus
+          type: alertmanager
           access: proxy
           url: http://victoria-metrics-k8s-stack-alertmanager.monitoring.svc.cluster.local:9093
+          isDefault: false
+          uid: alertmanager
           jsonData:
             implementation: prometheus
+            handleGrafanaManagedAlerts: true
   ingress:
     enabled: true
     ingressClassName: "internal"
