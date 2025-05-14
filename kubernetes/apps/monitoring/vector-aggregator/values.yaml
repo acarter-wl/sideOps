@@ -65,29 +65,33 @@ customConfig:
         # Ensure timestamp is set
         .timestamp = now()
 
-        # Extract service name from msg if not already present
-        if !exists(.service) && exists(.msg) {
-          matches = parse_regex(.msg, r'([a-zA-Z]+)\s+OK') ?? {}
-          if exists(matches."0") {
-            .service = matches."0"
-          }
+        # Set default service if not present
+        if !exists(.service) {
+          .service = "unknown"
         }
 
-        # Extract API call information if available
+        # Extract service name from msg if available
         if exists(.msg) {
-          if string!(.msg) =~ "MachineService" {
-            parts = split(.msg, "[")
+          msg_str = string!(.msg)
+
+          # Check for MachineService
+          if msg_str =~ "MachineService" {
+            .service = "machined"
+
+            # Try to extract API call
+            parts = split(msg_str, "[")
             if length(parts) >= 2 {
-              api_call_part = split(parts[1], "]")[0]
-              .api_call = api_call_part
+              api_part = split(parts[1], "]")[0]
+              if length(api_part) > 0 {
+                .api_call = api_part
+              }
             }
           }
 
-          # Extract duration if available
-          time_matches = parse_regex(.msg, r'(\d+\.\d+)(µ|m|n)s') ?? {}
-          if exists(time_matches."0") && exists(time_matches."1") {
-            .duration_value = to_float(time_matches."0")
-            .duration_unit = time_matches."1" + "s"
+          # Try to extract duration
+          duration_match = parse_regex(msg_str, r'(?P<duration>\d+\.\d+)(µ|m|n)?s') ?? {}
+          if exists(duration_match.duration) {
+            .duration = to_float(duration_match.duration)
           }
         }
 
@@ -98,20 +102,21 @@ customConfig:
         - route_logs.unmatched
       source: |
         .timestamp = now()
+        .log_type = "unmatched"
 
         # Try to categorize unmatched logs if possible
         if exists(.msg) {
-          if string!(.msg) =~ "machined" {
+          msg = string!(.msg)
+          if msg =~ "machined" {
             .log_type = "talos_service"
             .service = "machined"
-          } else if exists(.component) && .component == "dns-resolve-cache" {
-            .log_type = "talos_service"
-            .service = "dns"
-          } else {
-            .log_type = "unmatched"
           }
-        } else {
-          .log_type = "unmatched"
+        }
+
+        # Check for DNS component
+        if exists(.component) && .component == "dns-resolve-cache" {
+          .log_type = "talos_service"
+          .service = "dns"
         }
 
     # Optional: Consolidated logs for stdout
