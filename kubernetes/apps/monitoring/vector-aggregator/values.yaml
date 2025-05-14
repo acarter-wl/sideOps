@@ -67,15 +67,15 @@ customConfig:
 
         # Extract service name from msg if not already present
         if !exists(.service) && exists(.msg) {
-          matches = /([a-zA-Z]+)\s+OK/.find(.msg) ?? []
-          if length(matches) >= 2 {
-            .service = matches[1]
+          matches = parse_regex(.msg, r'([a-zA-Z]+)\s+OK') ?? {}
+          if exists(matches."0") {
+            .service = matches."0"
           }
         }
 
         # Extract API call information if available
         if exists(.msg) {
-          if match!(.msg, /MachineService/) {
+          if includes(.msg, "MachineService") {
             parts = split(.msg, "[")
             if length(parts) >= 2 {
               api_call_part = split(parts[1], "]")[0]
@@ -84,10 +84,10 @@ customConfig:
           }
 
           # Extract duration if available
-          time_matches = /(\d+\.\d+)(µ|m|n)s/.find(.msg) ?? []
-          if length(time_matches) >= 3 {
-            .duration_value = to_float(time_matches[1])
-            .duration_unit = time_matches[2] + "s"
+          time_matches = parse_regex(.msg, r'(\d+\.\d+)(µ|m|n)s') ?? {}
+          if exists(time_matches."0") && exists(time_matches."1") {
+            .duration_value = to_float(time_matches."0")
+            .duration_unit = time_matches."1" + "s"
           }
         }
 
@@ -101,7 +101,7 @@ customConfig:
 
         # Try to categorize unmatched logs if possible
         if exists(.msg) {
-          if match!(.msg, /machined/) {
+          if includes(.msg, "machined") {
             .log_type = "talos_service"
             .service = "machined"
           } else if exists(.component) && .component == "dns-resolve-cache" {
