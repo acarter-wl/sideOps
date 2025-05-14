@@ -29,7 +29,7 @@ customConfig:
         - route_logs.kubernetes
       source: |
         # Final enrichment for k8s logs
-        .timestamp = .timestamp ?? now()
+        .timestamp = now()
 
     talos_kernel_final:
       type: remap
@@ -37,7 +37,7 @@ customConfig:
         - route_logs.talos_kernel
       source: |
         # Final enrichment for kernel logs
-        .timestamp = .timestamp ?? now()
+        .timestamp = now()
 
     talos_service_final:
       type: remap
@@ -45,7 +45,7 @@ customConfig:
         - route_logs.talos_service
       source: |
         # Final enrichment for service logs
-        .timestamp = .timestamp ?? now()
+        .timestamp = now()
 
     # Optional: Consolidated logs for stdout
     all_logs_agg:
@@ -55,7 +55,7 @@ customConfig:
         - talos_kernel_final
         - talos_service_final
       source: |
-        .timestamp = .timestamp ?? now()
+        .timestamp = now()
         .source = "aggregator"
 
   # Sinks
@@ -69,10 +69,10 @@ customConfig:
       encoding:
         codec: json
       labels:
-        pod: "{{ pod }}"
-        namespace: "{{ namespace }}"
-        container: "{{ container }}"
-        node: "{{ node }}"
+        pod: "{{`{{ pod }}`}}"
+        namespace: "{{`{{ namespace }}`}}"
+        container: "{{`{{ container }}`}}"
+        node: "{{`{{ node }}`}}"
         log_type: "kubernetes"
       batch:
         max_bytes: 2097152
@@ -89,8 +89,8 @@ customConfig:
         except_fields:
           - __host
       labels:
-        hostname: "{{ node }}"
-        facility: "{{ facility }}"
+        hostname: "{{`{{ node }}`}}"
+        facility: "{{`{{ facility }}`}}"
         log_type: "talos_kernel"
       batch:
         max_bytes: 2097152
@@ -107,8 +107,8 @@ customConfig:
         except_fields:
           - __host
       labels:
-        hostname: "{{ node }}"
-        service: "{{ service }}"
+        hostname: "{{`{{ node }}`}}"
+        service: "{{`{{ service }}`}}"
         log_type: "talos_service"
       batch:
         max_bytes: 1048576
