@@ -40,36 +40,19 @@ defaultDashboards:
           dashboards: grafana
       allowCrossNamespaceImport: true
   dashboards:
-    victoriametrics-vmalert: true
-    victoriametrics-operator: true
-    victoriametrics-vminsert: true
-    victoriametrics-vmselect: true
-    victoriametrics-vmsingle: true
-    victoriametrics-vmstorage: true
-    node-exporter-full: true
-    kubernetes-cluster-monitoring: true
-    kubernetes-cluster: true
-    kubernetes-pods: true
-    kubernetes-nodes: true
-    kubernetes-api-server: true
-    kubernetes-coredns: true
-    kubernetes-kubelet: true
-    kubernetes-namespace-by-pod: true
-    kubernetes-namespace-by-workload: true
-    kubernetes-persistent-volumes: true
-    kubernetes-compute-resources-cluster: true
-    kubernetes-compute-resources-namespace: true
-    kubernetes-compute-resources-node: true
-    kubernetes-compute-resources-pod: true
-    kubernetes-compute-resources-workload: true
-    kubernetes-networking-cluster: true
-    kubernetes-networking-namespace: true
-    kubernetes-networking-pod: true
-    kubernetes-networking-workload: true
+    victoriametrics-vmalert:
+      enabled: true
+    victoriametrics-operator:
+      enabled: true
+    # -- In ArgoCD using client-side apply this dashboard reaches annotations size limit and causes k8s issues without server side apply
+    # See [this issue](https://github.com/VictoriaMetrics/helm-charts/tree/master/charts/victoria-metrics-k8s-stack#metadataannotations-too-long-must-have-at-most-262144-bytes-on-dashboards)
+    node-exporter-full:
+      enabled: true
 
 defaultRules:
-  create: true
   additionalGroupByLabels: []
+  create: true
+
   group:
     spec:
       params: {}
@@ -681,7 +664,7 @@ kubeEtcd:
             keySecret:
               name: etcd-client-certs
               key: etcd-client.key
-            insecureSkipVerify: true
+            insecureSkipVerify: false
 
 kubeScheduler:
   enabled: true
