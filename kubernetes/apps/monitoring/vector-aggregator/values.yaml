@@ -24,9 +24,9 @@ customConfig:
         - vector_in
       route:
         # Fixed routing conditions with proper syntax
-        kubernetes: ".message.log_type == 'kubernetes'"
-        talos_kernel: ".message.log_type == 'talos_kernel'"
-        talos_service: ".message.log_type == 'talos_service'"
+        kubernetes: ".message.log_type == \"kubernetes\""
+        talos_kernel: ".message.log_type == \"talos_kernel\""
+        talos_service: ".message.log_type == \"talos_service\""
         # Add a catch-all route for unmatched logsaaaaa
         unmatched: "true"
 
