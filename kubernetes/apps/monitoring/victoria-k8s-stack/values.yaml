@@ -532,8 +532,8 @@ grafana:
     size: 30Gi
   sidecar:
     datasources:
-      enabled: true
-      initDatasources: true
+      enabled: false
+      initDatasources: false
       label: grafana_datasource
       searchNamespace: ALL
     dashboards:
@@ -542,7 +542,7 @@ grafana:
         orgid: 1
       folder: /var/lib/grafana/dashboards
       defaultFolderName: default
-      enabled: true
+      enabled: false
       multicluster: false
   forceDeployDatasource: true
   plugins: ""
