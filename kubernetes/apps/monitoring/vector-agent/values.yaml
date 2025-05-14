@@ -1,3 +1,4 @@
+# kubernetes/apps/logging/vector-agent/values.yaml
 role: "Agent"
 
 customConfig:
@@ -54,14 +55,13 @@ customConfig:
         .pod = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
         .stream = .stream
-        # Use if() instead of ?? for HOSTNAME
-        if exists(get_env_var("HOSTNAME")) {
-          .node = get_env_var("HOSTNAME")
-        } else {
-          .node = "unknown"
+        # Fixed error handling for env var
+        .node = "unknown"
+        hostname = get_env_var("HOSTNAME") ?? null
+        if hostname != null {
+          .node = hostname
         }
         .log_type = "kubernetes"
-        # Set timestamp without the ?? operator
         .timestamp = now()
 
     talos_kernel_transform:
@@ -70,7 +70,7 @@ customConfig:
         - talos_kernel_logs
       source: |
         .node = .__host
-        # Use if() instead of ?? for facility
+        # Use if() with proper null check
         if exists(.facility) {
           .facility = .facility
         } else {
@@ -85,7 +85,7 @@ customConfig:
         - talos_service_logs
       source: |
         .node = .__host
-        # Use if() instead of ?? for service
+        # Use if() with proper null check
         if exists(.service) {
           .service = .service
         } else {
@@ -132,3 +132,32 @@ customConfig:
       inputs:
         - host_metrics
       address: 0.0.0.0:9598
+
+# Tolerations to run on all nodes
+tolerations:
+  - operator: Exists
+
+# Service for the agent
+service:
+  ports:
+    - name: prom-exporter
+      port: 9598
+      targetPort: 9598
+      protocol: TCP
+    - name: talos-kernel
+      port: 6050
+      targetPort: 6050
+      protocol: UDP
+    - name: talos-service
+      port: 6051
+      targetPort: 6051
+      protocol: UDP
+
+# Resources for the agent
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
