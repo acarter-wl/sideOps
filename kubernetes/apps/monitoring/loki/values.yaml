@@ -19,19 +19,19 @@ loki:
   limits_config:
     allow_structured_metadata: true
     volume_enabled: true
-    ingestion_rate_mb: 16             # Increase from default 4 MiB/s
-    ingestion_burst_size_mb: 32       # Allow short bursts
-    max_streams_per_user: 100000      # Optional: higher stream cap
+    ingestion_rate_mb: 16
+    ingestion_burst_size_mb: 32
+    max_streams_per_user: 100000
     max_entries_limit_per_query: 50000
-    max_global_streams_per_user: 0    # 0 means unlimited
-    max_line_size: 1048576            # Allow 1MiB log lines
-    max_entry_size: 1048576           # Also bump entry size for large logs
-    max_label_name_length: 1024       # Optional sanity tweaks
+    max_global_streams_per_user: 0
+    max_line_size: 1048576         # ✅ Keep this
+    max_label_name_length: 1024
     max_label_value_length: 2048
     max_label_names_per_series: 64
   ruler:
     enable_api: true
-
+server:
+  grpc_server_max_recv_msg_size: 8388608
 minio:
   enabled: true
 deploymentMode: SingleBinary
