@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
 - ns.yaml
 - ./config
+- operator-rbac.yaml
 - loadbalancer.yaml
 - advertisement.yaml
+- ingressclass.yaml
 - metrics.yaml
