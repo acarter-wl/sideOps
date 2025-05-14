@@ -1,0 +1,158 @@
+role: "Stateless-Aggregator"
+
+customConfig:
+  data_dir: /vector-data-dir
+
+  # Sources for aggregator
+  sources:
+    vector_in:
+      type: vector
+      address: 0.0.0.0:6000
+      version: "2"
+
+  # Transforms for aggregator
+  transforms:
+    # Route logs by type
+    route_logs:
+      type: route
+      inputs:
+        - vector_in
+      route:
+        kubernetes: .log_type == "kubernetes"
+        talos_kernel: .log_type == "talos_kernel"
+        talos_service: .log_type == "talos_service"
+
+    # Final processing for each log type
+    kubernetes_final:
+      type: remap
+      inputs:
+        - route_logs.kubernetes
+      source: |
+        # Final enrichment for k8s logs
+        .timestamp = .timestamp ?? now()
+
+    talos_kernel_final:
+      type: remap
+      inputs:
+        - route_logs.talos_kernel
+      source: |
+        # Final enrichment for kernel logs
+        .timestamp = .timestamp ?? now()
+
+    talos_service_final:
+      type: remap
+      inputs:
+        - route_logs.talos_service
+      source: |
+        # Final enrichment for service logs
+        .timestamp = .timestamp ?? now()
+
+    # Optional: Consolidated logs for stdout
+    all_logs_agg:
+      type: remap
+      inputs:
+        - kubernetes_final
+        - talos_kernel_final
+        - talos_service_final
+      source: |
+        .timestamp = .timestamp ?? now()
+        .source = "aggregator"
+
+  # Sinks
+  sinks:
+    # Loki sinks
+    loki_kubernetes:
+      type: loki
+      inputs:
+        - kubernetes_final
+      endpoint: "http://loki-gateway"
+      encoding:
+        codec: json
+      labels:
+        pod: "{{ pod }}"
+        namespace: "{{ namespace }}"
+        container: "{{ container }}"
+        node: "{{ node }}"
+        log_type: "kubernetes"
+      batch:
+        max_bytes: 2097152
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    loki_talos_kernel:
+      type: loki
+      inputs:
+        - talos_kernel_final
+      endpoint: "http://loki-gateway"
+      encoding:
+        codec: json
+        except_fields:
+          - __host
+      labels:
+        hostname: "{{ node }}"
+        facility: "{{ facility }}"
+        log_type: "talos_kernel"
+      batch:
+        max_bytes: 2097152
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    loki_talos_service:
+      type: loki
+      inputs:
+        - talos_service_final
+      endpoint: "http://loki-gateway"
+      encoding:
+        codec: json
+        except_fields:
+          - __host
+      labels:
+        hostname: "{{ node }}"
+        service: "{{ service }}"
+        log_type: "talos_service"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    # Optional: Console output for debugging
+    stdout:
+      type: console
+      inputs:
+        - all_logs_agg
+      encoding:
+        codec: json
+
+    # Prometheus metrics
+    prometheus:
+      type: prometheus_exporter
+      inputs: []
+      address: 0.0.0.0:9598
+
+# Deployment settings for the aggregator
+replicas: 2
+
+# PodDisruptionBudget for the aggregator
+podDisruptionBudget:
+  minAvailable: 1
+
+# Service for the aggregator
+service:
+  ports:
+    - name: vector-ingress
+      port: 6000
+      targetPort: 6000
+      protocol: TCP
+    - name: prom-exporter
+      port: 9598
+      targetPort: 9598
+      protocol: TCP
+
+# Resources for the aggregator
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi

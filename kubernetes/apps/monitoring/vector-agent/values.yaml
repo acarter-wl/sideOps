@@ -1,0 +1,144 @@
+role: "Agent"
+
+customConfig:
+  data_dir: /vector-data-dir
+
+  # Sources
+  sources:
+    kubernetes_logs:
+      type: kubernetes_logs
+      include_paths:
+        - /var/log/pods/*/*.log
+        - /var/lib/docker/containers/*/*.log
+      exclude_paths:
+        - /var/log/pods/*/kube-proxy/**/*.log
+        - /var/log/pods/vector-*/vector/*.log
+
+    host_metrics:
+      type: host_metrics
+      collectors:
+        - cpu
+        - memory
+        - network
+        - load
+      namespace: host
+      scrape_interval_secs: 15
+
+    talos_kernel_logs:
+      address: 0.0.0.0:6050
+      type: socket
+      mode: udp
+      max_length: 102400
+      decoding:
+        codec: json
+      host_key: __host
+
+    talos_service_logs:
+      address: 0.0.0.0:6051
+      type: socket
+      mode: udp
+      max_length: 102400
+      decoding:
+        codec: json
+      host_key: __host
+
+  # Transforms
+  transforms:
+    kubernetes_logs_transform:
+      type: remap
+      inputs:
+        - kubernetes_logs
+      source: |
+        .message = .message
+        .container = .kubernetes.container_name
+        .pod = .kubernetes.pod_name
+        .namespace = .kubernetes.pod_namespace
+        .stream = .stream
+        .node = get_env_var("HOSTNAME") ?? "unknown"
+        .log_type = "kubernetes"
+
+    talos_kernel_transform:
+      type: remap
+      inputs:
+        - talos_kernel_logs
+      source: |
+        .node = .__host
+        .facility = .facility ?? "kernel"
+        .log_type = "talos_kernel"
+
+    talos_service_transform:
+      type: remap
+      inputs:
+        - talos_service_logs
+      source: |
+        .node = .__host
+        .service = .service ?? "talos-service"
+        .log_type = "talos_service"
+
+    # Optional: for local stdout logging
+    all_logs_stdout:
+      type: remap
+      inputs:
+        - kubernetes_logs_transform
+        - talos_kernel_transform
+        - talos_service_transform
+      source: |
+        .timestamp = .timestamp ?? now()
+        .source = "agent"
+
+  # Sinks
+  sinks:
+    # Forward to aggregator
+    aggregator:
+      type: vector
+      inputs:
+        - kubernetes_logs_transform
+        - talos_kernel_transform
+        - talos_service_transform
+      address: "vector-aggregator.logging.svc.cluster.local:6000"
+      healthcheck: true
+      compression: gzip
+
+    # Optional: Console output for debugging
+    stdout:
+      type: console
+      inputs:
+        - all_logs_stdout
+      encoding:
+        codec: json
+
+    # Prometheus metrics endpoint
+    prometheus:
+      type: prometheus_exporter
+      inputs:
+        - host_metrics
+      address: 0.0.0.0:9598
+
+# Tolerations to run on all nodes
+tolerations:
+  - operator: Exists
+
+# Service for the agent
+service:
+  ports:
+    - name: prom-exporter
+      port: 9598
+      targetPort: 9598
+      protocol: TCP
+    - name: talos-kernel
+      port: 6050
+      targetPort: 6050
+      protocol: UDP
+    - name: talos-service
+      port: 6051
+      targetPort: 6051
+      protocol: UDP
+
+# Resources for the agent
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vector-aggregator
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'  # Higher sync wave to deploy after agent
+  labels:
+    argocd.argoproj.io/instance: vector-aggregator
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/monitoring/vector-aggregator
+      targetRevision: main
+      ref: repo
+    - repoURL: https://helm.vector.dev
+      chart: vector
+      targetRevision: 0.42.1
+      helm:
+        releaseName: vector-aggregator
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/vector-aggregator/values.yaml
+  destination:
+    name: in-cluster
+    namespace: logging
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
