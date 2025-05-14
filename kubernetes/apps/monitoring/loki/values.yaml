@@ -30,8 +30,7 @@ loki:
     max_label_names_per_series: 64
   ruler:
     enable_api: true
-server:
-  grpc_server_max_recv_msg_size: 8388608
+
 minio:
   enabled: false
 deploymentMode: SingleBinary
