@@ -8,8 +8,8 @@ global:
 
 nameOverride: ""
 fullnameOverride: ""
-tenant: "0"
-argocdReleaseOverride: ""
+tenant: ""
+argocdReleaseOverride: "argo-cd"
 
 victoria-metrics-operator:
   enabled: true
@@ -25,7 +25,7 @@ victoria-metrics-operator:
   operator:
     disable_prometheus_converter: false
     webhook:
-      enabled: false
+      enabled: true
 
 defaultDashboards:
   enabled: true
@@ -321,21 +321,21 @@ vmalert:
 
 vmauth:
   enabled: false
-  annotations: {}
-  spec:
-    port: "8427"
-    unauthorizedUserAccessSpec:
-      disabled: false
-      discover_backend_ips: true
-      url_map:
-        - src_paths:
-            - '/.*'
-          url_prefix:
-            - 'http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481/'
-        - src_paths:
-            - '/.*'
-          url_prefix:
-            - 'http://vminsert-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8480/'
+  # annotations: {}
+  # spec:
+  #   port: "8427"
+  #   unauthorizedUserAccessSpec:
+  #     disabled: false
+  #     discover_backend_ips: true
+  #     url_map:
+  #       - src_paths:
+  #           - '/.*'
+  #         url_prefix:
+  #           - 'http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481/'
+  #       - src_paths:
+  #           - '/.*'
+  #         url_prefix:
+  #           - 'http://vminsert-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8480/'
 
 vmagent:
   enabled: true
@@ -401,6 +401,46 @@ grafana:
       fsGroup: 10001
       runAsUser: 10001
       runAsGroup: 10001
+
+  # Added datasources configuration for VictoriaMetrics
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: VictoriaMetrics
+          type: prometheus
+          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481/
+          access: proxy
+          isDefault: true
+          jsonData:
+            timeInterval: "15s"
+
+  # Added dashboardProviders configuration for data source substitution
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+            foldersFromFilesStructure: true
+
+  # Added configuration for data source variables handling
+  grafana.ini:
+    dashboards:
+      default_home_dashboard_path: /var/lib/grafana/dashboards/default/kubernetes-cluster-dashboard.json
+    auth:
+      disable_login_form: false
+    security:
+      allow_embedding: true
+    variables:
+      datasource_variable_compatibility_mode: true  # This enables transparent variable substitution
+
   sidecar:
     datasources:
       enabled: true
@@ -411,6 +451,11 @@ grafana:
       provider:
         name: default
         orgid: 1
+        # Added options for data source variables replacement
+        options:
+          path: /var/lib/grafana/dashboards
+          datasourceVariablesEnabled: true  # Enable replacing variables
+          datasourceVariableValue: "VictoriaMetrics"  # With this value
       folder: /var/lib/grafana/dashboards
       defaultFolderName: default
       enabled: true
@@ -419,6 +464,7 @@ grafana:
       skipReload: false
       initialDelay: 60
       searchTimeout: 60
+
   readinessProbe:
     httpGet:
       path: /api/health

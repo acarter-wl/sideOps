@@ -33,7 +33,7 @@ loki:
 server:
   grpc_server_max_recv_msg_size: 8388608
 minio:
-  enabled: true
+  enabled: false
 deploymentMode: SingleBinary
 
 singleBinary:
