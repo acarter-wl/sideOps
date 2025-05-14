@@ -36,6 +36,9 @@ victoria-metrics-operator:
   operator:
     # -- By default, operator converts prometheus-operator objects.
     disable_prometheus_converter: false
+    # Add webhook configuration to fix TLS validation issues
+    webhook:
+      enabled: false
 
 defaultDashboards:
   # -- Enable custom dashboards installation
@@ -532,7 +535,6 @@ defaultDatasources:
               name: TraceID
               url: "$${__value.raw}"
               datasourceUid: tempo
-        # Fix: Remove plugins property or make it a proper map
       - name: Tempo
         type: tempo
         access: proxy
@@ -553,7 +555,6 @@ defaultDatasources:
             enabled: true
           lokiSearch:
             datasourceUid: "loki"
-        # Fix: Remove plugins property or make it a proper map
 
   alertmanager:
     perReplica: false
@@ -579,7 +580,7 @@ grafana:
       cpu: 200m
       memory: 512Mi
   persistence:
-    enabled: false # Changed from true to false to address FSGroup bugs with Ceph
+    enabled: false  # Disabled to address FSGroup bugs with Ceph
     storageClassName: "ceph-block"
     size: 30Gi
   sidecar:
@@ -597,7 +598,6 @@ grafana:
       enabled: true
       multicluster: false
   forceDeployDatasource: true
-  # Fix: changed from string to list format
   plugins:
     - victoriametrics-metrics-datasource
     - grafana-loki-datasource
@@ -617,6 +617,26 @@ grafana:
       - secretName: monitoring-wildcard-tls
         hosts:
           - grafana.wakkalabs.com
+  vmScrape:
+    spec:
+      jobLabel: jobLabel
+      namespaceSelector:
+        any: true
+      endpoints:
+        - port: http-metrics
+          scheme: https
+          tlsConfig:
+            ca:
+              secret:
+                name: etcd-client-certs
+                key: etcd-ca.crt
+            cert:
+              secret:
+                name: etcd-client-certs
+                key: etcd-client.crt
+            keySecret:
+              name: etcd-client-certs
+              key: etcd-client.key
 
 prometheus-node-exporter:
   enabled: true
