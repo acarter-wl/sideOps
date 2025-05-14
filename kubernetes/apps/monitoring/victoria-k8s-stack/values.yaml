@@ -38,10 +38,24 @@ victoria-metrics-operator:
     disable_prometheus_converter: false
     # Add webhook configuration to fix TLS validation issues
     webhook:
-      enabled: true
+      enabled: false
     admissionWebhooks:
-      enabled: true
+      enabled: false
       failurePolicy: Ignore
+    # Disable validation for all custom resources to bypass TLS errors
+    disableValidationForFields:
+      - spec.vmrule
+      - spec.vmalert
+      - spec.vmauth
+      - spec.vmuser
+      - spec.vmagent
+      - spec.vmcluster
+      - spec.vmsingle
+      - spec.vmnodescrape
+      - spec.vmpodscrape
+      - spec.vmservicescrape
+      - spec.vmstaticscrapre
+      - spec.vmprobescrape
 
 defaultDashboards:
   # -- Enable custom dashboards installation
