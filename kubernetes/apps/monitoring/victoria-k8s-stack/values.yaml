@@ -545,8 +545,7 @@ grafana:
       enabled: true
       multicluster: false
   forceDeployDatasource: true
-  plugins:
-    - grafana-loki-datasource
+  plugins: ""
   # Manually configure datasources directly in Grafana
   datasources:
     datasources.yaml:
