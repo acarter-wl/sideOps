@@ -595,7 +595,10 @@ grafana:
       enabled: true
       multicluster: false
   forceDeployDatasource: true
-  plugins: "victoriametrics-metrics-datasource,grafana-loki-datasource" # Fixed comma-separated format
+  # Fix: changed from string to list format
+  plugins:
+    - victoriametrics-metrics-datasource
+    - grafana-loki-datasource
   ingress:
     enabled: true
     ingressClassName: "internal"
@@ -612,26 +615,6 @@ grafana:
       - secretName: monitoring-wildcard-tls
         hosts:
           - grafana.wakkalabs.com
-  vmScrape:
-    spec:
-      jobLabel: jobLabel
-      namespaceSelector:
-        any: true
-      endpoints:
-        - port: http-metrics
-          scheme: https
-          tlsConfig:
-            ca:
-              secret:
-                name: etcd-client-certs
-                key: etcd-ca.crt
-            cert:
-              secret:
-                name: etcd-client-certs
-                key: etcd-client.crt
-            keySecret:
-              name: etcd-client-certs
-              key: etcd-client.key
 
 prometheus-node-exporter:
   enabled: true
