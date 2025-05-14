@@ -95,17 +95,17 @@ customConfig:
         }
 
         # Attempt to derive a more specific service from .msg content
-        if exists(.msg) && is_string(.msg) {
-          msg_content = .msg
-          if match!(msg_content, /machined/) {
+        if exists(.msg) {
+          msg_content = to_string(.msg) ?? "" # Ensure .msg is treated as a string
+          if contains(msg_content, "machined") {
             resolved_service = "machined"
-          } else if match!(msg_content, /containerd/) {
+          } else if contains(msg_content, "containerd") {
             resolved_service = "containerd"
-          } else if match!(msg_content, /kubelet/) {
+          } else if contains(msg_content, "kubelet") {
             resolved_service = "kubelet"
-          } else if match!(msg_content, /apid/) {
+          } else if contains(msg_content, "apid") {
             resolved_service = "apid"
-          } else if match!(msg_content, /trustd/) {
+          } else if contains(msg_content, "trustd") {
             resolved_service = "trustd"
           }
           # If .msg doesn't match known patterns, resolved_service retains its previous value
