@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
 - ns.yaml
 - ./config
-- proxyclass.yaml
 - proxygroup,yaml
 - loadbalancer.yaml
 - advertisement.yaml
