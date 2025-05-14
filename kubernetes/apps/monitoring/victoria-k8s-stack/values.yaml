@@ -548,9 +548,9 @@ defaultDatasources:
   victoriametrics:
     enabled: true
   loki:
-    enabled: true
+    enabled: false
   alertmanager:
-    enabled: true
+    enabled: false
   extra: []
 
 # -- Grafana dependency chart configuration
