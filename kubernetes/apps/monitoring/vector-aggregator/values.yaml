@@ -90,6 +90,10 @@ customConfig:
         if !exists(.service) {
           .service = "unknown"
         }
+        # Ensure component exists for labeling
+        if !exists(.component) {
+          .component = .service ?? "unknown_service_component"
+        }
 
         # Process message content if available
         if exists(.msg) {
@@ -118,14 +122,9 @@ customConfig:
 
         # Default log type
         .log_type = "unmatched"
-
-        # Try to categorize based on content
-        if exists(.msg) {
-          msg = to_string(.msg) ?? ""
-          if contains(msg, "machined") {
-            .log_type = "talos_service"
-            .service = "machined"
-          }
+        # Ensure component exists for labeling
+        if !exists(.component) {
+          .component = "unknown_unmatched_component"
         }
 
         if exists(.component) && .component == "dns-resolve-cache" {
