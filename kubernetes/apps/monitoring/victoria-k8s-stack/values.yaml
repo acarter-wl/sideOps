@@ -39,20 +39,6 @@ victoria-metrics-operator:
     # Add webhook configuration to fix TLS validation issues
     webhook:
       enabled: false
-    # Disable validation for all custom resources to bypass TLS errors
-    disableValidationForFields:
-      - spec.vmrule
-      - spec.vmalert
-      - spec.vmauth
-      - spec.vmuser
-      - spec.vmagent
-      - spec.vmcluster
-      - spec.vmsingle
-      - spec.vmnodescrape
-      - spec.vmpodscrape
-      - spec.vmservicescrape
-      - spec.vmstaticscrapre
-      - spec.vmprobescrape
 
 
 defaultDashboards:
@@ -338,11 +324,6 @@ vmcluster:
                     operator: In
                     values: [ "vmstorage" ]
               topologyKey: "kubernetes.io/hostname"
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
       extraArgs:
         dedup.minScrapeInterval: "15s"
         search.maxUniqueTimeseries: "300000000"
@@ -368,11 +349,6 @@ vmcluster:
       replicaCount: 2
       cacheMountPath: /select-cache
       extraArgs: {}
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
       resources:
         limits:
           cpu: "2"
@@ -394,11 +370,6 @@ vmcluster:
       port: "8480"
       replicaCount: 2
       extraArgs: {}
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
       resources:
         limits:
           cpu: "2"
@@ -570,16 +541,16 @@ vmagent:
         hosts:
           - vmagent.wakkalabs.com
 
-# Disable defaultDatasources entirely to avoid plugin format issues
+# Use default datasources configuration
 defaultDatasources:
   grafanaOperator:
     enabled: false
   victoriametrics:
     enabled: true
   loki:
-    enabled: false
+    enabled: true
   alertmanager:
-    enabled: false
+    enabled: true
   extra: []
 
 # -- Grafana dependency chart configuration
@@ -594,6 +565,15 @@ grafana:
     requests:
       cpu: 200m
       memory: 512Mi
+    defaultDatasources:
+      grafanaOperator:
+        enabled: false
+      victoriametrics:
+        enabled: true
+      loki:
+        enabled: true
+      alertmanager:
+        enabled: true
   persistence:
     enabled: true
     storageClassName: "ceph-block"
@@ -636,72 +616,7 @@ grafana:
     failureThreshold: 3
     successThreshold: 1
   forceDeployDatasource: true
-  # Configure datasources directly in Grafana
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: VictoriaMetrics
-          type: prometheus
-          access: proxy
-          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481
-          isDefault: true
-          uid: victoriametrics
-          jsonData:
-            timeInterval: 15s
-            exemplarTraceIdDestinations:
-              - name: traceID
-                datasourceUid: tempo
-        - name: VictoriaMetrics-DS
-          type: victoriametrics-datasource
-          access: proxy
-          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481
-          isDefault: false
-          uid: victoriametrics-ds
-        - name: Loki
-          type: loki
-          access: proxy
-          url: http://loki-gateway.monitoring.svc.cluster.local:80
-          isDefault: false
-          uid: loki
-          jsonData:
-            maxLines: 1000
-            timeout: 60
-            derivedFields:
-              - datasourceName: Tempo
-                matcherRegex: "traceID=(\\w+)"
-                name: TraceID
-                url: "$${__value.raw}"
-                datasourceUid: tempo
-        - name: Tempo
-          type: tempo
-          access: proxy
-          url: http://tempo.monitoring.svc.cluster.local:3100
-          isDefault: false
-          uid: tempo
-          jsonData:
-            httpMethod: GET
-            tracesToLogsV2:
-              datasourceUid: "loki"
-              spanStartTimeShift: "-1h"
-              spanEndTimeShift: "1h"
-              tags: [ "instance", "pod", "namespace" ]
-              filterByTraceID: true
-            serviceMap:
-              datasourceUid: "victoriametrics"
-            nodeGraph:
-              enabled: true
-            lokiSearch:
-              datasourceUid: "loki"
-        - name: Alertmanager
-          type: alertmanager
-          access: proxy
-          url: http://victoria-metrics-k8s-stack-alertmanager.monitoring.svc.cluster.local:9093
-          isDefault: false
-          uid: alertmanager
-          jsonData:
-            implementation: prometheus
-            handleGrafanaManagedAlerts: true
+  # Using default datasources configuration instead of manual configuration
   ingress:
     enabled: true
     ingressClassName: "internal"
