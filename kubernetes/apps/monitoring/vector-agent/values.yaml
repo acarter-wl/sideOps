@@ -128,10 +128,13 @@ customConfig:
       encoding:
         codec: json
 
+
+  # ... other sinks ...
     prometheus:
       type: prometheus_exporter
-      inputs: []
-      address: 0.0.0.0:9598
+      inputs:
+        - internal_metrics
+      address: "0.0.0.0:9598"
 
 # Tolerations to run on all nodes
 tolerations:
