@@ -51,7 +51,7 @@ defaultDashboards:
   annotations: {}
   grafanaOperator:
     # -- Create dashboards as CRDs (requires grafana-operator to be installed)
-    enabled: true
+    enabled: false
     spec:
       instanceSelector:
         matchLabels:
@@ -59,12 +59,59 @@ defaultDashboards:
       allowCrossNamespaceImport: true
   # -- Create dashboards as ConfigMap despite dependency it requires is not installed
   dashboards:
+    # VictoriaMetrics dashboards
     victoriametrics-vmalert:
       enabled: true
     victoriametrics-operator:
       enabled: true
-    # -- In ArgoCD using client-side apply this dashboard reaches annotations size limit
+    victoriametrics-vminsert:
+      enabled: true
+    victoriametrics-vmselect:
+      enabled: true
+    victoriametrics-vmsingle:
+      enabled: true
+    victoriametrics-vmstorage:
+      enabled: true
+    # Kubernetes dashboards
     node-exporter-full:
+      enabled: true
+    kubernetes-cluster-monitoring:
+      enabled: true
+    kubernetes-cluster:
+      enabled: true
+    kubernetes-pods:
+      enabled: true
+    kubernetes-nodes:
+      enabled: true
+    kubernetes-api-server:
+      enabled: true
+    kubernetes-coredns:
+      enabled: true
+    kubernetes-kubelet:
+      enabled: true
+    kubernetes-namespace-by-pod:
+      enabled: true
+    kubernetes-namespace-by-workload:
+      enabled: true
+    kubernetes-persistent-volumes:
+      enabled: true
+    kubernetes-compute-resources-cluster:
+      enabled: true
+    kubernetes-compute-resources-namespace:
+      enabled: true
+    kubernetes-compute-resources-node:
+      enabled: true
+    kubernetes-compute-resources-pod:
+      enabled: true
+    kubernetes-compute-resources-workload:
+      enabled: true
+    kubernetes-networking-cluster:
+      enabled: true
+    kubernetes-networking-namespace:
+      enabled: true
+    kubernetes-networking-pod:
+      enabled: true
+    kubernetes-networking-workload:
       enabled: true
 
 # -- Create default rules for monitoring the cluster
@@ -281,8 +328,9 @@ vmcluster:
               topologyKey: "kubernetes.io/hostname"
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       extraArgs:
         dedup.minScrapeInterval: "15s"
         search.maxUniqueTimeseries: "300000000"
@@ -308,6 +356,11 @@ vmcluster:
       replicaCount: 2
       cacheMountPath: /select-cache
       extraArgs: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       storage:
         volumeClaimTemplate:
           spec:
@@ -491,6 +544,8 @@ defaultDatasources:
   grafanaOperator:
     enabled: false
   victoriametrics:
+    enabled: true
+  loki:
     enabled: false
   alertmanager:
     enabled: false
@@ -501,8 +556,6 @@ grafana:
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
-  image:
-    tag: "10.2.3"
   resources:
     limits:
       cpu: 500m
@@ -524,20 +577,19 @@ grafana:
       runAsGroup: 10001
   sidecar:
     datasources:
-      enabled: false
-      initDatasources: false
+      enabled: true
+      initDatasources: true
       label: grafana_datasource
       searchNamespace: ALL
     dashboards:
       provider:
         name: default
-        orgid: 1
+        orgid: wakkalabs
       folder: /var/lib/grafana/dashboards
       defaultFolderName: default
-      enabled: false
+      enabled: true
       multicluster: false
   forceDeployDatasource: true
-  plugins: ""
   # Configure datasources directly in Grafana
   datasources:
     datasources.yaml:
@@ -546,7 +598,7 @@ grafana:
         - name: VictoriaMetrics
           type: prometheus
           access: proxy
-          url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
+          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481
           isDefault: true
           uid: victoriametrics
           jsonData:
@@ -557,7 +609,7 @@ grafana:
         - name: VictoriaMetrics-DS
           type: victoriametrics-datasource
           access: proxy
-          url: http://vm-victoria-metrics-k8s-stack-vmselect.monitoring.svc.cluster.local:8481
+          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481
           isDefault: false
           uid: victoriametrics-ds
         - name: Loki
