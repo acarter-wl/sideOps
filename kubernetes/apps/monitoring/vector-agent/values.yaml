@@ -45,7 +45,7 @@ customConfig:
       inputs: [talos_kernel_logs]
       source: |
         .node = .__host
-        .facility = exists(.facility) ? .facility : "kernel"
+        .facility = .facility ?? "kernel"
         .log_type = "talos_kernel"
         .timestamp = now()
 
@@ -54,7 +54,7 @@ customConfig:
       inputs: [talos_service_logs]
       source: |
         .node = .__host
-        .service = exists(.service) ? .service : "talos-service"
+        .service = .service ?? "talos-service"
         if exists(.msg) {
           msg = to_string(.msg) ?? ""
           if contains(msg, "machined") {
