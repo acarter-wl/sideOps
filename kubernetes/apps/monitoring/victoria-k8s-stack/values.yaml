@@ -620,6 +620,21 @@ grafana:
       defaultFolderName: default
       enabled: true
       multicluster: false
+      folderAnnotation: grafana_folder
+      # Add retry settings to fix connection issues
+      skipReload: false
+      initialDelay: 60
+      searchTimeout: 60
+  # Add readiness probe to ensure Grafana is ready before sidecar tries to connect
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    timeoutSeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
   forceDeployDatasource: true
   # Configure datasources directly in Grafana
   datasources:
