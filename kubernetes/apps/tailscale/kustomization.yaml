@@ -3,8 +3,10 @@ kind: Kustomization
 resources:
 - ns.yaml
 - ./config
-- operator-rbac.yaml
+- proxyclass.yaml
+- proxygroup,yaml
 - loadbalancer.yaml
 - advertisement.yaml
 - ingressclass.yaml
 - metrics.yaml
+- deployment.yaml
