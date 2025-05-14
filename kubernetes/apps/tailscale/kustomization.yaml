@@ -5,6 +5,5 @@ resources:
 - ./config
 - loadbalancer.yaml
 - advertisement.yaml
-- ingressclass.yaml
 - metrics.yaml
 - deployment.yaml
