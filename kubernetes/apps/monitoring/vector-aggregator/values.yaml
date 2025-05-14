@@ -1,3 +1,4 @@
+# kubernetes/apps/monitoring/vector-aggregator/values.yaml
 role: "Stateless-Aggregator"
 
 customConfig:
@@ -16,24 +17,25 @@ customConfig:
 
   # Transforms for aggregator
   transforms:
-    # Route logs by type
+    # Route logs by type - Fixed syntax for conditions
     route_logs:
       type: route
       inputs:
         - vector_in
       route:
-        kubernetes: .log_type == "kubernetes"
-        talos_kernel: .log_type == "talos_kernel"
-        talos_service: .log_type == "talos_service"
-        unmatched: true  # Catch all other logs
-
-    unmatched_logs:
-      type: remap
-      inputs:
-        - route_logs.unmatched
-      source: |
-        .timestamp = now()
-        .log_type = "unmatched"
+        # Fix the routing conditions with proper syntax
+        kubernetes:
+          type: check_fields
+          "message.log_type": "kubernetes"
+        talos_kernel:
+          type: check_fields
+          "message.log_type": "talos_kernel"
+        talos_service:
+          type: check_fields
+          "message.log_type": "talos_service"
+        # Add a catch-all route for unmatched logs
+        unmatched:
+          type: always
 
     # Final processing for each log type
     kubernetes_final:
@@ -60,6 +62,15 @@ customConfig:
         # Final enrichment for service logs
         .timestamp = now()
 
+    # Added for unmatched logs
+    unmatched_logs:
+      type: remap
+      inputs:
+        - route_logs.unmatched
+      source: |
+        .timestamp = now()
+        .log_type = "unmatched"
+
     # Optional: Consolidated logs for stdout
     all_logs_agg:
       type: remap
@@ -67,6 +78,7 @@ customConfig:
         - kubernetes_final
         - talos_kernel_final
         - talos_service_final
+        - unmatched_logs
       source: |
         .timestamp = now()
         .source = "aggregator"
@@ -123,6 +135,21 @@ customConfig:
         hostname: "{{`{{ node }}`}}"
         service: "{{`{{ service }}`}}"
         log_type: "talos_service"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    # Added for unmatched logs
+    loki_unmatched:
+      type: loki
+      inputs:
+        - unmatched_logs
+      endpoint: "http://loki-gateway"
+      encoding:
+        codec: json
+      labels:
+        log_type: "unmatched"
       batch:
         max_bytes: 1048576
         timeout_secs: 5
