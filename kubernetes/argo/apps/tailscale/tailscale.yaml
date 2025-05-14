@@ -1,38 +1,20 @@
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: tailscale-operator
-#   namespace: argo-system # Changed from 'argocd'
-#   annotations:
-#     argocd.argoproj.io/sync-wave: '1' # Added sync-wave annotation
-# spec:
-#   project: kubernetes # Changed from 'default'
-#   sources:
-#   # Source for the Git repository containing configuration (values file)
-#   - repoURL: "https://github.com/acarter-wl/sideops.git" # Your repo URL
-#     path: kubernetes/apps/tailscale # Path to the directory containing the values file
-#     targetRevision: main # Or your desired branch/tag
-#     ref: repo # Reference name for this source
-#   # Source for the Helm chart
-#   # - repoURL: https://pkgs.tailscale.com/helmcharts
-#   #   chart: tailscale-operator
-#   #   targetRevision: v1.82.0
-#   #   helm:
-#   #     values: ""
-#   #     oauthSecretVolume:
-#   #       secret:
-#   #         secretName: operator-oauth
-#   #     apiServerProxyConfig:
-#   #       mode: noauth
-#   destination:
-#     name: in-cluster # Changed from server URL
-#     namespace: tailscale # Kept the target namespace
-#   syncPolicy:
-#     automated:
-#       allowEmpty: true # Added allowEmpty
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#     # Added syncOptions
-#     - CreateNamespace=true
-#     - ServerSideApply=true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: 'https://github.com/acarter-wl/sideops.git'
+    path: 'kubernetes/apps/tailscale'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: 'tailscale'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

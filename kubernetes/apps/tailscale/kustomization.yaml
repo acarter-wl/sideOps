@@ -2,10 +2,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ns.yaml
-- external-secret-oauth.yaml
+- ./config
+- pvc.yaml
+- proxyclass.yaml
+- proxygroup.yaml
+- proxy-rbac.yaml
 - connector.yaml
 - metrics.yaml
-- egress.yaml
-# - rbac.yaml
-- pvc.yaml
-- tailscale-admin-ssh.yaml
+- tailscale-subnet.yaml
+- ingressclass.yaml
