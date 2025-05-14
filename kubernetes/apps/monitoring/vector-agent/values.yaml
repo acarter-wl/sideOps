@@ -36,6 +36,7 @@ customConfig:
         .container = .kubernetes.container_name
         .pod = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
+        # Use the null coalescing operator (??) instead of ternary
         .node = get_env_var("HOSTNAME") ?? "unknown"
         .log_type = "kubernetes"
         .timestamp = now()
@@ -45,6 +46,7 @@ customConfig:
       inputs: [talos_kernel_logs]
       source: |
         .node = .__host
+        # Use the null coalescing operator (??) instead of ternary
         .facility = .facility ?? "kernel"
         .log_type = "talos_kernel"
         .timestamp = now()
@@ -54,6 +56,7 @@ customConfig:
       inputs: [talos_service_logs]
       source: |
         .node = .__host
+        # Use the null coalescing operator (??) instead of ternary
         .service = .service ?? "talos-service"
         if exists(.msg) {
           msg = to_string(.msg) ?? ""
@@ -131,8 +134,7 @@ customConfig:
       encoding:
         codec: json
 
-
-    # ... other sinks ...
+    # Prometheus metrics for Vector itself
     prometheus:
       type: prometheus_exporter
       inputs:
