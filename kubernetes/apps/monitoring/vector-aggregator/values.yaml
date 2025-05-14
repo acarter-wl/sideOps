@@ -66,9 +66,12 @@ customConfig:
             .service = "machined"
             parts = split!(msg_str, "[")
             if length(parts) >= 2 {
-              api_part = split!(parts[1], "]")[0]
-              if length(api_part) > 0 {
-                .api_call = api_part
+              api_part_array = split!(parts[1], "]")
+              if length(api_part_array) > 0 {
+                api_part = api_part_array[0]
+                if length(api_part) > 0 {
+                  .api_call = api_part
+                }
               }
             }
           }
