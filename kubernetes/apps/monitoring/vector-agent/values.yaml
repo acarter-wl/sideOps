@@ -114,7 +114,7 @@ customConfig:
         - kubernetes_logs_transform
         - talos_kernel_transform
         - talos_service_transform
-      address: "http://vector-aggregator.monitoring:6000"
+      address: "http://vector-aggregator:6000"
       healthcheck: true
       compression: true
 
