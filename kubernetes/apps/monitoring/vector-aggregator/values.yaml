@@ -135,62 +135,77 @@ customConfig:
 
   # Sinks
   sinks:
-    # Kubernetes logs to Loki
+    # Loki sinks for different log types
     loki_kubernetes:
       type: loki
       inputs:
         - kubernetes_final
-      endpoint: "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      labels:
+        app: '{{ .pod_labels.app }}'
+        "app.kubernetes.io/component": '{{ .pod_labels."app.kubernetes.io/component" }}'
+        "app.kubernetes.io/instance": '{{ .pod_labels."app.kubernetes.io/instance" }}'
+        "app.kubernetes.io/name": '{{ .pod_labels."app.kubernetes.io/name" }}'
+        "app.kubernetes.io/part-of": '{{ .pod_labels."app.kubernetes.io/part-of" }}'
+        "app.kubernetes.io/version": '{{ .pod_labels."app.kubernetes.io/version" }}'
+        cluster: '{{ .kubernetes.cluster_name }}'
+        container: '{{ .container }}'
+        k8s_app: '{{ .kubernetes.pod_labels.app }}'
+        namespace: '{{ .namespace }}'
+        node: '{{ .node }}'
+        pod: '{{ .pod }}'
+        stream: '{{ .stream }}'
+        vector_source: 'kubernetes'
       encoding:
         codec: json
-      labels:
-        pod: "{{`{{ pod }}`}}"
-        namespace: "{{`{{ namespace }}`}}"
-        container: "{{`{{ container }}`}}"
-        node: "{{`{{ node }}`}}"
-        log_type: "kubernetes"
       batch:
-        max_bytes: 2097152
-        timeout_secs: 5
-      out_of_order_action: rewrite_timestamp
+        max_bytes: 1048576 # 1MB
+        timeout_secs: 1
+      out_of_order_action: "accept"
+      remove_label_fields: true
+      remove_timestamp: true
 
-    # Talos kernel logs to Loki
     loki_talos_kernel:
       type: loki
       inputs:
         - talos_kernel_final
-      endpoint: "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      labels:
+        cluster: '{{ .kubernetes.cluster_name }}'
+        facility: '{{ .facility }}'
+        log_type: '{{ .log_type }}'
+        node: '{{ .node }}'
+        vector_source: 'talos_kernel'
       encoding:
         codec: json
-        except_fields:
-          - __host
-      labels:
-        hostname: "{{`{{ node }}`}}"
-        facility: "{{`{{ facility }}`}}"
-        log_type: "talos_kernel"
       batch:
-        max_bytes: 1048576
-      out_of_order_action: rewrite_timestamp
+        max_bytes: 1048576 # 1MB
+        timeout_secs: 1
+      out_of_order_action: "accept"
+      remove_label_fields: true
+      remove_timestamp: true
 
-    # Talos service logs to Loki
     loki_talos_service:
       type: loki
       inputs:
         - talos_service_final
         - unmatched_logs
-      endpoint: "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      labels:
+        cluster: '{{ .kubernetes.cluster_name }}'
+        component: '{{ .component }}'
+        log_type: '{{ .log_type }}'
+        node: '{{ .node }}'
+        service: '{{ .service }}'
+        vector_source: 'talos_service'
       encoding:
         codec: json
-        except_fields:
-          - __host
-      labels:
-        hostname: "{{`{{ node }}`}}"
-        service: "{{`{{ service }}`}}"
-        component: "{{`{{ component }}`}}"
-        log_type: "{{`{{ log_type }}`}}"
       batch:
-        max_bytes: 400000
-      out_of_order_action: rewrite_timestamp
+        max_bytes: 1048576 # 1MB
+        timeout_secs: 1
+      out_of_order_action: "accept"
+      remove_label_fields: true
+      remove_timestamp: true
 
     # Prometheus metrics for Vector itself
     prometheus:
