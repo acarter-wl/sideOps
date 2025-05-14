@@ -14,7 +14,7 @@ spec:
       ref: repo
     - repoURL: https://victoriametrics.github.io/helm-charts/
       chart: victoria-metrics-k8s-stack
-      targetRevision: 0.46.0
+      targetRevision: 0.47.0
       helm:
         releaseName: victoria-metrics-k8s-stack
         valueFiles:
@@ -25,20 +25,8 @@ spec:
   syncPolicy:
     syncOptions:
       - ServerSideApply=true
-      - RespectIgnoreDifferences=true
     automated:
       allowEmpty: true
       prune: true
       selfHeal: true
-  ignoreDifferences:
-    - group: ""
-      kind: Secret
-      name: etcd-client-certs
-      namespace: monitoring
-      jsonPointers:
-        - /data
-    - group: admissionregistration.k8s.io
-      kind: ValidatingWebhookConfiguration
-      name: etcd-client-certs
-      jqPathExpressions:
-        - '.webhooks[]?.clientConfig.caBundle'
+
