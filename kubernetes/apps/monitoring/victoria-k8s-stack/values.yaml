@@ -1,27 +1,16 @@
 global:
-  # -- Cluster label to use for dashboards and rules
   clusterLabel: cluster
-  # -- Global license configuration
   license:
     key: ""
     keyRef: {}
-      # name: secret-license
-      # key: license
   cluster:
-    # -- K8s cluster domain suffix, uses for building storage pods' FQDN. Details are [here](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)
     dnsDomain: cluster.local
 
-# -- Override chart name
 nameOverride: ""
-# -- Resource full name override
 fullnameOverride: ""
-# -- Tenant to use for Grafana datasources and remote write
 tenant: "0"
-# -- If this chart is used in "Argocd" with "releaseName" field then
-# VMServiceScrapes couldn't select the proper services.
 argocdReleaseOverride: ""
 
-# -- VictoriaMetrics Operator dependency chart configuration
 victoria-metrics-operator:
   enabled: true
   crds:
@@ -34,273 +23,128 @@ victoria-metrics-operator:
   serviceMonitor:
     enabled: true
   operator:
-    # -- By default, operator converts prometheus-operator objects.
     disable_prometheus_converter: false
-    # Add webhook configuration to fix TLS validation issues
     webhook:
       enabled: false
 
-
 defaultDashboards:
-  # -- Enable custom dashboards installation
   enabled: true
   defaultTimezone: utc
   labels: {}
   annotations: {}
   grafanaOperator:
-    # -- Create dashboards as CRDs (requires grafana-operator to be installed)
     enabled: false
     spec:
       instanceSelector:
         matchLabels:
           dashboards: grafana
       allowCrossNamespaceImport: true
-  # -- Create dashboards as ConfigMap despite dependency it requires is not installed
   dashboards:
-    # VictoriaMetrics dashboards
-    victoriametrics-vmalert:
-      enabled: true
-    victoriametrics-operator:
-      enabled: true
-    victoriametrics-vminsert:
-      enabled: true
-    victoriametrics-vmselect:
-      enabled: true
-    victoriametrics-vmsingle:
-      enabled: true
-    victoriametrics-vmstorage:
-      enabled: true
-    # Kubernetes dashboards
-    node-exporter-full:
-      enabled: true
-    kubernetes-cluster-monitoring:
-      enabled: true
-    kubernetes-cluster:
-      enabled: true
-    kubernetes-pods:
-      enabled: true
-    kubernetes-nodes:
-      enabled: true
-    kubernetes-api-server:
-      enabled: true
-    kubernetes-coredns:
-      enabled: true
-    kubernetes-kubelet:
-      enabled: true
-    kubernetes-namespace-by-pod:
-      enabled: true
-    kubernetes-namespace-by-workload:
-      enabled: true
-    kubernetes-persistent-volumes:
-      enabled: true
-    kubernetes-compute-resources-cluster:
-      enabled: true
-    kubernetes-compute-resources-namespace:
-      enabled: true
-    kubernetes-compute-resources-node:
-      enabled: true
-    kubernetes-compute-resources-pod:
-      enabled: true
-    kubernetes-compute-resources-workload:
-      enabled: true
-    kubernetes-networking-cluster:
-      enabled: true
-    kubernetes-networking-namespace:
-      enabled: true
-    kubernetes-networking-pod:
-      enabled: true
-    kubernetes-networking-workload:
-      enabled: true
+    victoriametrics-vmalert: true
+    victoriametrics-operator: true
+    victoriametrics-vminsert: true
+    victoriametrics-vmselect: true
+    victoriametrics-vmsingle: true
+    victoriametrics-vmstorage: true
+    node-exporter-full: true
+    kubernetes-cluster-monitoring: true
+    kubernetes-cluster: true
+    kubernetes-pods: true
+    kubernetes-nodes: true
+    kubernetes-api-server: true
+    kubernetes-coredns: true
+    kubernetes-kubelet: true
+    kubernetes-namespace-by-pod: true
+    kubernetes-namespace-by-workload: true
+    kubernetes-persistent-volumes: true
+    kubernetes-compute-resources-cluster: true
+    kubernetes-compute-resources-namespace: true
+    kubernetes-compute-resources-node: true
+    kubernetes-compute-resources-pod: true
+    kubernetes-compute-resources-workload: true
+    kubernetes-networking-cluster: true
+    kubernetes-networking-namespace: true
+    kubernetes-networking-pod: true
+    kubernetes-networking-workload: true
 
-# -- Create default rules for monitoring the cluster
 defaultRules:
-  # -- Labels, which are used for grouping results of the queries
-  additionalGroupByLabels: []
   create: true
-
-  # -- Common properties for VMRule groups
+  additionalGroupByLabels: []
   group:
     spec:
-      # -- Optional HTTP URL parameters added to each rule request
       params: {}
-
-  # -- Common properties for all VMRules
   rule:
     spec:
-      # -- Additional labels for all VMRules
       labels: {}
-      # -- Additional annotations for all VMRules
       annotations: {}
-
-  # -- Common properties for VMRules alerts
   alerting:
     spec:
-      # -- Additional labels for VMRule alerts
       labels: {}
-      # -- Additional annotations for VMRule alerts
       annotations: {}
-
-  # -- Common properties for VMRules recording rules
   recording:
     spec:
-      # -- Additional labels for VMRule recording rules
       labels: {}
-      # -- Additional annotations for VMRule recording rules
       annotations: {}
-
-  # -- Per rule properties
   rules: {}
-  # -- Rule group properties
   groups:
-    etcd:
-      create: true
-      rules: {}
-    general:
-      create: true
-      rules: {}
-    k8sContainerCpuLimits:
-      create: true
-      rules: {}
-    k8sContainerCpuRequests:
-      create: true
-      rules: {}
-    k8sContainerCpuUsageSecondsTotal:
-      create: true
-      rules: {}
-    k8sContainerMemoryLimits:
-      create: true
-      rules: {}
-    k8sContainerMemoryRequests:
-      create: true
-      rules: {}
-    k8sContainerMemoryRss:
-      create: true
-      rules: {}
-    k8sContainerMemoryCache:
-      create: true
-      rules: {}
-    k8sContainerMemoryWorkingSetBytes:
-      create: true
-      rules: {}
-    k8sContainerMemorySwap:
-      create: true
-      rules: {}
-    k8sPodOwner:
-      create: true
-      rules: {}
-    k8sContainerResource:
-      create: true
-      rules: {}
-    kubeApiserver:
-      create: true
-      rules: {}
-    kubeApiserverAvailability:
-      create: true
-      rules: {}
-    kubeApiserverBurnrate:
-      create: true
-      rules: {}
-    kubeApiserverHistogram:
-      create: true
-      rules: {}
-    kubeApiserverSlos:
-      create: true
-      rules: {}
-    kubelet:
-      create: true
-      rules: {}
-    kubePrometheusGeneral:
-      create: true
-      rules: {}
-    kubePrometheusNodeRecording:
-      create: true
-      rules: {}
-    kubernetesApps:
-      create: true
-      rules: {}
-      targetNamespace: ".*"
-    kubernetesResources:
-      create: true
-      rules: {}
-    kubernetesStorage:
-      create: true
-      rules: {}
-      targetNamespace: ".*"
-    kubernetesSystem:
-      create: true
-      rules: {}
-    kubernetesSystemKubelet:
-      create: true
-      rules: {}
-    kubernetesSystemApiserver:
-      create: true
-      rules: {}
-    kubernetesSystemControllerManager:
-      create: true
-      rules: {}
-    kubeScheduler:
-      create: true
-      rules: {}
-    kubernetesSystemScheduler:
-      create: true
-      rules: {}
-    kubeStateMetrics:
-      create: true
-      rules: {}
-    nodeNetwork:
-      create: true
-      rules: {}
-    node:
-      create: true
-      rules: {}
-    vmagent:
-      create: true
-      rules: {}
-    vmsingle:
-      create: true
-      rules: {}
-    vmcluster:
-      create: true
-      rules: {}
-    vmHealth:
-      create: true
-      rules: {}
-    vmoperator:
-      create: true
-      rules: {}
-    alertmanager:
-      create: true
-      rules: {}
-
-  # -- Runbook url prefix for default rules
+    etcd: {create: true, rules: {}}
+    general: {create: true, rules: {}}
+    k8sContainerCpuLimits: {create: true, rules: {}}
+    k8sContainerCpuRequests: {create: true, rules: {}}
+    k8sContainerCpuUsageSecondsTotal: {create: true, rules: {}}
+    k8sContainerMemoryLimits: {create: true, rules: {}}
+    k8sContainerMemoryRequests: {create: true, rules: {}}
+    k8sContainerMemoryRss: {create: true, rules: {}}
+    k8sContainerMemoryCache: {create: true, rules: {}}
+    k8sContainerMemoryWorkingSetBytes: {create: true, rules: {}}
+    k8sContainerMemorySwap: {create: true, rules: {}}
+    k8sPodOwner: {create: true, rules: {}}
+    k8sContainerResource: {create: true, rules: {}}
+    kubeApiserver: {create: true, rules: {}}
+    kubeApiserverAvailability: {create: true, rules: {}}
+    kubeApiserverBurnrate: {create: true, rules: {}}
+    kubeApiserverHistogram: {create: true, rules: {}}
+    kubeApiserverSlos: {create: true, rules: {}}
+    kubelet: {create: true, rules: {}}
+    kubePrometheusGeneral: {create: true, rules: {}}
+    kubePrometheusNodeRecording: {create: true, rules: {}}
+    kubernetesApps: {create: true, rules: {}, targetNamespace: ".*"}
+    kubernetesResources: {create: true, rules: {}}
+    kubernetesStorage: {create: true, rules: {}, targetNamespace: ".*"}
+    kubernetesSystem: {create: true, rules: {}}
+    kubernetesSystemKubelet: {create: true, rules: {}}
+    kubernetesSystemApiserver: {create: true, rules: {}}
+    kubernetesSystemControllerManager: {create: true, rules: {}}
+    kubeScheduler: {create: true, rules: {}}
+    kubernetesSystemScheduler: {create: true, rules: {}}
+    kubeStateMetrics: {create: true, rules: {}}
+    nodeNetwork: {create: true, rules: {}}
+    node: {create: true, rules: {}}
+    vmagent: {create: true, rules: {}}
+    vmsingle: {create: true, rules: {}}
+    vmcluster: {create: true, rules: {}}
+    vmHealth: {create: true, rules: {}}
+    vmoperator: {create: true, rules: {}}
+    alertmanager: {create: true, rules: {}}
   runbookUrl: https://runbooks.prometheus-operator.dev/runbooks
-
-  # -- Labels for default rules
   labels: {}
-  # -- Annotations for default rules
   annotations: {}
 
-# -- Provide custom recording or alerting rules to be deployed into the cluster.
 additionalVictoriaMetricsMap: {}
 
 external:
   grafana:
-    # -- External Grafana host
     host: ""
-    # -- External Grafana datasource name
     datasource: VictoriaMetrics
-  # -- External VM read and write URLs
   vm:
     read:
       url: ""
     write:
       url: ""
 
-# Configures VM deployment mode
 vmsingle:
   enabled: false
 
-# Configures cluster mode
 vmcluster:
   enabled: true
   annotations:
@@ -309,8 +153,6 @@ vmcluster:
   spec:
     retentionPeriod: "90d"
     replicationFactor: 2
-
-    # STORAGE NODES - Core persistent storage
     vmstorage:
       replicaCount: 3
       storageDataPath: /vm-data
@@ -377,7 +219,6 @@ vmcluster:
         requests:
           cpu: "500m"
           memory: 512Mi
-
   ingress:
     storage:
       enabled: true
@@ -405,7 +246,7 @@ vmcluster:
         component: select
       ingressClassName: "internal"
       pathType: Prefix
-      path: '{{ dig "extraArgs" "http.pathPrefix" "/" .Values.vmcluster.spec.vmselect }}'
+      path: "/"
       hosts:
         - vmselect.wakkalabs.com
       extraPaths: []
@@ -422,7 +263,7 @@ vmcluster:
         component: insert
       ingressClassName: "internal"
       pathType: Prefix
-      path: '{{ dig "extraArgs" "http.pathPrefix" "/" .Values.vmcluster.spec.vminsert }}'
+      path: "/"
       hosts:
         - vminsert.wakkalabs.com
       extraPaths: []
@@ -456,7 +297,7 @@ alertmanager:
       kubernetes.io/cluster-issuer: "letsencrypt-production"
     labels: {}
     ingressClassName: "internal"
-    path: '{{ .Values.alertmanager.spec.routePrefix | default "/" }}'
+    path: "/"
     pathType: Prefix
     hosts:
       - alertmanager.wakkalabs.com
@@ -505,13 +346,13 @@ vmauth:
       discover_backend_ips: true
       url_map:
         - src_paths:
-            - '{{ .vm.read.path }}/.*'
+            - '/.*'
           url_prefix:
-            - '{{ urlJoin (omit .vm.read "path") }}/'
+            - 'http://vmselect:8481/'
         - src_paths:
-            - '{{ .vm.write.path }}/.*'
+            - '/.*'
           url_prefix:
-            - '{{ urlJoin (omit .vm.write "path") }}/'
+            - 'http://vminsert:8480/'
 
 vmagent:
   enabled: true
@@ -541,19 +382,20 @@ vmagent:
         hosts:
           - vmagent.wakkalabs.com
 
-# Use default datasources configuration
 defaultDatasources:
   grafanaOperator:
     enabled: false
   victoriametrics:
     enabled: true
+    default: true
   loki:
-    enabled: false
+    enabled: true
+    default: false
   alertmanager:
-    enabled: false
+    enabled: true
+    default: false
   extra: []
 
-# -- Grafana dependency chart configuration
 grafana:
   enabled: true
   adminPassword: admin
@@ -565,15 +407,6 @@ grafana:
     requests:
       cpu: 200m
       memory: 512Mi
-    defaultDatasources:
-      grafanaOperator:
-        enabled: false
-      victoriametrics:
-        enabled: true
-      loki:
-        enabled: true
-      alertmanager:
-        enabled: true
   persistence:
     enabled: true
     storageClassName: "ceph-block"
@@ -581,7 +414,6 @@ grafana:
     accessModes:
       - ReadWriteOnce
     annotations: {}
-    # Add security context to fix FSGroup issues with Ceph
     securityContext:
       fsGroup: 10001
       runAsUser: 10001
@@ -601,11 +433,9 @@ grafana:
       enabled: true
       multicluster: false
       folderAnnotation: grafana_folder
-      # Add retry settings to fix connection issues
       skipReload: false
       initialDelay: 60
       searchTimeout: 60
-  # Add readiness probe to ensure Grafana is ready before sidecar tries to connect
   readinessProbe:
     httpGet:
       path: /api/health
@@ -616,7 +446,6 @@ grafana:
     failureThreshold: 3
     successThreshold: 1
   forceDeployDatasource: true
-  # Using default datasources configuration instead of manual configuration
   ingress:
     enabled: true
     ingressClassName: "internal"
@@ -668,7 +497,7 @@ prometheus-node-exporter:
       jobLabel: jobLabel
       selector:
         matchLabels:
-          app.kubernetes.io/name: '{{ include "prometheus-node-exporter.name" (index .Subcharts "prometheus-node-exporter") }}'
+          app.kubernetes.io/name: 'prometheus-node-exporter'
       endpoints:
         - port: metrics
           metricRelabelConfigs:
@@ -683,8 +512,8 @@ kube-state-metrics:
     spec:
       selector:
         matchLabels:
-          app.kubernetes.io/name: '{{ include "kube-state-metrics.name" (index .Subcharts "kube-state-metrics") }}'
-          app.kubernetes.io/instance: '{{ include "vm.release" . }}'
+          app.kubernetes.io/name: 'kube-state-metrics'
+          app.kubernetes.io/instance: 'victoria-metrics-k8s-stack'
       endpoints:
         - port: http
           honorLabels: true
