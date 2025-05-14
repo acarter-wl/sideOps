@@ -73,7 +73,7 @@ customConfig:
     loki_kubernetes:
       type: loki
       inputs: [kubernetes_logs_transform]
-      endpoint: http://loki.system-monitoring:3100
+      endpoint: http://loki-gateway.loki.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -90,7 +90,7 @@ customConfig:
     loki_talos_kernel:
       type: loki
       inputs: [talos_kernel_transform]
-      endpoint: http://loki.system-monitoring:3100
+      endpoint: http://loki-gateway.loki.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -106,7 +106,7 @@ customConfig:
     loki_talos_service:
       type: loki
       inputs: [talos_service_transform]
-      endpoint: http://loki.system-monitoring:3100
+      endpoint: http://loki-gateway.loki.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -118,6 +118,15 @@ customConfig:
         max_bytes: 1048576
         timeout_secs: 5
       out_of_order_action: rewrite_timestamp
+
+    stdout:
+      type: console
+      inputs:
+        - kubernetes_logs_transform
+        - talos_kernel_transform
+        - talos_service_transform
+      encoding:
+        codec: json
 
     prometheus:
       type: prometheus_exporter
