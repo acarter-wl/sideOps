@@ -75,7 +75,7 @@ customConfig:
 
         # Extract API call information if available
         if exists(.msg) {
-          if includes(.msg, "MachineService") {
+          if string!(.msg) =~ "MachineService" {
             parts = split(.msg, "[")
             if length(parts) >= 2 {
               api_call_part = split(parts[1], "]")[0]
@@ -101,7 +101,7 @@ customConfig:
 
         # Try to categorize unmatched logs if possible
         if exists(.msg) {
-          if includes(.msg, "machined") {
+          if string!(.msg) =~ "machined" {
             .log_type = "talos_service"
             .service = "machined"
           } else if exists(.component) && .component == "dns-resolve-cache" {
