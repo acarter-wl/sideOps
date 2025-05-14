@@ -10,6 +10,10 @@ customConfig:
       address: 0.0.0.0:6000
       version: "2"
 
+    # Add internal metrics source for Prometheus
+    internal_metrics:
+      type: internal_metrics
+
   # Transforms for aggregator
   transforms:
     # Route logs by type
@@ -123,10 +127,11 @@ customConfig:
       encoding:
         codec: json
 
-    # Prometheus metrics
+    # Prometheus metrics - fixed to use internal_metrics source
     prometheus:
       type: prometheus_exporter
-      inputs: []
+      inputs:
+        - internal_metrics
       address: 0.0.0.0:9598
 
 # Deployment settings for the aggregator
