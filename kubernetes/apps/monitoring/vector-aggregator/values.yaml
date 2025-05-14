@@ -124,7 +124,17 @@ customConfig:
         .log_type = "unmatched"
         # Ensure component exists for labeling
         if !exists(.component) {
-          .component = "unknown_unmatched_component"
+          .component = "unknown_unmatched"
+        }
+
+        # Try to categorize based on content and set component accordingly
+        if exists(.msg) {
+          msg_str = to_string(.msg) ?? ""
+          if contains(msg_str, "machined") {
+            .log_type = "talos_service"
+            .service = "machined"
+            .component = "machined"
+          }
         }
 
         if exists(.component) && .component == "dns-resolve-cache" {
