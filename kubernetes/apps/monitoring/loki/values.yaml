@@ -1,5 +1,11 @@
 loki:
   auth_enabled: false
+  structuredConfig:
+    memberlist:
+      abort_if_cluster_join_fails: false
+      bind_port: 7946
+      join_members:
+        - loki-memberlist
   commonConfig:
     replication_factor: 1
   storage:
@@ -13,7 +19,8 @@ loki:
       insecure: true
       s3ForcePathStyle: true
       existingSecret: loki-s3-creds
-      secretKey: loki-s3-secret.yaml
+      secretKey: secret_access_key
+      accessKey: access_key_id
   schemaConfig:
     configs:
       - from: "2024-04-01"
