@@ -8,7 +8,7 @@ global:
       # name: secret-license
       # key: license
   cluster:
-    # -- K8s cluster domain suffix, uses for building storage pods' FQDN.
+    # -- K8s cluster domain suffix, uses for building storage pods' FQDN. Details are [here](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)
     dnsDomain: cluster.local
 
 # -- Override chart name
@@ -16,7 +16,7 @@ nameOverride: ""
 # -- Resource full name override
 fullnameOverride: ""
 # -- Tenant to use for Grafana datasources and remote write
-tenant: ""
+tenant: "0"
 # -- If this chart is used in "Argocd" with "releaseName" field then
 # VMServiceScrapes couldn't select the proper services.
 argocdReleaseOverride: ""
@@ -39,9 +39,6 @@ victoria-metrics-operator:
     # Add webhook configuration to fix TLS validation issues
     webhook:
       enabled: false
-    admissionWebhooks:
-      enabled: false
-      failurePolicy: Ignore
     # Disable validation for all custom resources to bypass TLS errors
     disableValidationForFields:
       - spec.vmrule
@@ -56,6 +53,7 @@ victoria-metrics-operator:
       - spec.vmservicescrape
       - spec.vmstaticscrapre
       - spec.vmprobescrape
+
 
 defaultDashboards:
   # -- Enable custom dashboards installation
@@ -589,6 +587,13 @@ grafana:
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
   persistence:
     enabled: true
     storageClassName: "ceph-block"
@@ -610,7 +615,7 @@ grafana:
     dashboards:
       provider:
         name: default
-        orgid: wakkalabs
+        orgid: 1
       folder: /var/lib/grafana/dashboards
       defaultFolderName: default
       enabled: true
