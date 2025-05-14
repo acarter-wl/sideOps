@@ -10,13 +10,17 @@ data:
     apiVersion: 1
     datasources:
       - name: Loki
-        type: loki
         access: proxy
+        isDefault: false
         url: http://loki-gateway
         jsonData:
-          maxLines: 5000
-          derivedFields:
-            - datasourceName: Tempo
-              matcherRegex: "traceID=(\\w+)"
-              name: TraceID
-              url: "${__value.raw}"
+          httpHeaderName1: X-Scope-OrgID
+        secureJsonData:
+          httpHeaderValue1: "1"
+        orgId: 1
+        type: loki
+        # derivedFields:
+        #   - datasourceName: Tempo
+        #     matcherRegex: "traceID=(\\w+)"
+        #     name: TraceID
+        #       url: "${__value.raw}"
