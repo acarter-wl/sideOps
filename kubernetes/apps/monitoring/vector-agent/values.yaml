@@ -97,7 +97,7 @@ customConfig:
         - talos_service_transform
       address: "vector-aggregator.logging.svc.cluster.local:6000"
       healthcheck: true
-      compression: gzip
+      compression: true
 
     # Optional: Console output for debugging
     stdout:
