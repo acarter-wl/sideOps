@@ -1,4 +1,3 @@
-# kubernetes/apps/monitoring/vector-aggregator/values.yaml
 role: "Stateless-Aggregator"
 
 customConfig:
@@ -23,12 +22,18 @@ customConfig:
       inputs:
         - vector_in
       route:
-        # Fixed routing conditions with proper syntax
-        kubernetes: ".message.log_type == \"kubernetes\""
-        talos_kernel: ".message.log_type == \"talos_kernel\""
-        talos_service: ".message.log_type == \"talos_service\""
-        # Add a catch-all route for unmatched logsaaaaa
-        unmatched: "true"
+        kubernetes:
+          type: check_fields
+          message.log_type: "kubernetes"
+        talos_kernel:
+          type: check_fields
+          message.log_type: "talos_kernel"
+        talos_service:
+          type: check_fields
+          message.log_type: "talos_service"
+        # Add a catch-all route for unmatched logs
+        unmatched:
+          type: always
 
     # Final processing for each log type
     kubernetes_final:
@@ -52,17 +57,57 @@ customConfig:
       inputs:
         - route_logs.talos_service
       source: |
-        # Final enrichment for service logs
+        # Ensure timestamp is set
         .timestamp = now()
 
-    # Added for unmatched logs
+        # Extract service name from msg if not already present
+        if !exists(.service) && exists(.msg) {
+          matches = /([a-zA-Z]+)\s+OK/.find(.msg) ?? []
+          if length(matches) >= 2 {
+            .service = matches[1]
+          }
+        }
+
+        # Extract API call information if available
+        if exists(.msg) {
+          if match!(.msg, /MachineService/) {
+            parts = split(.msg, "[")
+            if length(parts) >= 2 {
+              api_call_part = split(parts[1], "]")[0]
+              .api_call = api_call_part
+            }
+          }
+
+          # Extract duration if available
+          time_matches = /(\d+\.\d+)(µ|m|n)s/.find(.msg) ?? []
+          if length(time_matches) >= 3 {
+            .duration_value = to_float(time_matches[1])
+            .duration_unit = time_matches[2] + "s"
+          }
+        }
+
+    # Process unmatched logs
     unmatched_logs:
       type: remap
       inputs:
         - route_logs.unmatched
       source: |
         .timestamp = now()
-        .log_type = "unmatched"
+
+        # Try to categorize unmatched logs if possible
+        if exists(.msg) {
+          if match!(.msg, /machined/) {
+            .log_type = "talos_service"
+            .service = "machined"
+          } else if exists(.component) && .component == "dns-resolve-cache" {
+            .log_type = "talos_service"
+            .service = "dns"
+          } else {
+            .log_type = "unmatched"
+          }
+        } else {
+          .log_type = "unmatched"
+        }
 
     # Optional: Consolidated logs for stdout
     all_logs_agg:
@@ -119,6 +164,7 @@ customConfig:
       type: loki
       inputs:
         - talos_service_final
+        - unmatched_logs
       endpoint: "http://loki-gateway"
       encoding:
         codec: json
@@ -127,22 +173,8 @@ customConfig:
       labels:
         hostname: "{{`{{ node }}`}}"
         service: "{{`{{ service }}`}}"
-        log_type: "talos_service"
-      batch:
-        max_bytes: 1048576
-        timeout_secs: 5
-      out_of_order_action: rewrite_timestamp
-
-    # Added for unmatched logs
-    loki_unmatched:
-      type: loki
-      inputs:
-        - unmatched_logs
-      endpoint: "http://loki-gateway"
-      encoding:
-        codec: json
-      labels:
-        log_type: "unmatched"
+        component: "{{`{{ component }}`}}"
+        log_type: "{{`{{ log_type }}`}}"
       batch:
         max_bytes: 1048576
         timeout_secs: 5

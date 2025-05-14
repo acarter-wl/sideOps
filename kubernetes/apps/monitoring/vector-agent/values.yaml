@@ -1,4 +1,4 @@
-# kubernetes/apps/logging/vector-agent/values.yaml
+# kubernetes/apps/monitoring/vector-agent/values.yaml
 role: "Agent"
 
 customConfig:
@@ -84,13 +84,38 @@ customConfig:
       inputs:
         - talos_service_logs
       source: |
+        # Set node from host
         .node = .__host
-        # Use if() with proper null check
-        if exists(.service) {
+
+        # Detect service type from message content
+        if exists(.msg) {
+          if match!(.msg, /machined/) {
+            .service = "machined"
+          } else if match!(.msg, /containerd/) {
+            .service = "containerd"
+          } else if match!(.msg, /kubelet/) {
+            .service = "kubelet"
+          } else if match!(.msg, /apid/) {
+            .service = "apid"
+          } else if match!(.msg, /trustd/) {
+            .service = "trustd"
+          } else if exists(.service) {
+            .service = .service
+          } else {
+            .service = "talos-service"
+          }
+        } else if exists(.service) {
           .service = .service
         } else {
           .service = "talos-service"
         }
+
+        # Handle component field if it exists
+        if exists(.component) {
+          .component = .component
+        }
+
+        # Explicitly set log_type for proper routing
         .log_type = "talos_service"
         .timestamp = now()
 
@@ -139,7 +164,7 @@ tolerations:
 
 # Service for the agent
 service:
-  type: LoadBalancer  # Change from ClusterIP to LoadBalancer
+  type: LoadBalancer
   ports:
     - name: prom-exporter
       port: 9598
