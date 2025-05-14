@@ -331,11 +331,11 @@ vmauth:
         - src_paths:
             - '/.*'
           url_prefix:
-            - 'http://vmselect:8481/'
+            - 'http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481/'
         - src_paths:
             - '/.*'
           url_prefix:
-            - 'http://vminsert:8480/'
+            - 'http://vminsert-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8480/'
 
 vmagent:
   enabled: true
@@ -377,7 +377,18 @@ defaultDatasources:
   alertmanager:
     enabled: true
     default: false
-  extra: []
+  extra:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local:80
+      jsonData:
+        maxLines: 5000
+        derivedFields:
+          - datasourceName: Tempo
+            matcherRegex: "traceID=(\\w+)"
+            name: TraceID
+            url: "$${__value.raw}"
 
 grafana:
   enabled: true
