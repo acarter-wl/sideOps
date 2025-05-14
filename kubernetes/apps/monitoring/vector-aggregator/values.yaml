@@ -22,18 +22,14 @@ customConfig:
       inputs:
         - vector_in
       route:
-        kubernetes:
-          type: check_fields
-          message.log_type: "kubernetes"
-        talos_kernel:
-          type: check_fields
-          message.log_type: "talos_kernel"
-        talos_service:
-          type: check_fields
-          message.log_type: "talos_service"
+        kubernetes: |
+          .log_type == "kubernetes"
+        talos_kernel: |
+          .log_type == "talos_kernel"
+        talos_service: |
+          .log_type == "talos_service"
         # Add a catch-all route for unmatched logs
-        unmatched:
-          type: always
+        unmatched: true
 
     # Final processing for each log type
     kubernetes_final:
