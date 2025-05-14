@@ -1,0 +1,57 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+resources:
+  - ./config
+
+
+
+configMapGenerator:
+- name: argocd-operational
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/argocd-operational.json"
+- name: argocd-application-dashboard
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/argocd-application.json"
+- name: argocd-dashboard
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/argocd-dashboard.json"
+- name: blackbox-exporter
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/blackbox-exporter.json"
+- name: vector-dashboards
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/vector.json"
+- name: vector-logging
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/vector-logging.json"
+- name: ceph-cluster
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/ceph-cluster.json"
+- name: proxmox-overview
+  options:
+    labels:
+      grafana_dashboard: "1"
+  files:
+  - "dashboards/proxmox-overview.json"
