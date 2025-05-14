@@ -87,28 +87,30 @@ customConfig:
         # Set node from host
         .node = .__host
 
-        # Detect service type from message content
-        if exists(.msg) {
-          if match!(.msg, /machined/) {
-            .service = "machined"
-          } else if match!(.msg, /containerd/) {
-            .service = "containerd"
-          } else if match!(.msg, /kubelet/) {
-            .service = "kubelet"
-          } else if match!(.msg, /apid/) {
-            .service = "apid"
-          } else if match!(.msg, /trustd/) {
-            .service = "trustd"
-          } else if exists(.service) {
-            .service = .service
-          } else {
-            .service = "talos-service"
-          }
-        } else if exists(.service) {
-          .service = .service
-        } else {
-          .service = "talos-service"
+        # Determine service name with clear precedence
+        resolved_service = "talos-service" # Default value
+
+        if exists(.service) { # Prioritize existing .service field
+          resolved_service = .service
         }
+
+        # Attempt to derive a more specific service from .msg content
+        if exists(.msg) && is_string(.msg) {
+          msg_content = .msg
+          if match!(msg_content, /machined/) {
+            resolved_service = "machined"
+          } else if match!(msg_content, /containerd/) {
+            resolved_service = "containerd"
+          } else if match!(msg_content, /kubelet/) {
+            resolved_service = "kubelet"
+          } else if match!(msg_content, /apid/) {
+            resolved_service = "apid"
+          } else if match!(msg_content, /trustd/) {
+            resolved_service = "trustd"
+          }
+          # If .msg doesn't match known patterns, resolved_service retains its previous value
+        }
+        .service = resolved_service # Assign the final service name
 
         # Handle component field if it exists
         if exists(.component) {
