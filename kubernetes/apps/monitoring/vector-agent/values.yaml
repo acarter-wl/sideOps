@@ -25,6 +25,9 @@ customConfig:
         codec: json
       host_key: __host
 
+    internal_metrics:
+      type: internal_metrics
+
   transforms:
     kubernetes_logs_transform:
       type: remap
@@ -129,7 +132,7 @@ customConfig:
         codec: json
 
 
-  # ... other sinks ...
+    # ... other sinks ...
     prometheus:
       type: prometheus_exporter
       inputs:
