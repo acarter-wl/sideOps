@@ -23,7 +23,7 @@ spec:
           - $repo/kubernetes/apps/monitoring/vector-aggregator/values.yaml
   destination:
     name: in-cluster
-    namespace: logging
+    namespace: monitoring
   syncPolicy:
     automated:
       allowEmpty: true
