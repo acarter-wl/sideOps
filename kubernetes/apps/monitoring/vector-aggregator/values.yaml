@@ -162,19 +162,19 @@ customConfig:
         - kubernetes_final
       endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
       labels:
-        app: "{{ pod_app }}"
-        app_kubernetes_io_component: "{{ pod_component }}"
-        app_kubernetes_io_instance: "{{ pod_instance }}"
-        app_kubernetes_io_name: "{{ pod_name }}"
-        app_kubernetes_io_part_of: "{{ pod_part_of }}"
-        app_kubernetes_io_version: "{{ pod_version }}"
-        cluster: "{{ kubernetes.cluster_name }}"
-        container: "{{ container }}"
-        k8s_app: "{{ kubernetes.pod_labels.app }}"
-        namespace: "{{ namespace }}"
-        node: "{{ node }}"
-        pod: "{{ pod }}"
-        stream: "{{ stream }}"
+        app: "{{`{{ .pod_app }}`}}"
+        app_kubernetes_io_component: "{{`{{ .pod_component }}`}}"
+        app_kubernetes_io_instance: "{{`{{ .pod_instance }}`}}"
+        app_kubernetes_io_name: "{{`{{ .pod_name }}`}}"
+        app_kubernetes_io_part_of: "{{`{{ .pod_part_of }}`}}"
+        app_kubernetes_io_version: "{{`{{ .pod_version }}`}}"
+        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
+        container: "{{`{{ .container }}`}}"
+        k8s_app: "{{`{{ .kubernetes.pod_labels.app }}`}}"
+        namespace: "{{`{{ .namespace }}`}}"
+        node: "{{`{{ .node }}`}}"
+        pod: "{{`{{ .pod }}`}}"
+        stream: "{{`{{ .stream }}`}}"
         vector_source: "kubernetes"
       encoding:
         codec: json
@@ -191,10 +191,10 @@ customConfig:
         - talos_kernel_final
       endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
       labels:
-        cluster: "{{ kubernetes.cluster_name }}"
-        facility: "{{ facility }}"
-        log_type: "{{ log_type }}"
-        node: "{{ node }}"
+        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
+        facility: "{{`{{ .facility }}`}}"
+        log_type: "{{`{{ .log_type }}`}}"
+        node: "{{`{{ .node }}`}}"
         vector_source: "talos_kernel"
       encoding:
         codec: json
@@ -212,11 +212,11 @@ customConfig:
         - unmatched_logs
       endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
       labels:
-        cluster: "{{ kubernetes.cluster_name }}"
-        component: "{{ component }}"
-        log_type: "{{ log_type }}"
-        node: "{{ node }}"
-        service: "{{ service }}"
+        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
+        component: "{{`{{ .component }}`}}"
+        log_type: "{{`{{ .log_type }}`}}"
+        node: "{{`{{ .node }}`}}"
+        service: "{{`{{ .service }}`}}"
         vector_source: "talos_service"
       encoding:
         codec: json
