@@ -3,20 +3,16 @@ role: "Stateless-Aggregator"
 customConfig:
   data_dir: /vector-data-dir
 
-  # Sources for aggregator
   sources:
     vector_in:
       type: vector
       address: 0.0.0.0:6000
       version: "2"
 
-    # Add internal metrics source for Prometheus
     internal_metrics:
       type: internal_metrics
 
-  # Transforms for aggregator
   transforms:
-    # Route logs by type - Fixed syntax for conditions
     route_logs:
       type: route
       inputs:
@@ -34,19 +30,16 @@ customConfig:
           type: vrl
           source: |
             .log_type == "talos_service"
-        # Add a catch-all route for unmatched logs
         unmatched:
           type: vrl
           source: |
             true
 
-    # Final processing for each log type
     kubernetes_final:
       type: remap
       inputs:
         - route_logs.kubernetes
       source: |
-        # Final enrichment for k8s logs
         .timestamp = now()
 
     talos_kernel_final:
@@ -54,7 +47,6 @@ customConfig:
       inputs:
         - route_logs.talos_kernel
       source: |
-        # Final enrichment for kernel logs
         .timestamp = now()
 
     talos_service_final:
@@ -62,23 +54,16 @@ customConfig:
       inputs:
         - route_logs.talos_service
       source: |
-        # Ensure timestamp is set
         .timestamp = now()
-
-        # Set default service if not present
         if !exists(.service) {
           .service = "unknown"
         }
 
-        # Extract service name from msg if available
         if exists(.msg) {
           msg_str = string!(.msg)
 
-          # Check for MachineService
           if msg_str =~ "MachineService" {
             .service = "machined"
-
-            # Try to extract API call
             parts = split(msg_str, "[")
             if length(parts) >= 2 {
               api_part = split(parts[1], "]")[0]
@@ -88,14 +73,12 @@ customConfig:
             }
           }
 
-          # Try to extract duration
           duration_match = parse_regex(msg_str, r'(?P<duration>\d+\.\d+)(µ|m|n)?s') ?? {}
           if exists(duration_match.duration) {
             .duration = to_float(duration_match.duration)
           }
         }
 
-    # Process unmatched logs
     unmatched_logs:
       type: remap
       inputs:
@@ -104,7 +87,6 @@ customConfig:
         .timestamp = now()
         .log_type = "unmatched"
 
-        # Try to categorize unmatched logs if possible
         if exists(.msg) {
           msg = string!(.msg)
           if match(msg, r"machined") {
@@ -113,28 +95,11 @@ customConfig:
           }
         }
 
-        # Check for DNS component
         if exists(.component) && .component == "dns-resolve-cache" {
           .log_type = "talos_service"
           .service = "dns"
         }
 
-    # Try to categorize unmatched logs if possible
-    if exists(.msg) {
-      msg = string!(.msg)
-      if match(msg, r"machined") {
-        .log_type = "talos_service"
-        .service = "machined"
-      }
-    }
-
-    # Check for DNS component
-    if exists(.component) && .component == "dns-resolve-cache" {
-      .log_type = "talos_service"
-      .service = "dns"
-    }
-
-    # Optional: Consolidated logs for stdout
     all_logs_agg:
       type: remap
       inputs:
@@ -146,9 +111,7 @@ customConfig:
         .timestamp = now()
         .source = "aggregator"
 
-  # Sinks
   sinks:
-    # Loki sinks
     loki_kubernetes:
       type: loki
       inputs:
@@ -205,7 +168,6 @@ customConfig:
         timeout_secs: 5
       out_of_order_action: rewrite_timestamp
 
-    # Optional: Console output for debugging
     stdout:
       type: console
       inputs:
@@ -213,21 +175,17 @@ customConfig:
       encoding:
         codec: json
 
-    # Prometheus metrics - fixed to use internal_metrics source
     prometheus:
       type: prometheus_exporter
       inputs:
         - internal_metrics
       address: 0.0.0.0:9598
 
-# Deployment settings for the aggregator
 replicas: 2
 
-# PodDisruptionBudget for the aggregator
 podDisruptionBudget:
   minAvailable: 1
 
-# Service for the aggregator
 service:
   ports:
     - name: vector-ingress
@@ -239,7 +197,6 @@ service:
       targetPort: 9598
       protocol: TCP
 
-# Resources for the aggregator
 resources:
   limits:
     cpu: 1000m
