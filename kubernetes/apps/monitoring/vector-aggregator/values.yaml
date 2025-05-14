@@ -107,7 +107,7 @@ customConfig:
         # Try to categorize unmatched logs if possible
         if exists(.msg) {
           msg = string!(.msg)
-          if msg =~ "machined" {
+          if match(msg, r"machined") {
             .log_type = "talos_service"
             .service = "machined"
           }
@@ -118,6 +118,21 @@ customConfig:
           .log_type = "talos_service"
           .service = "dns"
         }
+
+    # Try to categorize unmatched logs if possible
+    if exists(.msg) {
+      msg = string!(.msg)
+      if match(msg, r"machined") {
+        .log_type = "talos_service"
+        .service = "machined"
+      }
+    }
+
+    # Check for DNS component
+    if exists(.component) && .component == "dns-resolve-cache" {
+      .log_type = "talos_service"
+      .service = "dns"
+    }
 
     # Optional: Consolidated logs for stdout
     all_logs_agg:
