@@ -1,259 +1,206 @@
-role: "Stateless-Aggregator"
+# role: "Stateless-Aggregator"
 
-customConfig:
-  data_dir: /vector-data-dir
+# customConfig:
+#   data_dir: /vector-data-dir
 
-  # Sources
-  sources:
-    # Vector input for receiving logs from Vector agents
-    vector_in:
-      type: vector
-      address: 0.0.0.0:6000
-      version: "2"
+#   sources:
+#     vector_in:
+#       type: vector
+#       address: 0.0.0.0:6000
+#       version: "2"
 
-    # For Vector's internal metrics
-    internal_metrics:
-      type: internal_metrics
+#     internal_metrics:
+#       type: internal_metrics
 
-  # Transforms
-  transforms:
-    # Route logs by type
-    route_logs:
-      type: route
-      inputs:
-        - vector_in
-      route:
-        kubernetes:
-          type: vrl
-          source: |
-            .log_type == "kubernetes"
-        talos_kernel:
-          type: vrl
-          source: |
-            .log_type == "talos_kernel"
-        talos_service:
-          type: vrl
-          source: |
-            .log_type == "talos_service"
-        unmatched:
-          type: vrl
-          source: |
-            true
+#   transforms:
+#     route_logs:
+#       type: route
+#       inputs:
+#         - vector_in
+#       route:
+#         kubernetes:
+#           type: vrl
+#           source: |
+#             .log_type == "kubernetes"
+#         talos_kernel:
+#           type: vrl
+#           source: |
+#             .log_type == "talos_kernel"
+#         talos_service:
+#           type: vrl
+#           source: |
+#             .log_type == "talos_service"
+#         unmatched:
+#           type: vrl
+#           source: |
+#             true
 
-    # Kubernetes logs processing
-    kubernetes_final:
-      type: remap
-      inputs:
-        - route_logs.kubernetes
-      source: |
-        # Set timestamp
-        .timestamp = now()
+#     kubernetes_final:
+#       type: remap
+#       inputs:
+#         - route_logs.kubernetes
+#       source: |
+#         .timestamp = now()
 
-        # Ensure required fields exist
-        if !exists(.pod) {
-          .pod = "unknown"
-        }
-        if !exists(.namespace) {
-          .namespace = "unknown"
-        }
-        if !exists(.container) {
-          .container = "unknown"
-        }
-        if !exists(.node) {
-          .node = "unknown"
-        }
+#     talos_kernel_final:
+#       type: remap
+#       inputs:
+#         - route_logs.talos_kernel
+#       source: |
+#         .timestamp = now()
 
-        # Ensure pod labels are in a more accessible format
-        if exists(.pod_labels) {
-          # Extract important labels into separate fields for easier templating
-          .pod_app = .pod_labels.app ?? "unknown"
-          .pod_component = .pod_labels["app.kubernetes.io/component"] ?? "unknown"
-          .pod_instance = .pod_labels["app.kubernetes.io/instance"] ?? "unknown"
-          .pod_name = .pod_labels["app.kubernetes.io/name"] ?? "unknown"
-          .pod_part_of = .pod_labels["app.kubernetes.io/part-of"] ?? "unknown"
-          .pod_version = .pod_labels["app.kubernetes.io/version"] ?? "unknown"
-        }
+#     talos_service_final:
+#       type: remap
+#       inputs:
+#         - route_logs.talos_service
+#       source: |
+#         .timestamp = now()
+#         if !exists(.service) {
+#           .service = "unknown"
+#         }
 
-    # Talos kernel logs processing
-    talos_kernel_final:
-      type: remap
-      inputs:
-        - route_logs.talos_kernel
-      source: |
-        # Set timestamp
-        .timestamp = now()
+#         if exists(.msg) {
+#           msg_str = to_string(.msg) ?? ""
 
-        # Ensure facility exists
-        if !exists(.facility) {
-          .facility = "kernel"
-        }
+#           if contains(msg_str, "MachineService") {
+#             .service = "machined"
+#             parts = split(msg_str, "[")
+#             if length(parts) >= 2 {
+#               api_part = split(parts[1], "]")[0]
+#               if length(api_part) > 0 {
+#                 .api_call = api_part
+#               }
+#             }
+#           }
 
-    # Talos service logs processing
-    talos_service_final:
-      type: remap
-      inputs:
-        - route_logs.talos_service
-      source: |
-        # Set timestamp
-        .timestamp = now()
+#           duration_match = parse_regex(msg_str, r'(?P<duration>\d+\.\d+)(µ|m|n)?s') ?? {}
+#           if exists(duration_match.duration) {
+#             .duration = to_float(duration_match.duration) ?? 0.0
+#           }
+#         }
 
-        # Ensure service exists
-        if !exists(.service) {
-          .service = "unknown"
-        }
-        # Ensure component exists for labeling
-        if !exists(.component) {
-          .component = .service
-        }
+#     unmatched_logs:
+#       type: remap
+#       inputs:
+#         - route_logs.unmatched
+#       source: |
+#         .timestamp = now()
+#         .log_type = "unmatched"
 
-        # Process message content if available
-        if exists(.msg) {
-          msg_str = to_string(.msg) ?? ""
+#         if exists(.msg) {
+#           msg = to_string(.msg) ?? ""
+#           if contains(msg, "machined") {
+#             .log_type = "talos_service"
+#             .service = "machined"
+#           }
+#         }
 
-          # Check for machined service logs
-          if contains(msg_str, "machined") {
-            .service = "machined"
+#         if exists(.component) && .component == "dns-resolve-cache" {
+#           .log_type = "talos_service"
+#           .service = "dns"
+#         }
 
-            # Try to extract API call using Talos-style format
-            parsed = parse_regex(msg_str, r'\[(?P<api_call>/[^]]+)\]') ?? {}
-            if exists(parsed.api_call) {
-              .api_call = parsed.api_call
-            }
-          }
-        }
+#     all_logs_agg:
+#       type: remap
+#       inputs:
+#         - kubernetes_final
+#         - talos_kernel_final
+#         - talos_service_final
+#         - unmatched_logs
+#       source: |
+#         .timestamp = now()
+#         .source = "aggregator"
 
-    # Process unmatched logs
-    unmatched_logs:
-      type: remap
-      inputs:
-        - route_logs.unmatched
-      source: |
-        # Set timestamp
-        .timestamp = now()
+#   sinks:
+#     loki_kubernetes:
+#       type: loki
+#       inputs:
+#         - kubernetes_final
+#       endpoint: "http://loki-gateway"
+#       encoding:
+#         codec: json
+#       labels:
+#         pod: "{{`{{ pod }}`}}"
+#         namespace: "{{`{{ namespace }}`}}"
+#         container: "{{`{{ container }}`}}"
+#         node: "{{`{{ node }}`}}"
+#         log_type: "kubernetes"
+#       batch:
+#         max_bytes: 2097152
+#         timeout_secs: 5
+#       out_of_order_action: rewrite_timestamp
 
-        # Default log type
-        .log_type = "unmatched"
-        # Ensure component exists for labeling
-        if !exists(.component) {
-          .component = "unknown_unmatched"
-        }
+#     loki_talos_kernel:
+#       type: loki
+#       inputs:
+#         - talos_kernel_final
+#       endpoint: "http://loki-gateway"
+#       encoding:
+#         codec: json
+#         except_fields:
+#           - __host
+#       labels:
+#         hostname: "{{`{{ node }}`}}"
+#         facility: "{{`{{ facility }}`}}"
+#         log_type: "talos_kernel"
+#       batch:
+#         max_bytes: 2097152
+#         timeout_secs: 5
+#       out_of_order_action: rewrite_timestamp
 
-        # Try to categorize based on content and set component accordingly
-        if exists(.msg) {
-          msg_str = to_string(.msg) ?? ""
-          if contains(msg_str, "machined") {
-            .log_type = "talos_service"
-            .service = "machined"
-            .component = "machined"
-          }
-        }
+#     loki_talos_service:
+#       type: loki
+#       inputs:
+#         - talos_service_final
+#         - unmatched_logs
+#       endpoint: "http://loki-gateway"
+#       encoding:
+#         codec: json
+#         except_fields:
+#           - __host
+#       labels:
+#         hostname: "{{`{{ node }}`}}"
+#         service: "{{`{{ service }}`}}"
+#         component: "{{`{{ component }}`}}"
+#         log_type: "{{`{{ log_type }}`}}"
+#       batch:
+#         max_bytes: 1048576
+#         timeout_secs: 5
+#       out_of_order_action: rewrite_timestamp
 
-        if exists(.component) && .component == "dns-resolve-cache" {
-          .log_type = "talos_service"
-          .service = "dns"
-        }
+#     stdout:
+#       type: console
+#       inputs:
+#         - all_logs_agg
+#       encoding:
+#         codec: json
 
-  # Sinks
-  sinks:
-    # Loki sinks for different log types
-    loki_kubernetes:
-      type: loki
-      inputs:
-        - kubernetes_final
-      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-      labels:
-        app: "{{`{{ .pod_app }}`}}"
-        app_kubernetes_io_component: "{{`{{ .pod_component }}`}}"
-        app_kubernetes_io_instance: "{{`{{ .pod_instance }}`}}"
-        app_kubernetes_io_name: "{{`{{ .pod_name }}`}}"
-        app_kubernetes_io_part_of: "{{`{{ .pod_part_of }}`}}"
-        app_kubernetes_io_version: "{{`{{ .pod_version }}`}}"
-        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
-        container: "{{`{{ .container }}`}}"
-        k8s_app: "{{`{{ .kubernetes.pod_labels.app }}`}}"
-        namespace: "{{`{{ .namespace }}`}}"
-        node: "{{`{{ .node }}`}}"
-        pod: "{{`{{ .pod }}`}}"
-        stream: "{{`{{ .stream }}`}}"
-        vector_source: "kubernetes"
-      encoding:
-        codec: json
-      batch:
-        max_bytes: 1048576 # 1MB
-        timeout_secs: 1
-      out_of_order_action: "accept"
-      remove_label_fields: true
-      remove_timestamp: true
+#     prometheus:
+#       type: prometheus_exporter
+#       inputs:
+#         - internal_metrics
+#       address: 0.0.0.0:9598
 
-    loki_talos_kernel:
-      type: loki
-      inputs:
-        - talos_kernel_final
-      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-      labels:
-        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
-        facility: "{{`{{ .facility }}`}}"
-        log_type: "{{`{{ .log_type }}`}}"
-        node: "{{`{{ .node }}`}}"
-        vector_source: "talos_kernel"
-      encoding:
-        codec: json
-      batch:
-        max_bytes: 1048576 # 1MB
-        timeout_secs: 1
-      out_of_order_action: "accept"
-      remove_label_fields: true
-      remove_timestamp: true
+# replicas: 2
 
-    loki_talos_service:
-      type: loki
-      inputs:
-        - talos_service_final
-        - unmatched_logs
-      endpoint: "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-      labels:
-        cluster: "{{`{{ .kubernetes.cluster_name }}`}}"
-        component: "{{`{{ .component }}`}}"
-        log_type: "{{`{{ .log_type }}`}}"
-        node: "{{`{{ .node }}`}}"
-        service: "{{`{{ .service }}`}}"
-        vector_source: "talos_service"
-      encoding:
-        codec: json
-      batch:
-        max_bytes: 1048576 # 1MB
-        timeout_secs: 1
-      out_of_order_action: "accept"
-      remove_label_fields: true
-      remove_timestamp: true
+# podDisruptionBudget:
+#   minAvailable: 1
 
-    # Prometheus metrics for Vector itself
-    prometheus:
-      type: prometheus_exporter
-      inputs:
-        - internal_metrics
-      address: 0.0.0.0:9598
+# service:
+#   ports:
+#     - name: vector-ingress
+#       port: 6000
+#       targetPort: 6000
+#       protocol: TCP
+#     - name: prom-exporter
+#       port: 9598
+#       targetPort: 9598
+#       protocol: TCP
 
-replicas: 2
-
-podDisruptionBudget:
-  minAvailable: 1
-
-service:
-  ports:
-    - name: vector-ingress
-      port: 6000
-      targetPort: 6000
-      protocol: TCP
-    - name: prom-exporter
-      port: 9598
-      targetPort: 9598
-      protocol: TCP
-
-resources:
-  limits:
-    cpu: 1000m
-    memory: 1Gi
-  requests:
-    cpu: 200m
-    memory: 512Mi
+# resources:
+#   limits:
+#     cpu: 1000m
+#     memory: 1Gi
+#   requests:
+#     cpu: 200m
+#     memory: 512Mi

@@ -1,29 +1,11 @@
-# kubernetes/apps/monitoring/vector-agent/values.yaml
 role: "Agent"
 
 customConfig:
   data_dir: /vector-data-dir
 
-  # Sources
   sources:
     kubernetes_logs:
       type: kubernetes_logs
-      include_paths_glob_patterns:
-        - /var/log/pods/*/*.log
-        - /var/lib/docker/containers/*/*.log
-      exclude_paths_glob_patterns:
-        - /var/log/pods/*/kube-proxy/**/*.log
-        - /var/log/pods/vector-*/vector/*.log
-
-    host_metrics:
-      type: host_metrics
-      collectors:
-        - cpu
-        - memory
-        - network
-        - load
-      namespace: host
-      scrape_interval_secs: 15
 
     talos_kernel_logs:
       address: 0.0.0.0:6050
@@ -43,128 +25,109 @@ customConfig:
         codec: json
       host_key: __host
 
-  # Transforms
   transforms:
     kubernetes_logs_transform:
       type: remap
-      inputs:
-        - kubernetes_logs
+      inputs: [kubernetes_logs]
       source: |
-        .message = .message
         .container = .kubernetes.container_name
         .pod = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
-        .stream = .stream
-        # Fixed error handling for env var
-        .node = "unknown"
-        hostname = get_env_var("HOSTNAME") ?? null
-        if hostname != null {
-          .node = hostname
-        }
+        .node = get_env_var("HOSTNAME") ?? "unknown"
         .log_type = "kubernetes"
         .timestamp = now()
 
     talos_kernel_transform:
       type: remap
-      inputs:
-        - talos_kernel_logs
+      inputs: [talos_kernel_logs]
       source: |
         .node = .__host
-        # Use if() with proper null check
-        if exists(.facility) {
-          .facility = .facility
-        } else {
-          .facility = "kernel"
-        }
+        .facility = exists(.facility) ? .facility : "kernel"
         .log_type = "talos_kernel"
         .timestamp = now()
 
     talos_service_transform:
       type: remap
-      inputs:
-        - talos_service_logs
+      inputs: [talos_service_logs]
       source: |
-        # Set node from host
         .node = .__host
-
-        # Determine service name with clear precedence
-        resolved_service = "talos-service" # Default value
-
-        if exists(.service) { # Prioritize existing .service field
-          resolved_service = .service
-        }
-
-        # Attempt to derive a more specific service from .msg content
+        .service = exists(.service) ? .service : "talos-service"
         if exists(.msg) {
-          msg_content = to_string(.msg) ?? "" # Ensure .msg is treated as a string
-          if contains(msg_content, "machined") {
-            resolved_service = "machined"
-          } else if contains(msg_content, "containerd") {
-            resolved_service = "containerd"
-          } else if contains(msg_content, "kubelet") {
-            resolved_service = "kubelet"
-          } else if contains(msg_content, "apid") {
-            resolved_service = "apid"
-          } else if contains(msg_content, "trustd") {
-            resolved_service = "trustd"
+          msg = to_string(.msg) ?? ""
+          if contains(msg, "machined") {
+            .service = "machined"
+          } else if contains(msg, "containerd") {
+            .service = "containerd"
+          } else if contains(msg, "kubelet") {
+            .service = "kubelet"
+          } else if contains(msg, "apid") {
+            .service = "apid"
+          } else if contains(msg, "trustd") {
+            .service = "trustd"
           }
-          # If .msg doesn't match known patterns, resolved_service retains its previous value
         }
-        .service = resolved_service # Assign the final service name
-
-        # Handle component field if it exists
-        if exists(.component) {
-          .component = .component
-        }
-
-        # Explicitly set log_type for proper routing
         .log_type = "talos_service"
         .timestamp = now()
 
-    # Optional: for local stdout logging
-    all_logs_stdout:
-      type: remap
-      inputs:
-        - kubernetes_logs_transform
-        - talos_kernel_transform
-        - talos_service_transform
-      source: |
-        .timestamp = now()
-        .source = "agent"
-
-  # Sinks
   sinks:
-    # Forward to aggregator
-    aggregator:
-      type: vector
-      inputs:
-        - kubernetes_logs_transform
-        - talos_kernel_transform
-        - talos_service_transform
-      address: "http://vector-aggregator:6000"
-      healthcheck: true
-      compression: true
-
-    # Optional: Console output for debugging
-    stdout:
-      type: console
-      inputs:
-        - all_logs_stdout
+    loki_kubernetes:
+      type: loki
+      inputs: [kubernetes_logs_transform]
+      endpoint: http://loki.system-monitoring:3100
       encoding:
         codec: json
+      labels:
+        pod: "{{`{{ pod }}`}}"
+        namespace: "{{`{{ namespace }}`}}"
+        container: "{{`{{ container }}`}}"
+        node: "{{`{{ node }}`}}"
+        log_type: "kubernetes"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
 
-    # Prometheus metrics endpoint
+    loki_talos_kernel:
+      type: loki
+      inputs: [talos_kernel_transform]
+      endpoint: http://loki.system-monitoring:3100
+      encoding:
+        codec: json
+        except_fields: [__host]
+      labels:
+        hostname: "{{`{{ node }}`}}"
+        facility: "{{`{{ facility }}`}}"
+        log_type: "talos_kernel"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    loki_talos_service:
+      type: loki
+      inputs: [talos_service_transform]
+      endpoint: http://loki.system-monitoring:3100
+      encoding:
+        codec: json
+        except_fields: [__host]
+      labels:
+        hostname: "{{`{{ node }}`}}"
+        service: "{{`{{ service }}`}}"
+        log_type: "talos_service"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
     prometheus:
       type: prometheus_exporter
-      inputs:
-        - host_metrics
+      inputs: []
       address: 0.0.0.0:9598
 
 # Tolerations to run on all nodes
 tolerations:
   - operator: Exists
 
-# Service for the agent
 service:
   type: LoadBalancer
   ports:
@@ -181,7 +144,6 @@ service:
       targetPort: 6051
       protocol: UDP
 
-# Resources for the agent
 resources:
   limits:
     cpu: 500m
