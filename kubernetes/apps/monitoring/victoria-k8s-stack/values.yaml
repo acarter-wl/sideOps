@@ -16,7 +16,7 @@ nameOverride: ""
 # -- Resource full name override
 fullnameOverride: ""
 # -- Tenant to use for Grafana datasources and remote write
-tenant: "wakkalabs"
+tenant: ""
 # -- If this chart is used in "Argocd" with "releaseName" field then
 # VMServiceScrapes couldn't select the proper services.
 argocdReleaseOverride: ""
@@ -38,9 +38,9 @@ victoria-metrics-operator:
     disable_prometheus_converter: false
     # Add webhook configuration to fix TLS validation issues
     webhook:
-      enabled: false
+      enabled: true
     admissionWebhooks:
-      enabled: false
+      enabled: true
       failurePolicy: Ignore
 
 defaultDashboards:
