@@ -361,6 +361,13 @@ vmcluster:
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001
+      resources:
+        limits:
+          cpu: "2"
+          memory: 4Gi
+        requests:
+          cpu: "500m"
+          memory: 1Gi
       storage:
         volumeClaimTemplate:
           spec:
@@ -375,6 +382,18 @@ vmcluster:
       port: "8480"
       replicaCount: 2
       extraArgs: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      resources:
+        limits:
+          cpu: "2"
+          memory: 2Gi
+        requests:
+          cpu: "500m"
+          memory: 512Mi
 
   ingress:
     storage:
