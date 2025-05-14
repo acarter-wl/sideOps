@@ -60,9 +60,9 @@ customConfig:
         }
 
         if exists(.msg) {
-          msg_str = string!(.msg)
+          msg_str = to_string(.msg) ?? ""
 
-          if msg_str =~ "MachineService" {
+          if contains(msg_str, "MachineService") {
             .service = "machined"
             parts = split(msg_str, "[")
             if length(parts) >= 2 {
@@ -75,7 +75,7 @@ customConfig:
 
           duration_match = parse_regex(msg_str, r'(?P<duration>\d+\.\d+)(µ|m|n)?s') ?? {}
           if exists(duration_match.duration) {
-            .duration = to_float(duration_match.duration)
+            .duration = to_float(duration_match.duration) ?? 0.0
           }
         }
 
@@ -88,8 +88,8 @@ customConfig:
         .log_type = "unmatched"
 
         if exists(.msg) {
-          msg = string!(.msg)
-          if match(msg, r"machined") {
+          msg = to_string(.msg) ?? ""
+          if contains(msg, "machined") {
             .log_type = "talos_service"
             .service = "machined"
           }
