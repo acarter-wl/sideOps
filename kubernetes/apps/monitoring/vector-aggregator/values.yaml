@@ -67,11 +67,11 @@ customConfig:
         if exists(.pod_labels) {
           # Extract important labels into separate fields for easier templating
           .pod_app = .pod_labels.app ?? "unknown"
-          .pod_component = .pod_labels["app.kubernetes.io/component"] ?? "unknown"
-          .pod_instance = .pod_labels["app.kubernetes.io/instance"] ?? "unknown"
-          .pod_name = .pod_labels["app.kubernetes.io/name"] ?? "unknown"
-          .pod_part_of = .pod_labels["app.kubernetes.io/part-of"] ?? "unknown"
-          .pod_version = .pod_labels["app.kubernetes.io/version"] ?? "unknown"
+          .pod_component = .pod_labels['app.kubernetes.io/component'] ?? "unknown"
+          .pod_instance = .pod_labels['app.kubernetes.io/instance'] ?? "unknown"
+          .pod_name = .pod_labels['app.kubernetes.io/name'] ?? "unknown"
+          .pod_part_of = .pod_labels['app.kubernetes.io/part-of'] ?? "unknown"
+          .pod_version = .pod_labels['app.kubernetes.io/version'] ?? "unknown"
         }
 
     # Talos kernel logs processing
@@ -103,7 +103,7 @@ customConfig:
         }
         # Ensure component exists for labeling
         if !exists(.component) {
-          .component = .service ?? "unknown_service_component"
+          .component = .service
         }
 
         # Process message content if available
