@@ -395,7 +395,7 @@ alertmanager:
       tag: v0.28.1
     externalURL: "https://alertmanager.wakkalabs.com"
     routePrefix: /
-    configSecret: ""
+    configSecret: "alertmanager-config"
   useManagedConfig: false
   config:
     route:
@@ -532,7 +532,6 @@ defaultDatasources:
               name: TraceID
               url: "$${__value.raw}"
               datasourceUid: tempo
-        plugins: loki
       - name: Tempo
         type: tempo
         access: proxy
@@ -553,7 +552,6 @@ defaultDatasources:
             enabled: true
           lokiSearch:
             datasourceUid: "loki"
-        plugins: tempo
 
   alertmanager:
     perReplica: false
@@ -569,6 +567,8 @@ grafana:
   enabled: true
   adminPassword: admin
   defaultDashboardsEnabled: true
+  image:
+    tag: "10.2.3"
   resources:
     limits:
       cpu: 500m
@@ -577,7 +577,7 @@ grafana:
       cpu: 200m
       memory: 512Mi
   persistence:
-    enabled: true
+    enabled: false # Changed from true to false to address FSGroup bugs with Ceph
     storageClassName: "ceph-block"
     size: 30Gi
   sidecar:
@@ -595,9 +595,7 @@ grafana:
       enabled: true
       multicluster: false
   forceDeployDatasource: true
-  plugins:
-    - victoriametrics-metrics-datasource
-    - grafana-loki-datasource
+  plugins: "victoriametrics-metrics-datasource,grafana-loki-datasource" # Fixed comma-separated format
   ingress:
     enabled: true
     ingressClassName: "internal"
@@ -747,15 +745,6 @@ kubeControllerManager:
     targetPort: 10257
     selector:
       component: kube-controller-manager
-    tlsConfig:
-      insecureSkipVerify: true
-      endpoints:
-        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-          port: http-metrics
-          scheme: https
-          tlsConfig:
-            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-            insecureSkipVerify: true
   vmScrape:
     spec:
       jobLabel: jobLabel
@@ -767,7 +756,7 @@ kubeControllerManager:
           scheme: https
           tlsConfig:
             caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-            insecureSkipVerify: true # <-- Add this line
+            insecureSkipVerify: true
 
 kubeDns:
   enabled: false
