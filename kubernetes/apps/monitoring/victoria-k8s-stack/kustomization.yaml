@@ -19,12 +19,6 @@ configMapGenerator:
       grafana_dashboard: "1"
   files:
   - "dashboards/argocd-application.json"
-- name: argocd-dashboard
-  options:
-    labels:
-      grafana_dashboard: "1"
-  files:
-  - "dashboards/argocd-dashboard.json"
 - name: blackbox-exporter
   options:
     labels:
