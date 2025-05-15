@@ -1,11 +1,11 @@
 compactor:
     persistence:
         enabled: true
+        mountPath: /var/loki/compactor
         accessModes:
             - ReadWriteOnce
         size: 20Gi
         storageClass: ceph-block
-        mountPath: /data/loki/compactor
 loki:
     schemaConfig:
         configs:
@@ -38,7 +38,7 @@ loki:
     querier:
         max_concurrent: 4
     compactor:
-        working_directory: /data/loki/compactor
+        working_directory: /var/loki/compactor
         compaction_interval: 10m
         retention_enabled: true
         retention_delete_delay: 2h
@@ -74,8 +74,8 @@ sops:
             bzN1bVpSckNPNFVGSmhvTngwUFI0Y3MKCA6RLFGm9nNRKy/IyHJUfFtiO/wbO2bi
             iBCCndsT+mThEj6/SdsHdppfPNPh2gh7tv0x1cg60M39b7ESBYo7Vw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-15T07:11:46Z"
-    mac: ENC[AES256_GCM,data:JhGg1mBCytIekemgQwxx74oaKbG1hLWNv6RtkISJTgQk+S6J/baDM885M1UhCB+GYepuev20lByKrB9rvHW5+JRW/6yl1LwJ4uY23/N8CeRBEX50I1ZMM2Xhz0h6R7jKa6+t28R4eC0TY/m2gSsqVPMD8hghjVutem4emmiiZVY=,iv:5KbxYX4Jv6XgTKliVmIdxs2Js1vdTPBwkLDu1dR0b9E=,tag:Npzt4JawtB7+H4WRbKjgCg==,type:str]
+    lastmodified: "2025-05-15T07:13:49Z"
+    mac: ENC[AES256_GCM,data:+6LPm1SdDYnNh1Q2JXMKPo95jL3o83lxBXsF8ptMziODIXLYYP8lb26/PuvnxIM9WJlOZMO2U/HUIVEo1g/vG7/DtP2siVbDrRKBt1TKc5XqhUdERIqHEXEO3fqrwrYw4pMGUbxYnjkXwAmvWlUHjMWhhNfojO0BZPZhjYTT6PA=,iv:csBuWdQoo5R5M2MODViJ50ch3sq3i4wfi5e1xynxKhs=,tag:mAXT2sszAN/SKrMQc2d1kw==,type:str]
     encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
     mac_only_encrypted: true
     version: 3.10.2
