@@ -12,12 +12,12 @@ data:
       - name: Loki
         access: proxy
         isDefault: false
-        url: http://loki-gateway
-        # jsonData:
-        #   httpHeaderName1: X-Scope-OrgID
-        # secureJsonData:
-        #   httpHeaderValue1: "1"
-        # orgId: 1
+        url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+        jsonData:
+          httpHeaderName1: X-Scope-OrgID
+        secureJsonData:
+           httpHeaderValue1: "1"
+        orgId: 1
         type: loki
         # derivedFields:
         #   - datasourceName: Tempo
