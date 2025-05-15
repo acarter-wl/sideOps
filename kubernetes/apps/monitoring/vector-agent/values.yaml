@@ -76,6 +76,9 @@ customConfig:
     loki_kubernetes:
       type: loki
       inputs: [kubernetes_logs_transform]
+      request:
+        headers:
+          X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
