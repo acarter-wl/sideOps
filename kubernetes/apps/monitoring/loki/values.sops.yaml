@@ -16,13 +16,13 @@ loki:
       ruler: ceph-ruler
       admin: ceph-admin
     s3:
-      endpoint: ENC[AES256_GCM,data:e44bQPgbSiq/obvCrYynKstzNxN8D85isFGLm54OXK1rew547lrWUp9o6eZvPvRE6OMcPVXhBAugW4E+DrcLSK8=,iv:tgZW1T8S2LGLi5q1lHIyyiTaNxh/GHxQmNeblcFYHfc=,tag:85af8lVP7DCHunOh0xJ/Ew==,type:str]
-      region: ENC[AES256_GCM,data:zxlwdZypMm/y,iv:3s2UiVyNtw9Bt+5bnPPMRDMiOyhO3A7bxs9/LNdOnBE=,tag:/h3Z1i7eSWKKFK92foEgNg==,type:str]
-      accessKeyId: ENC[AES256_GCM,data:PWC3l4UWbQRruWGbHcPjwb5B6m8=,iv:pgXBFOyPRE8ToTrVq3G9omSW1uWNA0OauwAk3Xee+L8=,tag:MyGtEpXJfv6G0iN/fZ+aGg==,type:str]
-      secretAccessKey: ENC[AES256_GCM,data:mtkcrWbN5MFpVEH1yC0b2PQuFTSrvYvGo0UPMcRbOwFL7AU7lxGUZA==,iv:+nVEQbzLTf68t1KzRocRmwjG13RtYXWGFFLVAeU/wsE=,tag:zDPR2VHOWLUswf5CXcLXkw==,type:str]
-      signatureVersion: ENC[AES256_GCM,data:2Jk=,iv:JwpaJIftVXbUsyVniW5rVhqXYLlZ21O7ZpgilA8UL0o=,tag:vmf4eK8o6dMmadD3+Y0b2w==,type:str]
-      s3ForcePathStyle: ENC[AES256_GCM,data:dMbzyw==,iv:Iycbw9VQCRBfwYDD3pnYjDbSN4S/b8VQ6EvNE1Z9wao=,tag:Yj8NpG+x56XFd9nAnfGkew==,type:bool]
-      insecure: ENC[AES256_GCM,data:c0XUgg==,iv:cx2/tjZPc1tJfzoMj/hloNbo1YXYhAQqD323KSM9Wdo=,tag:uW3DRl7eOeTx/oAPDFMDwQ==,type:bool]
+      endpoint: ENC[AES256_GCM,data:+RBCM6Aw74y9arx11GjIQ/5P6GlrYyqcgAmnHI8LqmVlHGYTMK0SXc+cFC8Stg0XeL2Xki2Jy1YlU7uTGofDI+M=,iv:3PEdLEgsTWTC4d9PLzB/aZPPDg/eye7fl2up8RLjOvM=,tag:RkfGNOW1qRiJfRg+f2FXtg==,type:str]
+      region: ENC[AES256_GCM,data:DfEVBSsHskpC,iv:4x2G8GcemMsbJJBAru8TBm4S2CD2nsBB4D94q8Ym9lE=,tag:UuJsK/3M/0/4WHhAu4VDRA==,type:str]
+      accessKeyId: ENC[AES256_GCM,data:rfv/Fq6BbNHrzurfSAp2keeZx7A=,iv:XFAyDodRMXovsKoJJHMVHuxAgKazMmFVK+2cQ6CNRKA=,tag:V9/DYOYgGhwymc1Cfm95XA==,type:str]
+      secretAccessKey: ENC[AES256_GCM,data:/882npl4N054wTa7VnKbXgRmZUhAJv4BnzcfOYQ/lFKnTWL3pJZJ4g==,iv:Q3Yc4yUNNwwYtPCIacHcWaBGxEqXZKm3FIazbPX4jd4=,tag:0gY0m4cIblE2rERyotjLMg==,type:str]
+      signatureVersion: ENC[AES256_GCM,data:gas=,iv:6oflwFwekIes0e8xhwMVfgmfd/Ww1cPCCHlEsfQ612w=,tag:D/3QIsh2KJm1z0Ehi6OO/Q==,type:str]
+      s3ForcePathStyle: ENC[AES256_GCM,data:a/L9Ow==,iv:JmuVX71ha5Mc5m82outjh6eA7d6+Q/vjjs91ygyih6g=,tag:DAvJnrYccpIlpGUo4ZkOKA==,type:bool]
+      insecure: ENC[AES256_GCM,data:GqTsAg==,iv:/vmM1yuppZCb1Xv+asy2FrQ/B/Yv1Q6TuRehGI9zVOM=,tag:DCy/C7YFiPc6QT6nQMn7qw==,type:bool]
       http_config: {}
   limits_config:
     allow_structured_metadata: true
@@ -62,8 +62,10 @@ write:
 minio:
   enabled: false
 gateway:
-  service:
-    type: LoadBalancer
+  auth:
+    enabled: false
+    service:
+      type: LoadBalancer
 tracing:
   enabled: true
 sops:
@@ -71,14 +73,14 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBGZE5abkx3bGxIeFVQeDBB
-        NGU2RndPZmhFUWUyeHNVQkNCajMwNWNZdGxzCnVtUkVBUDBUbVBRWTd1c0l0NjNx
-        SEdDUVE2RFRRQi9id0ZacHYvOE53bVEKLS0tIEJVK2dGaU5wMHFGYysrYzhmdWRW
-        cis4d0hpNHNGc2tPOGV5YVQxUUZ6SE0KIoEWH1z8s0nARgnThFzG+INzyA8h3f/S
-        3rTwvAgagIT/ko/L3Z45Kz5MWCAOAiDPHfCw1T051q3/JUWgTVAooA==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBOaGF6SE1PbG9sYzlYZzdC
+        NnFUc2loOWJzbzJROGhRby9Yb0hEbG9UUnc4CnEwWGc2U1dESmdpUU0xYVBCcHEy
+        bkdpSWplamVFWFpnY2xlUjRwTTg3SkUKLS0tIGVEcEF6UDlLTUdzbk83Q2p0K2FO
+        RU9MaXZ6N3B5RGlZeXE4WnBGV2hNQUkKxSHWQ+EaXU0kc3j+A3IA7bzuwd1L9NtM
+        Z6BPZQuvnxTCrJDyYv5qpplsDOXcBRAmuNFsjMKykG7n/W/CvTX1mQ==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-05-15T08:03:42Z"
-  mac: ENC[AES256_GCM,data:XK+lDFBaNqeSsqiDWBlyLPJBDnadrDBSJlcQL4Q8bjBaf2K0ZXJ7YZTvmD4xTGJy+fMNxhAgLmQV5vW51PC2XmKSrs1bCRSyGvdgNgtUH1hP2rlKsCFptlym2ehjgyg34quOEoJSjnKWlAKhALc4ioiBsk3ssJtdA2nRpsd5hzE=,iv:TzE9L5Sv5HB/yR9oKw5mrzdTtCwNwuj98NngrEulMs0=,tag:Tw41HNSA1xEMPcQvsbL5OA==,type:str]
+  lastmodified: "2025-05-15T08:15:18Z"
+  mac: ENC[AES256_GCM,data:Dhz83PwAescIv7HQaie1S6ljRmmaD4QiakcecV0tTUNHHM1lawxgA9/hVxqZl5o6cCZpOCe5aXtR23eDAnT6ytCJsrEHo3sjZ44RH1Fs2tzqHSphk9Alls+rx3tN2yCmDNyT6SMOoUlfyfYq9o1vGpcX+njucx+ZUfbd4bHWAG4=,iv:uh/bCYeQngRl3JMGXkBT+OSbLfwhVvUYpRJT1I72rzk=,tag:B5yOmAkT88C3ouz3dQSkdw==,type:str]
   encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
   mac_only_encrypted: true
   version: 3.10.2
