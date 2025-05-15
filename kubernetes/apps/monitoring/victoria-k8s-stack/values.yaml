@@ -369,20 +369,19 @@ defaultDatasources:
   grafanaOperator:
     enabled: false
   victoriametrics:
-    enabled: false
-    default: false
+    enabled: true  # Change to true
+    default: true  # Change to true
   loki:
     enabled: false
     default: false
   alertmanager:
-    enabled: false
+    enabled: true
     default: false
-
-
 grafana:
   enabled: true
   adminPassword: admin
-  defaultDashboardsEnabled: true
+  # Turn off default dashboards since you're using custom ones
+  defaultDashboardsEnabled: false
   resources:
     limits:
       cpu: 500m
@@ -410,21 +409,28 @@ grafana:
           isDefault: true
           jsonData:
             timeInterval: "15s"
-
-  # Added dashboardProviders configuration for data source substitution
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
         - name: 'default'
-          folder: ''
+          folder: 'Default'  # Added folder name
           type: file
           disableDeletion: false
           editable: true
           options:
-            path: /var/lib/grafana/dashboards
+            path: /var/lib/grafana/dashboards/default
             foldersFromFilesStructure: true
-
+        # Add a separate provider for the victoria-metrics dashboards
+        - name: 'victoria-metrics'
+          folder: 'Victoria Metrics'  # Separate folder
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/victoria-metrics
+            foldersFromFilesStructure: true
+  # Added dashboardProviders configuration for data source substitution
   # Added configuration for data source variables handling
   grafana.ini:
     dashboards:

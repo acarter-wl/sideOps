@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-logging
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"  # Changed from "1" to "true"
+  // annotations:
+  //   grafana_folder: "ArgoCD"  # Add folder annotation
+data:
+  vector-logging.yaml: |-
 {
   "__inputs": [
     {

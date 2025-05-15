@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-operational
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"  # Changed from "1" to "true"
+  // annotations:
+  //   grafana_folder: "ArgoCD"  # Add folder annotation
+data:
+  argocd-operational.json: |-
 {
   "__inputs": [],
   "__requires": [],

@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ceph-cluster
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"  # Changed from "1" to "true"
+data:
+  ceph-cluster.json: |-
 {
   "__inputs": [
     {

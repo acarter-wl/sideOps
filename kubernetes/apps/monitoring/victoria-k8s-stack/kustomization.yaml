@@ -12,40 +12,40 @@ configMapGenerator:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/argocd-operational.json"
+  - "dashboards/argocd-operational.yaml"
 - name: argocd-application-dashboard
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/argocd-application.json"
+  - "dashboards/argocd-application.yaml"
 - name: blackbox-exporter
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/blackbox-exporter.json"
+  - "dashboards/blackbox-exporter.yaml"
 - name: vector-dashboards
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/vector.json"
+  - "dashboards/vector.yaml"
 - name: vector-logging
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/vector-logging.json"
+  - "dashboards/vector-logging.yaml"
 - name: ceph-cluster
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/ceph-cluster.json"
+  - "dashboards/ceph-cluster.yaml"
 - name: proxmox-overview
   options:
     labels:
       grafana_dashboard: "1"
   files:
-  - "dashboards/proxmox-overview.json"
+  - "dashboards/proxmox-overview.yaml"
