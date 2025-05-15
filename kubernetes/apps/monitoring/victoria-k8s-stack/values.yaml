@@ -365,107 +365,47 @@ vmagent:
         hosts:
           - vmagent.wakkalabs.com
 
-defaultDatasources:
-  grafanaOperator:
-    enabled: false
-  victoriametrics:
-    enabled: true  # Change to true
-    default: true  # Change to true
-  loki:
-    enabled: false
-    default: false
-  alertmanager:
-    enabled: true
-    default: false
 grafana:
   enabled: true
   adminPassword: admin
-  # Turn off default dashboards since you're using custom ones
+  # Disable the built-in dashboards to avoid duplication
   defaultDashboardsEnabled: false
-  resources:
-    limits:
-      cpu: 500m
-      memory: 1Gi
-    requests:
-      cpu: 200m
-      memory: 512Mi
-  persistence:
-    enabled: true
-    storageClassName: "ceph-block"
-    size: 30Gi
-    accessModes:
-      - ReadWriteOnce
-    annotations: {}
 
-  # Added datasources configuration for VictoriaMetrics
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: VictoriaMetrics
-          type: prometheus
-          url: http://vmselect-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8481/
-          access: proxy
-          isDefault: true
-          jsonData:
-            timeInterval: "15s"
+  # Clean up dashboard providers
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
         - name: 'default'
-          folder: 'Default'  # Added folder name
+          orgId: 1
+          folder: ''
           type: file
           disableDeletion: false
           editable: true
           options:
             path: /var/lib/grafana/dashboards/default
-            foldersFromFilesStructure: true
-        # Add a separate provider for the victoria-metrics dashboards
-        - name: 'victoria-metrics'
-          folder: 'Victoria Metrics'  # Separate folder
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/victoria-metrics
-            foldersFromFilesStructure: true
-  # Added dashboardProviders configuration for data source substitution
-  # Added configuration for data source variables handling
-  grafana.ini:
-    dashboards:
-      default_home_dashboard_path: /var/lib/grafana/dashboards/default/kubernetes-cluster-dashboard.json
-    auth:
-      disable_login_form: false
-    security:
-      allow_embedding: true
-    variables:
-      datasource_variable_compatibility_mode: true  # This enables transparent variable substitution
 
+  # Fix the sidecar
   sidecar:
-    datasources:
-      enabled: true
-      initDatasources: true
-      label: grafana_datasource
-      searchNamespace: ALL
     dashboards:
-      provider:
-        name: default
-        orgid: 1
-        # Added options for data source variables replacement
-        options:
-          path: /var/lib/grafana/dashboards
-          datasourceVariablesEnabled: true  # Enable replacing variables
-          datasourceVariableValue: "VictoriaMetrics"  # With this value
-      folder: /var/lib/grafana/dashboards
-      defaultFolderName: default
       enabled: true
-      multicluster: false
+      label: grafana_dashboard
+      searchNamespace: ALL
       folderAnnotation: grafana_folder
-      skipReload: false
-      initialDelay: 60
-      searchTimeout: 60
+      provider: default
 
+  # Add a postStart hook to clean up duplicate dashboards
+  extraContainers:
+    - name: dashboard-deduplicator
+      image: curlimages/curl:7.81.0
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          # Wait for Grafana to start
+          sleep 30
+          # Clean up duplicate dashboards
+          curl -X POST -H "Content-Type: application/json" -u admin:admin "http://localhost:3000/api/admin/provisioning/dashboards/reload"
+          echo "Dashboard provisioning reloaded"
   readinessProbe:
     httpGet:
       path: /api/health
