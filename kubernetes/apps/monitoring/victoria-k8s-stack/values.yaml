@@ -368,32 +368,25 @@ vmagent:
 grafana:
   enabled: true
   adminPassword: admin
-  # Disable the built-in dashboards to avoid duplication
   defaultDashboardsEnabled: false
 
-  # Clean up dashboard providers
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: 'default'
-          orgId: 1
-          folder: ''
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
+  # Properly structured dashboard providers
+  dashboardProviders: {}
 
-  # Fix the sidecar
+  # Fix the sidecar with proper provider structure
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
       searchNamespace: ALL
       folderAnnotation: grafana_folder
-      provider: default
-
+      provider:
+        name: default
+        orgid: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        allowUiUpdates: false
   # Add a postStart hook to clean up duplicate dashboards
   extraContainers:
     - name: dashboard-deduplicator
