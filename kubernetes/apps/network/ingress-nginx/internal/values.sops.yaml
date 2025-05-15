@@ -11,7 +11,7 @@ controller:
   admissionWebhooks:
     objectSelector:
       matchExpressions:
-        - key: ingress-class
+        - key: ENC[AES256_GCM,data:NfvAp/dsvxea/Rj3Ww==,iv:vaCBEf9Kx/ySUXgEsxXssDAhvUy0gBr3T5MXy599p1w=,tag:+cq9gw647Nwl0um5uZ5ucg==,type:str]
           operator: In
           values:
             - internal
@@ -32,8 +32,9 @@ controller:
     keep-alive-requests: 10000
     keep-alive: 120
     log-format-escape-json: "true"
-    log-format-upstream: |
-      {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status": $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time, "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}
+    log-format-upstream: $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
+    # log-format-upstream: |
+    #     {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status": $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time, "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}
     proxy-body-size: 0
     proxy-buffer-size: 16k
     ssl-protocols: TLSv1.3 TLSv1.2
@@ -51,19 +52,27 @@ controller:
       cpu: 100m
     limits:
       memory: 500Mi
+  volumes:
+    - name: nginx-config
+      configMap:
+        name: nginx-config
+  volumeMounts:
+    - name: nginx-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
 sops:
   age:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCU0RjelovYkszQ1ZVcTBK
-        UWVIcFBTMUNzdk9JSCt1a0RyaW5hSkRWMVFrCmx3allNc1hia1BNNU9RTHVCNUFK
-        VnlJdTNlSHhJS0JXeDRXcjBoZ3RwMHMKLS0tIGJWeWZmQkswcTZWUC9VcnR5dmlP
-        NThZTnlaeG94d2lDbXdmRlhabnI2ZXMK+HPj89Gpjm7eFL1dgqz8/pKujcXQVDHx
-        DpaI+726AHGzXX7Y7YdXQ8TNhyruKVmzd2IEORLSB8RMMVp73DrJtQ==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzWDgrckluK1JRdU1uWHlh
+        Ylhjakd4YnUyRXhuN2pwMkFWNk1lV25NM3p3CnVQWE9VaElZOWJGQ1V6eU1uYjl4
+        SDhmR2VXdEpyUG5VNm9KTnR3NFBFMmsKLS0tIGhsOTVCVC81UWZGMmxKS0t5MHZL
+        b2QrTWNnUm9ZdWljRzdRM1JhSDFMbnMKHiQ0YcanJdrIq9599IfEdBR9VEE+Wc0c
+        0SgFKMU8arJtmIL4R41Xo75+8b8/ZBhMJ0rBK/+Izv/wzH63mZNoCg==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-05-02T04:30:51Z"
-  mac: ENC[AES256_GCM,data:CQH/RYMq5kY7gTf1IhFqWtYcDSluzfownKbFCVmITiUq1rjDSBfv9nHdln8OrhLBRBI/A+7yA3GZ6cReHwrQIxcCOxGi5BOrmk7DLuYcISEHN4/rGfsCF5sTUCnLiDfbQ6UvIZm3orHdAHC16f1J3ZfSXjw/1LSA6r8OJiizxSg=,iv:4mC3nH0OvmecdW1lu2cH0gv+buR8mj8lQ7lBtHF87c0=,tag:sELVCge2u0cppD35rEhkSA==,type:str]
-  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2025-05-15T08:46:55Z"
+  mac: ENC[AES256_GCM,data:RLIsM6j2GC5F9xdq+PhqJ91s3na7+o9xE3dbMS8TMjLmzh5hEzKq/rrF6gA/HiW3Z9E7hcuuQDfLuEHNCDn3JGEGrUpIjbXj8C9ANqkDo2ZmHxUD3C8IsMAzGJQVE+I8aWaxEbT6Lds0YB8Rznd/hDONB8Qs6GgDKBSHevK2UQk=,iv:CA0Qc51gZUqqpV//vuCwV4VkPT9rQURuoFDsodvs50U=,tag:eJfiIt3hr26f+Wyi2VkbJQ==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
   mac_only_encrypted: true
   version: 3.10.2
