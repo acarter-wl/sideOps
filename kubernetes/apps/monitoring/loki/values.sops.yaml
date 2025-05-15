@@ -1,83 +1,84 @@
 compactor:
-    persistence:
-        enabled: true
-        mountPath: /var/loki/compactor
-        accessModes:
-            - ReadWriteOnce
-        size: 20Gi
-        storageClass: ceph-block
-loki:
+  persistence:
+    enabled: true
+    mountPath: /var/loki/compactor
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+    storageClass: ceph-block
+  loki:
+    auth_enabled: false
     schemaConfig:
-        configs:
-            - from: "2024-04-01"
-              store: tsdb
-              object_store: s3
-              schema: v13
-              index:
-                prefix: loki_index_
-                period: 24h
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
     storage:
-        type: s3
-        bucketNames:
-            chunks: ceph-chunks
-            ruler: ceph-ruler
-            admin: ceph-admin
-        s3:
-            endpoint: ENC[AES256_GCM,data:AT8HsemGLAqmcXePZ2wsv1TU1gH7EJ6qN2vEs5DX8dGvQO2Af5O1Ttjh5nBHgpgzFHi+7+hCzcl2emsYrw9hXNM=,iv:CZx9kBNv/iwaxtiRpQ7iFz9dt08pNKlXE3VBZSBFaxA=,tag:FaS660tbavTyKh8i1/ozOg==,type:str]
-            region: ENC[AES256_GCM,data:6zjzR+36jA0g,iv:R1Tio5Tg1feEMhR71UsDpIB7zeviJ8VL3JY0tABw0zM=,tag:gdYDaIpUFUgYn+JJTxuceA==,type:str]
-            accessKeyId: ENC[AES256_GCM,data:tUCe1ebTZy7VZSmfZYrNdbEBEzY=,iv:PBYFzmHLXMtLEHcm3QoyrHC11HXn4IqTNNulE6aRcC0=,tag:PIjsbWxsZwIQRRDMega2ew==,type:str]
-            secretAccessKey: ENC[AES256_GCM,data:3P2OQqTcDVD3MadyfbEz2VSsARNerEXvWy1VxJtGGILvZoQ0qO11sQ==,iv:1q7nd+q4MYxpD5DJD4LWNKR9HMvDCm1zon0+u0fgNFw=,tag:xoyVLzVoWKsWQhQJaFvx/Q==,type:str]
-            signatureVersion: ENC[AES256_GCM,data:ygA=,iv:djcSioIRIKsdXLUwXq8xU73tZalYKbx7TaNgXlbX0Pk=,tag:aSF1Y8kybr6iXF/JjTe5NQ==,type:str]
-            s3ForcePathStyle: ENC[AES256_GCM,data:sNdbbw==,iv:pES22tV28Kmqjd4eP1u0Xvy9VUeYPXK1SXQvz18jooE=,tag:OQof6PeEuebl1C1GYo15hg==,type:bool]
-            insecure: ENC[AES256_GCM,data:pKvYXQ==,iv:IhQl7fjzEdMg7UgV2BsqXKRG3PBMWJpJGMWli+GGMNk=,tag:hMze1cZIYbHEk26kHbwtDw==,type:bool]
-            http_config: {}
+      type: s3
+      bucketNames:
+        chunks: ceph-chunks
+        ruler: ceph-ruler
+        admin: ceph-admin
+      s3:
+        endpoint: ENC[AES256_GCM,data:3aMlVagSFERNcnnIfIIWECVvDvp1zjDYLkaiGySHp2PdPZ9WrkEMiFftzibo4zDsKvMbBmBnm8PCstWsiQ5iQ2M=,iv:HPH+9pQgTXni+LQxvpAQUGeWZjoHiJIVmnrPn7kcTJ4=,tag:qcUWoAWfgQrNr9ghhVDFIQ==,type:str]
+        region: ENC[AES256_GCM,data:ogXNB7KC6xtq,iv:Ex7C6WeqMVgkjZr41uFam1X+2DNfqIdaHXNAQlnzj9I=,tag:g+9rO1zmR3/Yaq4fNYH9tw==,type:str]
+        accessKeyId: ENC[AES256_GCM,data:F2qfzeCnDIPSoX8vOyoag8qBPiQ=,iv:RQZanM8tULfwBTkXhc+U3kYjG7AmCF7p+0pQshM2TFc=,tag:3tTj8WA1tA4rqs0enHhQNA==,type:str]
+        secretAccessKey: ENC[AES256_GCM,data:ak0ekVkyLl0gqIJV289jmM8dKNKt9bzAX/Z1vs7Mjd50yJ/flB1H7w==,iv:rFSIjE63ascUkt9XMNnL5c3LCl64JLxgG4ZOUIogzsk=,tag:uHgTiYbsoj4yd8ulao2I5A==,type:str]
+        signatureVersion: ENC[AES256_GCM,data:b4w=,iv:6l1KRCE8gbg1qIjnY+LS5iTpT4IB285Q8X8Vx9bmBKo=,tag:l9kkgZ9XHYyBkCZvLL5EHg==,type:str]
+        s3ForcePathStyle: ENC[AES256_GCM,data:MTaW3A==,iv:VkzU4SQnI2xh/y0T+s/nZJky46juHW4hS1s+X8jrD5Q=,tag:I5S2k7ZTWs2MrwzBIDpPQA==,type:bool]
+        insecure: ENC[AES256_GCM,data:/OjWaA==,iv:iYEb2du4+filLEbu8RJlIBkLXuHPiS2dttyT+8VxReM=,tag:p4b03UvdKHJv0x6v98DqJw==,type:bool]
+        http_config: {}
     limits_config:
-        allow_structured_metadata: true
+      allow_structured_metadata: true
     ingester:
-        chunk_encoding: snappy
+      chunk_encoding: snappy
     querier:
-        max_concurrent: 4
+      max_concurrent: 4
     compactor:
-        working_directory: /var/loki/compactor
-        compaction_interval: 10m
-        retention_enabled: true
-        retention_delete_delay: 2h
-        delete_request_store: s3
+      working_directory: /var/loki/compactor
+      compaction_interval: 10m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      delete_request_store: s3
     query_scheduler:
-        max_outstanding_requests_per_tenant: 4096
+      max_outstanding_requests_per_tenant: 4096
     table_manager:
-        poll_interval: 2m
-        creation_grace_period: 10m
-        cache_table_names: true
+      poll_interval: 2m
+      creation_grace_period: 10m
+      cache_table_names: true
 deploymentMode: SimpleScalable
 lokiCanary:
-    enabled: true
+  enabled: true
 backend:
-    replicas: 2
+  replicas: 2
 read:
-    replicas: 2
+  replicas: 2
 write:
-    replicas: 3
+  replicas: 3
 minio:
-    enabled: false
+  enabled: false
 gateway:
-    service:
-        type: LoadBalancer
+  service:
+    type: LoadBalancer
 tracing:
-    enabled: true
+  enabled: true
 sops:
-    age:
-        - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBreC9lM3JEc3hldW5IV3NQ
-            TE1WT2NUWmZxaUtFdFRWZTAyWDlma2tmaGtFCm96cS9QSFUwMWdxTFJBNDRtNjZn
-            RjFldWJhRjVvQmZxNkVzNWNHWmYzeHcKLS0tIDluQ2tKdWZ4OUdqdUVhMUhqZ2FE
-            YlJZZUdwK0hjbjJ5RXQrejM5RVNMck0KzQ2d2Ce2GngLKH19Z2J1lehBoblUW6zL
-            k+AZRgC8tgHiiyQp6VpDQiOYcQWlDe5SziNgmPinjccMLKPxADpA+g==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-15T07:27:12Z"
-    mac: ENC[AES256_GCM,data:+018485837d4EJoK49MWZODzOjUfL527qS2xuAAfAUcLN+Km36PSvu23t/4KEkXW0EKcw/hAvzhk6kvIfQI3K/QbFc9QHnIPoG2XZlGH70Dok3AIVxC01RDzL5UcJ7BbJuYY+1l+NMsheA3xPtZ0+jivcHxSLqxDSoSpT9LCQoQ=,iv:uIsEEwKV4cCd3XcvZ/m1TSZzU774E1BhYx92hoNnyU0=,tag:PdUcGxl1JhQqwAiPTUO+1w==,type:str]
-    encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
-    mac_only_encrypted: true
-    version: 3.10.2
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBibjJXSmRuUEhqTEV4K0Q3
+        eURVMmozdUg1ZmErM1lDdFZ2N0I4am44RGpnClVRNFlxNU40elJPdE9GWHdQdUpp
+        QVVIY3ZHNzNZSGxjemt1c3JRcXZXcFEKLS0tIGZiVEVoM2Vmd1BVV1VobC94dnl0
+        L25oOXBkUE1EZmQzNEI0RzltMGZpQU0KfALhGLbElcAtVB/XgPGHMB0X/8TEH7iX
+        UMI2lIV9IWfsL4jhnisTtCv41+Mf6Z/X75Mrz4z46dTdXeHsPEusFQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-05-15T07:58:01Z"
+  mac: ENC[AES256_GCM,data:j3xi/3F0xPrQCP62chrcz/6MCk0P3Ev1UehxTRDrtz9JL+bDz7mYsVvQ6bBmojiJUDHpzz9X3ekQoPU6C01ZvOb6jSa4jru3IdN9m65u35eGbOUWC/2FI8uGkYcvFFBlUJdzDXUnSbjryhF3/t575CvPQ/eK7Swn2g8gd/y7cyg=,iv:9SFAMI1AAd+QhfUZ5XSk3VoPN7v7ovofLEqNQrE1IUM=,tag:9AkI7DYFskCCeDw7nO7tDQ==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
+  mac_only_encrypted: true
+  version: 3.10.2
