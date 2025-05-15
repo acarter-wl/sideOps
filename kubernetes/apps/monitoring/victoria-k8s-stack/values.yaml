@@ -8,7 +8,7 @@ global:
 
 nameOverride: ""
 fullnameOverride: ""
-tenant: ""
+tenant: "1"
 argocdReleaseOverride: "argo-cd"
 
 victoria-metrics-operator:
@@ -495,7 +495,7 @@ kubelet:
   vmScrape:
     kind: VMNodeScrape
     spec:
-      scheme: "https"
+      scheme: http
       honorLabels: true
       interval: "30s"
       scrapeTimeout: "5s"
@@ -621,7 +621,7 @@ kubeEtcd:
         any: true
       endpoints:
         - port: metrics
-          scheme: https
+          scheme: http
           tlsConfig:
             ca:
               secret:
@@ -653,10 +653,22 @@ kubeScheduler:
       endpoints:
         - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
           port: http-metrics
-          scheme: https
+          scheme: http
+          # tlsConfig:
+          #   caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
           tlsConfig:
-            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-
+            ca:
+              secret:
+                name: etcd-client-certs
+                key: etcd-ca.crt
+            cert:
+              secret:
+                name: etcd-client-certs
+                key: etcd-client.crt
+            keySecret:
+              name: etcd-client-certs
+              key: etcd-client.key
+            insecureSkipVerify: false
 kubeProxy:
   enabled: false
   endpoints: []
@@ -675,7 +687,9 @@ kubeProxy:
         - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
           port: http-metrics
           scheme: https
-          tlsConfig:
-            caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+          # tlsConfig:
+          #   caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          #   insecureSkipVerify: true
 
 extraObjects: []
