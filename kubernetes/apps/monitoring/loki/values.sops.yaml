@@ -1,100 +1,83 @@
 compactor:
-    persistence:
-        enabled: true
-        mountPath: /var/loki/compactor
-        accessModes:
-            - ReadWriteOnce
-        size: 20Gi
-        storageClass: ceph-block
+  persistence:
+    enabled: true
+    mountPath: /var/loki/compactor
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+    storageClass: ceph-block
 loki:
-    schemaConfig:
-        configs:
-            - from: "2024-04-01"
-              store: tsdb
-              object_store: s3
-              schema: v13
-              index:
-                prefix: loki_index_
-                period: 24h
-    storage:
-        type: s3
-        bucketNames:
-            chunks: ceph-chunks
-            ruler: ceph-ruler
-            admin: ceph-admin
-        s3:
-            endpoint: ENC[AES256_GCM,data:NDYIMAZJysim6waXFBIgKU/+jAYPW+F6w/fBgjVsMuIqbLzzf68RPX6BGhvcYgc7g9mnHq2LWfVp2ezu31FCDaiNJXHqFGvaxBn7fq5FyJgHNSAxhmI6RVOPu2Nl1HoRsSjMvbVSGqPRegfcdtcFUBbK8IG+N6sxBMP3btWgqUVCEdvlyUtUDGUiaapcmLLCJmzIICPHPsoxuoqwu5Wc5S4QKshXT5QoOEIJsOETTcZbOK16OzueoXhAkL4BgLlK0TD5,iv:AIP7rQUSHY8xIp3zTMRBP7miC3KaVKmrO1xTTwhuxdk=,tag:mkuNtvTEFRxQh0n6LSJhnw==,type:str]
-            region: ENC[AES256_GCM,data:s8dXuYtppn8/DAxJxl3wZoec2buurqMf0j4zLbZXPmLK/EdxCNg5leqlDxQnSQsbhHOVBYx6GD41dQho+r+cq3Tekh8zntNKFI2rocEDOG6wQoXwikTYOD+rh2i+q286Gr+ioDQlYR0E0pEvL/vZmMrEA9n+BXU=,iv:CCgMErHgGOk1Pr7XGYIw2sRw2eYsLQ/PgLM0mGWx8Y0=,tag:19lHCD972RzAXICIometew==,type:str]
-            accessKeyId: ENC[AES256_GCM,data:LMZoXHdq/gq9oqOq5K//XwwGB7MHykg2sNboTH/OpRUmD04VVF7ztbOhdx4Ozl5hd0PqM7AR/hvi4OuxB7bZeNp7Qaw1LTjCIHB1aYxEDyXBARBttOnyejyMMVCcFKHbKkPDLsOHwrvWmlqBmfdHrVBAu3pSD6VdAEzcK1nlxZEyu7b6hnh5,iv:gJ1eX8dY+C+ZJQgHAwuFdZWvIzeZjlBVcIhoDiPTGVE=,tag:gxgShHYOR89c6GIwybSAUw==,type:str]
-            secretAccessKey: ENC[AES256_GCM,data:WX6p7L/2L9zU5RSTK4J9dUbbrqmHM6faQ6Z54Og8mpvi5iE9xne20uZjU107V1/+pnsGDRvcBOERWUCzeoaUYsKCFbqrTtX/7KqUDj1UA/d0pY6k+H6HwEj3DG7tNPUPvrIMFrbxARxqt9Nk3XNeAldmSkmu1nJdADhe7wuX2qWgg5yDnUAFha8+dDkGKDTdaMWFGEk/04tBZFpU+T1Dp9AKtA==,iv:rE5Pvdjhnt0yNBMWgKZ/uVgbLmolYtqChXNk28YifXU=,tag:f5cbNgjW36BpvRErTY/ihg==,type:str]
-            signatureVersion: ENC[AES256_GCM,data:aHjMjJvWGQwDPj7EmRk6VdSjGXfUg5TDOYojD37nZmTJu62cTE0XUxGTS+Gkbpi5MOuyhT9bP7G2vFeCY+FAQAUrkNMc/caNhjnxgx24DIJ2WGrg0Igsw0qvCvDDyzZOSmDEbkiw04ZNnRNVKLJ1,iv:0vKv1VIYjKLr/bssmv0DX3/3zDYgrax8gylv86if5vY=,tag:lzW/XaRH6crixt+034+B1w==,type:str]
-            s3ForcePathStyle: ENC[AES256_GCM,data:o3JDWHy6uTD3itqy++VcCe0wkLj83awB7T6DzY7q8MCb4MKiH7AYyMLU9xPnRsU8zIWanB4CuhZOUOiQ2rV2tBMD/2qo/sBdJI6MFn1qs52TJ83r373PSRLgGm+9o37jWk3Cehquz+ctVoC65FyVdWzSwUg=,iv:47yuVDD7ycPhKeizQvdCcVBJgBH6JqTNf3hwrZW7qw4=,tag:RUWikAK60Bjzb/KHAl9VgQ==,type:str]
-            insecure: ENC[AES256_GCM,data:gH6mKnZ8zn16SMUV0ECOabOKi9/y3KlIgX5egY4DLTg8v+/OpXXsWAtVWvQeR+F/9ue60ILUOk0UkmOIcTqf6LvFEpCNtxyajUr/Q3lbBarnzy1ZOSHBiorNxfShQu874uPQ5WCb7gEv1kMEud68x3/06MA=,iv:rxo/z0nu/sj6MfViKJYHWh60QNWnQ2wgg876cF3tTds=,tag:rAOXnXC3meXk5DFfZ+0n3w==,type:str]
-            http_config: {}
-    limits_config:
-        allow_structured_metadata: true
-    ingester:
-        chunk_encoding: snappy
-    querier:
-        max_concurrent: 4
-    compactor:
-        working_directory: /var/loki/compactor
-        compaction_interval: 10m
-        retention_enabled: true
-        retention_delete_delay: 2h
-        delete_request_store: s3
-    query_scheduler:
-        max_outstanding_requests_per_tenant: 4096
-    table_manager:
-        poll_interval: 2m
-        creation_grace_period: 10m
-        cache_table_names: true
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  storage:
+    type: s3
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
+    s3:
+      endpoint: ENC[AES256_GCM,data:AT8HsemGLAqmcXePZ2wsv1TU1gH7EJ6qN2vEs5DX8dGvQO2Af5O1Ttjh5nBHgpgzFHi+7+hCzcl2emsYrw9hXNM=,iv:CZx9kBNv/iwaxtiRpQ7iFz9dt08pNKlXE3VBZSBFaxA=,tag:FaS660tbavTyKh8i1/ozOg==,type:str]
+      region: ENC[AES256_GCM,data:6zjzR+36jA0g,iv:R1Tio5Tg1feEMhR71UsDpIB7zeviJ8VL3JY0tABw0zM=,tag:gdYDaIpUFUgYn+JJTxuceA==,type:str]
+      accessKeyId: ENC[AES256_GCM,data:tUCe1ebTZy7VZSmfZYrNdbEBEzY=,iv:PBYFzmHLXMtLEHcm3QoyrHC11HXn4IqTNNulE6aRcC0=,tag:PIjsbWxsZwIQRRDMega2ew==,type:str]
+      secretAccessKey: ENC[AES256_GCM,data:3P2OQqTcDVD3MadyfbEz2VSsARNerEXvWy1VxJtGGILvZoQ0qO11sQ==,iv:1q7nd+q4MYxpD5DJD4LWNKR9HMvDCm1zon0+u0fgNFw=,tag:xoyVLzVoWKsWQhQJaFvx/Q==,type:str]
+      signatureVersion: ENC[AES256_GCM,data:ygA=,iv:djcSioIRIKsdXLUwXq8xU73tZalYKbx7TaNgXlbX0Pk=,tag:aSF1Y8kybr6iXF/JjTe5NQ==,type:str]
+      s3ForcePathStyle: ENC[AES256_GCM,data:sNdbbw==,iv:pES22tV28Kmqjd4eP1u0Xvy9VUeYPXK1SXQvz18jooE=,tag:OQof6PeEuebl1C1GYo15hg==,type:bool]
+      insecure: ENC[AES256_GCM,data:pKvYXQ==,iv:IhQl7fjzEdMg7UgV2BsqXKRG3PBMWJpJGMWli+GGMNk=,tag:hMze1cZIYbHEk26kHbwtDw==,type:bool]
+      http_config: {}
+  limits_config:
+    allow_structured_metadata: true
+  ingester:
+    chunk_encoding: snappy
+  querier:
+    max_concurrent: 4
+  compactor:
+    working_directory: /var/loki/compactor
+    compaction_interval: 10m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: s3
+  query_scheduler:
+    max_outstanding_requests_per_tenant: 4096
+  table_manager:
+    poll_interval: 2m
+    creation_grace_period: 10m
+    cache_table_names: true
 deploymentMode: SimpleScalable
 lokiCanary:
   enabled: false
-
 backend:
-    replicas: 2
+  replicas: 2
 read:
-    replicas: 2
+  replicas: 2
 write:
-    replicas: 3
+  replicas: 3
 minio:
-    enabled: false
+  enabled: false
 gateway:
-    service:
-        type: LoadBalancer
+  service:
+    type: LoadBalancer
 tracing:
-    enabled: true
+  enabled: true
 sops:
-    age:
-        - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBheUtVMXErdGpWaTY4YXYy
-            U1I2RHpJb1NIK0F6cmVpOXM0eGorSEdTUzE4CldaeWZhbUVpblJ5aVJ2a0pNMXA5
-            b3ZvYkhKQWtickxjT1VOaDdZaXpwb2sKLS0tIE81d3dFM2J3M2Y1bi92d2VHbmhp
-            RWVrd0pXR2w5Qko2Q2FLSXl6bFRTUGsKA8MuyWoKn7VqhyK3va84wsSpTFA3cn+k
-            isDOxNpnFpC1J0+tcuCFD1TabUa8xWF/a6UIy/ntmYOmIsGXPgW/4w==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-15T07:14:25Z"
-    mac: ENC[AES256_GCM,data:WpTr0/ErVAnGv1y73VrWZSnVmE+/C/3PGswouw+AyjrcoLjiZSqVDC7OraPZNza3MmQ3WCFRveeUirRgy6gMa9BDWOK0zJLt24cKFEa1+H6tRe2DWHG12mq4T2oLnEwHoVVbcTO3iu4QRImmKeJJRVZ1Nvu9dcKEmZBvHg+/1N0=,iv:hloFgvWzfGzvrv25MaeZO93S6rP0x0KSwCgR0aOJDXM=,tag:3OYc5ItkchCBaVwdK7VvuA==,type:str]
-    encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
-    mac_only_encrypted: true
-    version: 3.10.2
-sops:
-    age:
-        - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsamFXdS9lUmtpcm5XKzhK
-            MEk5UE5qamg1N0Flclk2dHNzV29ndVBhRlZJCkNaSWMyNE00ZHZTbWJFQWU4ck1Q
-            VjM2b2NXTXhBbUNCZDdBL016VmdzUkUKLS0tIGZndlB3Q3pUWmY4OVpVRUlIQk5W
-            bzN1bVpSckNPNFVGSmhvTngwUFI0Y3MKCA6RLFGm9nNRKy/IyHJUfFtiO/wbO2bi
-            iBCCndsT+mThEj6/SdsHdppfPNPh2gh7tv0x1cg60M39b7ESBYo7Vw==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-15T07:14:27Z"
-    mac: ENC[AES256_GCM,data:6E0y/ECjQW4lc0Ih/g0J0VU2c65wmqNHUGaMeydfAgm14/Yk5VEeZo8HdpUTFrQShMDUMsBi6oTbLHCiOdm9ATSPQa7TDMTvvs0J7y5XPk/9fjl3sd+zIhjd1smi7PgpWMTXTGaLsweBV7lmdhZRAf8vrcSb8F5qBhkoUeGI5VQ=,iv:1jvyAqeMFkz58QhkZRcvmfq/5X6+7FSP8SFmEzaCNQ4=,tag:F3rI4YvQ1kETRSvCxKuShg==,type:str]
-    encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
-    mac_only_encrypted: true
-    version: 3.10.2
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBreC9lM3JEc3hldW5IV3NQ
+        TE1WT2NUWmZxaUtFdFRWZTAyWDlma2tmaGtFCm96cS9QSFUwMWdxTFJBNDRtNjZn
+        RjFldWJhRjVvQmZxNkVzNWNHWmYzeHcKLS0tIDluQ2tKdWZ4OUdqdUVhMUhqZ2FE
+        YlJZZUdwK0hjbjJ5RXQrejM5RVNMck0KzQ2d2Ce2GngLKH19Z2J1lehBoblUW6zL
+        k+AZRgC8tgHiiyQp6VpDQiOYcQWlDe5SziNgmPinjccMLKPxADpA+g==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-05-15T07:24:08Z"
+  mac: ENC[AES256_GCM,data:T3DpCBksHi1Dy8Kl4mw4lkkZf3VRlLIKrEpUOOL3MKgv80WyB6eNTzjTrObSSUpDepBEaJ9n8YQMUCWADC9zeOfKVpyCDWVSRpKPSiwOKuvGfyPBjiHj+AzIufXGX/bjDvB4XrXoZZjgFy1EoNjOmdm4owtjJLvWQYUPf/A8wuI=,iv:l8BdEc+/WB4pme+2C6AK0vIXaBjHUPw8HhYM1IFUuyU=,tag:GggOM4GURVBcTCL8sGtRtw==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
+  mac_only_encrypted: true
+  version: 3.10.2
