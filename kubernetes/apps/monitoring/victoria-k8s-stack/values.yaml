@@ -644,7 +644,7 @@ kubeEtcd:
             keySecret:
               name: etcd-client-certs
               key: etcd-client.key
-            insecureSkipVerify: false
+            insecureSkipVerify: true
 
 kubeScheduler:
   enabled: true
