@@ -16,13 +16,13 @@ loki:
       ruler: ceph-ruler
       admin: ceph-admin
     s3:
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-      region: us-east-1
-      accessKeyId: S7RFA0US3ZM69ZVEIKRN
-      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-      signatureVersion: v4
-      s3ForcePathStyle: true
-      insecure: true
+      endpoint: ENC[AES256_GCM,data:e44bQPgbSiq/obvCrYynKstzNxN8D85isFGLm54OXK1rew547lrWUp9o6eZvPvRE6OMcPVXhBAugW4E+DrcLSK8=,iv:tgZW1T8S2LGLi5q1lHIyyiTaNxh/GHxQmNeblcFYHfc=,tag:85af8lVP7DCHunOh0xJ/Ew==,type:str]
+      region: ENC[AES256_GCM,data:zxlwdZypMm/y,iv:3s2UiVyNtw9Bt+5bnPPMRDMiOyhO3A7bxs9/LNdOnBE=,tag:/h3Z1i7eSWKKFK92foEgNg==,type:str]
+      accessKeyId: ENC[AES256_GCM,data:PWC3l4UWbQRruWGbHcPjwb5B6m8=,iv:pgXBFOyPRE8ToTrVq3G9omSW1uWNA0OauwAk3Xee+L8=,tag:MyGtEpXJfv6G0iN/fZ+aGg==,type:str]
+      secretAccessKey: ENC[AES256_GCM,data:mtkcrWbN5MFpVEH1yC0b2PQuFTSrvYvGo0UPMcRbOwFL7AU7lxGUZA==,iv:+nVEQbzLTf68t1KzRocRmwjG13RtYXWGFFLVAeU/wsE=,tag:zDPR2VHOWLUswf5CXcLXkw==,type:str]
+      signatureVersion: ENC[AES256_GCM,data:2Jk=,iv:JwpaJIftVXbUsyVniW5rVhqXYLlZ21O7ZpgilA8UL0o=,tag:vmf4eK8o6dMmadD3+Y0b2w==,type:str]
+      s3ForcePathStyle: ENC[AES256_GCM,data:dMbzyw==,iv:Iycbw9VQCRBfwYDD3pnYjDbSN4S/b8VQ6EvNE1Z9wao=,tag:Yj8NpG+x56XFd9nAnfGkew==,type:bool]
+      insecure: ENC[AES256_GCM,data:c0XUgg==,iv:cx2/tjZPc1tJfzoMj/hloNbo1YXYhAQqD323KSM9Wdo=,tag:uW3DRl7eOeTx/oAPDFMDwQ==,type:bool]
       http_config: {}
   limits_config:
     allow_structured_metadata: true
@@ -66,3 +66,19 @@ gateway:
     type: LoadBalancer
 tracing:
   enabled: true
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBGZE5abkx3bGxIeFVQeDBB
+        NGU2RndPZmhFUWUyeHNVQkNCajMwNWNZdGxzCnVtUkVBUDBUbVBRWTd1c0l0NjNx
+        SEdDUVE2RFRRQi9id0ZacHYvOE53bVEKLS0tIEJVK2dGaU5wMHFGYysrYzhmdWRW
+        cis4d0hpNHNGc2tPOGV5YVQxUUZ6SE0KIoEWH1z8s0nARgnThFzG+INzyA8h3f/S
+        3rTwvAgagIT/ko/L3Z45Kz5MWCAOAiDPHfCw1T051q3/JUWgTVAooA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-05-15T08:03:42Z"
+  mac: ENC[AES256_GCM,data:XK+lDFBaNqeSsqiDWBlyLPJBDnadrDBSJlcQL4Q8bjBaf2K0ZXJ7YZTvmD4xTGJy+fMNxhAgLmQV5vW51PC2XmKSrs1bCRSyGvdgNgtUH1hP2rlKsCFptlym2ehjgyg34quOEoJSjnKWlAKhALc4ioiBsk3ssJtdA2nRpsd5hzE=,iv:TzE9L5Sv5HB/yR9oKw5mrzdTtCwNwuj98NngrEulMs0=,tag:Tw41HNSA1xEMPcQvsbL5OA==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
+  mac_only_encrypted: true
+  version: 3.10.2
