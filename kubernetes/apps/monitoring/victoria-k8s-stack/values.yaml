@@ -519,9 +519,6 @@ kubelet:
         - targetLabel: job
           replacement: kubelet
       honorTimestamps: false
-      tlsConfig:
-        insecureSkipVerify: true
-        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
 kubeApiServer:
   enabled: true
@@ -659,10 +656,10 @@ kubeScheduler:
           scheme: https
           tlsConfig:
             caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-            insecureSkipVerify: true
+          insecureSkipVerify: true
 kubeProxy:
   enabled: false
-  endpoints: []
+  endpoints: []DDDDDDDDDDDDDDDDDDDDDDDDDD
   service:
     enabled: true
     port: 10249
@@ -680,6 +677,6 @@ kubeProxy:
           scheme: https
           tlsConfig:
             caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-
+          insecureSkipVerify: true
 
 extraObjects: []
