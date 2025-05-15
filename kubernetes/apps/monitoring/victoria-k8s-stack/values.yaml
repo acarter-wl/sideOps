@@ -25,7 +25,7 @@ victoria-metrics-operator:
   operator:
     disable_prometheus_converter: false
     webhook:
-      enabled: false
+      enabled: true
 
 defaultDashboards:
   enabled: true
@@ -370,7 +370,7 @@ defaultDatasources:
     enabled: false
   victoriametrics:
     enabled: true
-    default: true
+    default: false
   loki:
     enabled: false
     default: false
@@ -421,7 +421,6 @@ grafana:
       apiVersion: 1
       providers:
         - name: 'default'
-          orgId: 1
           folder: ''
           type: file
           disableDeletion: false
