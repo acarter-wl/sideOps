@@ -23,12 +23,8 @@ loki:
       s3ForcePathStyle: true
       insecure: true
       http_config: {}
-  pattern_ingester:
-    enabled: true
   limits_config:
     allow_structured_metadata: true
-    volume_enabled: true
-    retention_period: 1344h
   ingester:
     chunk_encoding: snappy
   querier:
