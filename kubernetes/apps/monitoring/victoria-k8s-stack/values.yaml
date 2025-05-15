@@ -369,7 +369,7 @@ defaultDatasources:
   grafanaOperator:
     enabled: false
   victoriametrics:
-    enabled: true
+    enabled: false
     default: false
   loki:
     enabled: false
@@ -397,10 +397,6 @@ grafana:
     accessModes:
       - ReadWriteOnce
     annotations: {}
-    securityContext:
-      fsGroup: 10001
-      runAsUser: 10001
-      runAsGroup: 10001
 
   # Added datasources configuration for VictoriaMetrics
   datasources:
