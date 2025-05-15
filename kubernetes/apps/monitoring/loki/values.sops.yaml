@@ -50,6 +50,9 @@ loki:
         creation_grace_period: 10m
         cache_table_names: true
 deploymentMode: SimpleScalable
+lokiCanary:
+  enabled: false
+
 backend:
     replicas: 2
 read:
