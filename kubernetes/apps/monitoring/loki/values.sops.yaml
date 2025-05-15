@@ -1,13 +1,13 @@
 loki:
   schemaConfig:
     configs:
-      - from: "2024-04-01"
+      - from: '2024-04-01'
         store: tsdb
         object_store: s3
         schema: v13
         index:
           prefix: loki_index_
-          period: 24h
+          period: 168h  # Reduced from 24h to weekly index tables
   storage:
     type: s3
     bucketNames:
@@ -38,7 +38,6 @@ loki:
     compaction_interval: 10m
     retention_enabled: true
     retention_delete_delay: 2h
-    shared_store: s3
   ruler:
     storage:
       type: s3
@@ -56,17 +55,26 @@ loki:
         insecure: true
   query_scheduler:
     max_outstanding_requests_per_tenant: 4096
+  table_manager:
+    poll_interval: 2m
+    creation_grace_period: 10m
+    cache_table_names: true
+
 deploymentMode: SimpleScalable
+
 backend:
   replicas: 2
 read:
   replicas: 2
 write:
   replicas: 3
+
 minio:
   enabled: false
+
 gateway:
   service:
     type: LoadBalancer
+
 tracing:
   enabled: true
