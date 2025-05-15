@@ -1,13 +1,13 @@
 loki:
   schemaConfig:
     configs:
-      - from: '2024-04-01'
+      - from: "2024-04-01"
         store: tsdb
         object_store: s3
         schema: v13
         index:
           prefix: loki_index_
-          period: 168h  # Reduced from 24h to weekly index tables
+          period: "168h"  # QUOTED STRING
   storage:
     type: s3
     bucketNames:
