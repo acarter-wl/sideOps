@@ -659,7 +659,7 @@ kubeScheduler:
           insecureSkipVerify: true
 kubeProxy:
   enabled: false
-  endpoints: []DDDDDDDDDDDDDDDDDDDDDDDDDD
+  endpoints: []
   service:
     enabled: true
     port: 10249
