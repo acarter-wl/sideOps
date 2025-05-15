@@ -31,10 +31,14 @@ loki:
         ruler: ceph-ruler
         admin: ceph-admin
     s3:
+      secret:
+        name: loki-s3-creds
+        key: access_key
+      secretKey:
+        name: loki-s3-creds
+        key: secret_key
       endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
       region: us-east-1
-      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-      accessKeyId: S7RFA0US3ZM69ZVEIKRN
       signatureVersion: v4
       s3ForcePathStyle: true
       insecure: true

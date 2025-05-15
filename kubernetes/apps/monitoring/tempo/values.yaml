@@ -1,94 +1,32 @@
+---
 global:
-  clusterDomain: cluster.local # Default domain unless you really changed it manually
-
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: 1000m
-      memory: 2Gi
-
-  tempoConfig:
-    usage_report:
-      reporting_enabled: false
-    search_enabled: true
-    metrics_generator:
-      registry:
-        external_labels:
-          source: tempo
-          cluster: talos-cluster
-      storage:
-        path: /var/tempo/generator/wal
-        remote_write:
-          - url: http://vminsert-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8480/api/v1/write
-            send_exemplars: true
-    storage:
-      trace:
-        backend: local
-        wal:
-          path: /var/tempo/wal
-        local:
-          path: /var/tempo/blocks
-    server:
-      http_listen_port: 3100
-    distributor:
-      receivers:
-        jaeger:
-          protocols:
-            thrift_http:
-              endpoint: 0.0.0.0:14268
-            grpc:
-              endpoint: 0.0.0.0:14250
-            thrift_binary:
-              endpoint: 0.0.0.0:6832
-            thrift_compact:
-              endpoint: 0.0.0.0:6831
-        zipkin:
-          endpoint: 0.0.0.0:9411
-        otlp:
-          protocols:
-            grpc:
-              endpoint: 0.0.0.0:4317
-            http:
-              endpoint: 0.0.0.0:4318
-    ingester:
-      trace_idle_period: 10s
-      max_block_bytes: 1048576 # 1MB
-      max_block_duration: 5m
-
-persistence:
+  clusterDomain: 'cluster.local'
+gateway:
   enabled: true
-  storageClass: ceph-block
-  accessModes:
-    - ReadWriteOnce
-  size: 50Gi
-
-service:
-  type: ClusterIP
-  port: 3100
-  annotations: {}
-  labels: {}
-
-serviceMonitor:
-  enabled: true
-  interval: 30s
-  labels:
-    release: kube-prometheus-stack
-
-extraEnv:
-  - name: JAEGER_AGENT_TAGS
-    value: "cluster=kubernetes"
-
-# Integration with Grafana
+minio:
+  enabled: false
+storage:
+  trace:
+    backend: s3
+    s3:
+      secret:
+        name: tempo-s3-creds
+        key: access_key
+      secretKey:
+        name: tempo-s3-creds
+        key: secret_key
+      bucket: 'tempo-traces'
+      endpoint: 'http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local'
+      insecure: true
 traces:
   otlp:
-    grpc:
-      enabled: true
     http:
       enabled: true
-  zipkin:
-    enabled: true
-  jaeger:
-    thriftHttp:
+    grpc:
+      enabled: true
+distributor:
+  config:
+    log_received_spans:
+      enabled: true
+    log_discarded_spans:
       enabled: true
