@@ -20,7 +20,7 @@ spec:
       helm:
         releaseName: loki
         valueFiles:
-          - $repo/kubernetes/apps/monitoring/loki/values.yaml
+          - $repo/kubernetes/apps/monitoring/loki/values.sops.yaml
   destination:
     name: in-cluster
     namespace: monitoring
