@@ -25,7 +25,7 @@ victoria-metrics-operator:
   operator:
     disable_prometheus_converter: false
     webhook:
-      enabled: true
+      enabled: false
 
 defaultDashboards:
   enabled: true
