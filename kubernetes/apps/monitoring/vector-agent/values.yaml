@@ -4,11 +4,6 @@ customConfig:
   data_dir: /vector-data-dir
 
   sources:
-    tailscale_logs:
-      type: splunk_hec
-      address: "0.0.0.0:8088"
-      tls:
-        enabled: false
 
     nginx_access_logs:
       type: file
@@ -106,13 +101,6 @@ customConfig:
         .timestamp = now()
 
   sinks:
-    file_sink:
-      type: "file"
-      inputs:
-        - "tailscale_logs"
-      path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
-      encoding:
-        codec: "json"
     loki_nginx_access:
       type: loki
       inputs: [nginx_access_parser]
