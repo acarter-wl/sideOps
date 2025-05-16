@@ -45,9 +45,9 @@ customConfig:
           name: kubernetes_logs_total
           field: message
           tags:
-            namespace: "{{ kubernetes.pod_namespace }}"
-            pod: "{{ kubernetes.pod_name }}"
-            container: "{{ kubernetes.container_name }}"
+            namespace: "{{kubernetes_pod_namespace}}"
+            pod: "{{kubernetes_pod_name}}"
+            container: "{{kubernetes_container_name}}"
 
     nginx_logs_metrics:
       type: log_to_metric
@@ -57,9 +57,9 @@ customConfig:
           name: nginx_requests_total
           field: status
           tags:
-            status: "{{ status }}"
-            method: "{{ request_method }}"
-            host: "{{ host }}"
+            status: "{{status}}"
+            method: "{{request_method}}"
+            host: "{{host}}"
 
     nginx_access_parser:
       type: remap
@@ -135,9 +135,9 @@ customConfig:
       encoding:
         codec: json
       labels:
-        host: "{{`{{ host }}`}}"
-        status: "{{`{{ status }}`}}"
-        method: "{{`{{ request_method }}`}}"
+        host: "{{ host }}"
+        status: "{{ status }}"
+        method: "{{ request_method }}"
         log_type: "nginx_access"
       batch:
         max_bytes: 1048576
@@ -152,10 +152,10 @@ customConfig:
       encoding:
         codec: json
       labels:
-        pod: "{{`{{ pod }}`}}"
-        namespace: "{{`{{ namespace }}`}}"
-        container: "{{`{{ container }}`}}"
-        node: "{{`{{ node }}`}}"
+        pod: "{{ pod }}"
+        namespace: "{{ namespace }}"
+        container: "{{ container }}"
+        node: "{{ node }}"
         log_type: "kubernetes"
       batch:
         max_bytes: 1048576
@@ -170,8 +170,8 @@ customConfig:
         codec: json
         except_fields: [__host]
       labels:
-        hostname: "{{`{{ node }}`}}"
-        facility: "{{`{{ facility }}`}}"
+        hostname: "{{ node }}"
+        facility: "{{ facility }}"
         log_type: "talos_kernel"
       batch:
         max_bytes: 1048576
@@ -186,8 +186,8 @@ customConfig:
         codec: json
         except_fields: [__host]
       labels:
-        hostname: "{{`{{ node }}`}}"
-        service: "{{`{{ service }}`}}"
+        hostname: "{{ node }}"
+        service: "{{ service }}"
         log_type: "talos_service"
       batch:
         max_bytes: 1048576
@@ -200,8 +200,6 @@ customConfig:
         - internal_metrics
         - kubernetes_log_metrics
         - nginx_logs_metrics
-        - loki_talos_kernel
-        - loki_talos_service
       address: "0.0.0.0:9598"
 
 
