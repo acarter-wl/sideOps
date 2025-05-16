@@ -1,20 +1,32 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tailscale
+  name: tailscale-operator
   namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: infrastructure
-  source:
-    repoURL: 'https://github.com/acarter-wl/sideops.git'
-    path: 'kubernetes/apps/tailscale'
+  sources:
+    - repoURL: "https://github.com/acarter-wl/sideops.git"
+      path: kubernetes/apps/tailscale
+      targetRevision: main
+      ref: repo
+    - repoURL: https://pkgs.tailscale.com/helmcharts
+      chart: tailscale-operator
+      targetRevision: 1.82.5
+      helm:
+        releaseName: tailscale-operator
+        valuesFile:
+          - $repo/kubernetes/apps/tailscale/values.yaml
   destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: 'tailscale'
+    name: in-cluster
+    namespace: tailscale
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+    - CreateNamespace=true
+    - ServerSideApply=true
