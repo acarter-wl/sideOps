@@ -184,6 +184,7 @@ customConfig:
       inputs:
         - "splunk_hec"
       path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: "json"
 
