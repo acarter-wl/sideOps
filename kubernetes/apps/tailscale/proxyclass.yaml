@@ -1,0 +1,7 @@
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: subnet-access
+spec:
+  tailscale:
+    acceptRoutes: true

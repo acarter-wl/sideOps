@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-drive-gateway
+  namespace: tailscale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale-drive-gateway
+  template:
+    metadata:
+      labels:
+        app: tailscale-drive-gateway
+    spec:
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:latest
+        env:
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              name: tailscale-auth
+              key: TS_AUTHKEY
+        - name: TS_USERSPACE
+          value: "true"
+        - name: TS_HOSTNAME
+          value: "k8s-drive-gateway"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: dev-fuse
+          mountPath: /dev/fuse
+        - name: tailscale-state
+          mountPath: /var/lib/tailscale
+        - name: tailscale-drives
+          mountPath: /mnt/drives
+        # This is where we'll mount the storage for Rook-Ceph to access
+        - name: rook-ceph-storage
+          mountPath: /data
+      volumes:
+      - name: dev-fuse
+        hostPath:
+          path: /dev/fuse
+      - name: tailscale-state
+        persistentVolumeClaim:
+          claimName: tailscale-state-pvc
+      - name: tailscale-drives
+        emptyDir: {}
+      - name: rook-ceph-storage
+        persistentVolumeClaim:
+          claimName: tailscale-drive-data-pvc
