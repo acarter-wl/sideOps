@@ -141,6 +141,9 @@ customConfig:
     loki_talos_kernel:
       type: loki
       inputs: [talos_kernel_transform]
+      request:
+        headers:
+          X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
@@ -157,6 +160,9 @@ customConfig:
     loki_talos_service:
       type: loki
       inputs: [talos_service_transform]
+      request:
+        headers:
+          X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
