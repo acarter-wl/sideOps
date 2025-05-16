@@ -18,7 +18,7 @@ spec:
       targetRevision: 1.82.5
       helm:
         releaseName: tailscale-operator
-        valuesFile:
+        valueFiles:
           - $repo/kubernetes/apps/tailscale/values.yaml
   destination:
     name: in-cluster
