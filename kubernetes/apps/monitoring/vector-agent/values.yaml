@@ -4,6 +4,15 @@ customConfig:
   data_dir: /vector-data-dir
 
   sources:
+    tailscale_logs:
+      type: splunk_hec
+      address: "0.0.0.0:8088"
+      tls:
+        enabled: false
+      # If you want to use token auth, uncomment and set a secure token
+      # valid_tokens:
+      #   - "your-secure-token-here"
+
     nginx_access_logs:
       type: file
       include:
@@ -36,6 +45,25 @@ customConfig:
       type: internal_metrics
 
   transforms:
+    # Transform Tailscale logs
+    tailscale_logs_transform:
+      type: remap
+      inputs: [tailscale_logs]
+      source: |
+        # Extract relevant fields from Tailscale logs
+        .log_type = "tailscale"
+        if exists(.ts) {
+          .timestamp = parse_timestamp!(.ts, format: "%+")
+        } else {
+          .timestamp = now()
+        }
+        if exists(.src) {
+          .source_ip = .src
+        }
+        if exists(.dst) {
+          .destination_ip = .dst
+        }
+
     # Log to metrics transforms
     kubernetes_log_metrics:
       type: log_to_metric
@@ -125,6 +153,25 @@ customConfig:
         .timestamp = now()
 
   sinks:
+    # Add Tailscale logs to Loki
+    loki_tailscale:
+      type: loki
+      inputs: [tailscale_logs_transform]
+      request:
+        headers:
+          X-Scope-OrgID: "1"
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
+      encoding:
+        codec: json
+      labels:
+        src: "{{ source_ip }}"
+        dst: "{{ destination_ip }}"
+        log_type: "tailscale"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
     loki_nginx_access:
       type: loki
       inputs: [nginx_access_parser]
@@ -212,6 +259,10 @@ service:
     - name: prom-exporter
       port: 9598
       targetPort: 9598
+      protocol: TCP
+    - name: tailscale-logs
+      port: 8088
+      targetPort: 8088
       protocol: TCP
     - name: talos-kernel
       port: 6050
