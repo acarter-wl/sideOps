@@ -1,11 +1,11 @@
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    tailscale.com/subnet-router: "brookside-cidr"  # The name of your subnet router
-  labels:
-    tailscale.com/proxy-class: subnet-access
-  name: subnet-router
-spec:
-  externalName: unused
-  type: ExternalName
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   annotations:
+#     tailscale.com/subnet-router: "brookside-cidr"  # The name of your subnet router
+#   labels:
+#     tailscale.com/proxy-class: subnet-access
+#   name: subnet-router
+# spec:
+#   externalName: unused
+#   type: ExternalName
