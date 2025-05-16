@@ -4,6 +4,10 @@ customConfig:
   data_dir: /vector-data-dir
 
   sources:
+    splunk_hec:
+      type: "splunk_hec"
+      address: "100.119.8.73:8088"
+
     nginx_access_logs:
       type: file
       include:
@@ -174,6 +178,14 @@ customConfig:
       inputs:
         - internal_metrics
       address: "0.0.0.0:9598"
+
+    file_sink:
+      type: "file"
+      inputs:
+        - "splunk_hec"
+      path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
+      encoding:
+      codec: "json"
 
 tolerations:
   - operator: Exists
