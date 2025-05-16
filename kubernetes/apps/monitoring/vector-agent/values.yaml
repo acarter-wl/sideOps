@@ -109,7 +109,7 @@ customConfig:
     file_sink:
       type: "file"
       inputs:
-        - "splunk_hec"
+        - "tailscale_logs"
       path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
       encoding:
         codec: "json"
