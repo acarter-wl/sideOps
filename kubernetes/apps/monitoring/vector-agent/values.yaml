@@ -179,7 +179,7 @@ customConfig:
         - internal_metrics
       address: "0.0.0.0:9598"
 
-    file_sink:
+    splunk_hec:
       type: "file"
       inputs:
         - "splunk_hec"
