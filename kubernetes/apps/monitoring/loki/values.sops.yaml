@@ -1,97 +1,97 @@
 loki:
-    server:
-        log_level: debug
-        auth_enabled: false
-        schemaConfig:
-            configs:
-                - from: "2024-04-01"
-                  store: tsdb
-                  object_store: s3
-                  schema: v13
-                  index:
-                    prefix: loki_index_
-                    period: 24h
-        storage:
-            type: s3
-            bucketNames:
-                chunks: ceph-chunks
-                ruler: ceph-ruler
-                admin: ceph-admin
-            s3:
-                endpoint: ENC[AES256_GCM,data:gZYlF+eQfP+vD6z9i1GzIzKrMSgRgMUqv/roe3KXDwYET8Xms3ABsyvXXl3a2B75Y3j9h8OwYgd1O0AiXWmn4Vc=,iv:bQxemfTFyZcRcvB4XE10ol7BKU9wX//kF3R/OMseZ5Q=,tag:ASuBpH7zTgxQIcF23049dg==,type:str]
-                region: ENC[AES256_GCM,data:BaGP528V9PcG,iv:rJeXe+onOyLsaFvrecChDFWJJM4E7xX8wCiR2nvCOHA=,tag:/gcf6fAD2Ke1sr04+ZeMsQ==,type:str]
-                accessKeyId: ENC[AES256_GCM,data:6u5QzE6hb7C2u5PCfqddx0XVHiQ=,iv:w3hJ4ejgdYPMMh+zNb6GqNpw+V2wiskkwiQ8U54g8Go=,tag:ZkbzI+9POn1B6+FImK2LMQ==,type:str]
-                secretAccessKey: ENC[AES256_GCM,data:NjvUnGU07oGlH29iK2VKdXSB1rlgavn7jUaq2VCzhP9FqW1CnbI1DQ==,iv:N07BhDWHbeXIYPugt3p6YdIYCRekVzXED7SlsFnVrFA=,tag:6darUplSDQMQaRF5UAYAtw==,type:str]
-                signatureVersion: ENC[AES256_GCM,data:7sU=,iv:nhPZtmXYlm88V3lLjNY7WFeSCR1CJCAMVfzX1+KxdVE=,tag:MJZzvBY/ROpUzdiAHhcGNQ==,type:str]
-                s3ForcePathStyle: ENC[AES256_GCM,data:dE4bJQ==,iv:02kFa8Z+OV1Oq4xtIt+WywAhPtegg1O1ZB6Gi5e2iMA=,tag:hfO19nZbn11065EbXYYi+w==,type:bool]
-                insecure: ENC[AES256_GCM,data:YWahDQ==,iv:PajSf8NSU8s0FJOsEAw5azVPuYS0yKuCXdorHjCs7a8=,tag:8w/oFtZ9r8JCFxcAIrXNfw==,type:bool]
-                http_config: {}
-            limits_config:
-                # Add retention period
-                retention_period: 720h
-                # Consider other limits
-                max_query_parallelism: 128
-                max_query_length: 721h
-                max_streams_per_user: 10000
+  server:
+    log_level: debug
+    auth_enabled: false
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  storage:
+    type: s3
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
+    s3:
+      endpoint: ENC[AES256_GCM,data:355etLsSToJfOmH7iCkt2mV8oRxl6TyJyvseSnaeWpE6re8rUeC14yHPWxpIfXZrBR/+iJCZUD1ZRNwtdVsBXt4=,iv:jgex5zS1SDvJ35Qj/WNCQJIyKxM9WF9wbQ4izAvH8uc=,tag:ROAD1Qrp8qKgv5IfHTzskw==,type:str]
+      region: ENC[AES256_GCM,data:KP7kwlDW0cXF,iv:uWL6EvSOiUfVt52bAKZw2MfJIe7SOkR0uHYOo5Y4JMw=,tag:vXFHbYIvBov821M19tEaKQ==,type:str]
+      accessKeyId: ENC[AES256_GCM,data:PCiIsOCC0skpebPHcMPRg9DSUWY=,iv:3KP27mKelTgASiauB3r7G+I+kICoYPMj5bRxmz5WzBU=,tag:2vnhmAC3XoIg3XFzmrhJFA==,type:str]
+      secretAccessKey: ENC[AES256_GCM,data:aQoQJ/DFmIYc16BRo/778t4pL1+xJueFsG+1I3878D1bl6mv6KMcDw==,iv:zUVSQ7hZyhgXTgKrd1DsQbn/JnO5um1SI7oF6dj04iM=,tag:vmWyURW+TuUbybGffsHCpQ==,type:str]
+      signatureVersion: ENC[AES256_GCM,data:eEQ=,iv:dlRpCjlOW+UlrxqTqon9O9bT/f8+7xsIEz26xrFZnaw=,tag:KqVZppNQw9MeXijosLOyfQ==,type:str]
+      s3ForcePathStyle: ENC[AES256_GCM,data:rvJ/mA==,iv:ak7Cqtx/TSsa6Mlb+MnJ+QzBMs5GkG+pnmLVH/dfq3U=,tag:QFiCitnvCahDimUd+63wnQ==,type:bool]
+      insecure: ENC[AES256_GCM,data:1H8yHQ==,iv:Y/ZAGvg+Yd/BOtJ6WW5dy4+JicKb7bhH4fFqvYq4Ysc=,tag:9p8rDa5QRHb0RJZQ5O2HBQ==,type:bool]
+      http_config: {}
+  limits_config:
+    # Add retention period
+    retention_period: 720h
+    # Consider other limits
+    max_query_parallelism: 128
+    max_query_length: 721h
+    max_streams_per_user: 10000
+  ingester:
+    chunk_encoding: snappy
+  querier:
+    max_concurrent: 4
+  compactor:
+    working_directory: /var/loki/compactor
+    compaction_interval: 10m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: s3
+  query_scheduler:
+    max_outstanding_requests_per_tenant: 4096
+  table_manager:
+    poll_interval: 2m
+    creation_grace_period: 10m
+    cache_table_names: true
 ingester:
-    lifecycler:
-        ring:
-            replication_factor: 3
-        ingester:
-            chunk_encoding: snappy
-        querier:
-            max_concurrent: 4
-        compactor:
-            working_directory: /var/loki/compactor
-            compaction_interval: 10m
-            retention_enabled: true
-            retention_delete_delay: 2h
-            delete_request_store: s3
-        query_scheduler:
-            max_outstanding_requests_per_tenant: 4096
-        table_manager:
-            poll_interval: 2m
-            creation_grace_period: 10m
-            cache_table_names: true
+  lifecycler:
+    ring:
+      replication_factor: 3
 compactor:
-    persistence:
-        enabled: true
-        mountPath: /var/loki/compactor
-        accessModes:
-            - ReadWriteOnce
-        size: 20Gi
-        storageClass: ceph-block
+  persistence:
+    enabled: true
+    mountPath: /var/loki/compactor
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+    storageClass: ceph-block
 deploymentMode: SimpleScalable
 lokiCanary:
-    enabled: true
+  enabled: true
 backend:
-    replicas: 2
+  replicas: 2
 read:
-    replicas: 2
+  replicas: 2
 write:
-    replicas: 3
+  replicas: 3
 minio:
-    enabled: false
+  enabled: false
 gateway:
-    auth:
-        enabled: false
-        service:
-            type: LoadBalancer
+  auth:
+    enabled: false
+  service:
+    type: LoadBalancer
 tracing:
-    enabled: true
+  enabled: true
 sops:
-    age:
-        - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBOaGF6SE1PbG9sYzlYZzdC
-            NnFUc2loOWJzbzJROGhRby9Yb0hEbG9UUnc4CnEwWGc2U1dESmdpUU0xYVBCcHEy
-            bkdpSWplamVFWFpnY2xlUjRwTTg3SkUKLS0tIGVEcEF6UDlLTUdzbk83Q2p0K2FO
-            RU9MaXZ6N3B5RGlZeXE4WnBGV2hNQUkKxSHWQ+EaXU0kc3j+A3IA7bzuwd1L9NtM
-            Z6BPZQuvnxTCrJDyYv5qpplsDOXcBRAmuNFsjMKykG7n/W/CvTX1mQ==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-15T08:24:16Z"
-    mac: ENC[AES256_GCM,data:N2+wV9kxlrRsSdSxF41xMudfOv1FhDHO6j6iNoF3m73/CCcVNB4HiNzTR3bHapHQ5eZP+olYDYFOXnSM3AxgxJSU8eFW57JU37g0BsDwIn6+yX0dxWuwsHRz9gACQ3exincqVvd9pbaM3BABrmySOez7tbXkPdvNIYA3SCrSsl8=,iv:O6yNCz3qRk456m3kTKgEmAOv09e/sfat8hchYRqCRtM=,tag:Z1qqQsEONi/dgH/L6Oq27w==,type:str]
-    encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
-    mac_only_encrypted: true
-    version: 3.10.2
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBZUzNuNG96VFN5R1V5eDVh
+        dmN5WnJJZ1NiUmRSSGo0Mk9lTlZUNWpkWFF3CnllbzlYWUpOSWFLalgwb3ErYjE0
+        UzZySWx4dGNKcGtnVUdMRUo2emdXVmcKLS0tIFd1TEM4aDdacGdYZitsUHhrQnA4
+        ank2Tmt6enU1M2ROeWZqRDE3MFVwLzQKlRzrFGvq83QFfWDjfzGkjEtXcwlVI8VI
+        n1qY3G/KuDnTzy1mUxfyKzEr03xJTeKxCCO3IFKkPWaPZ+zCkzlXiA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-05-16T04:15:04Z"
+  mac: ENC[AES256_GCM,data:0ybGz1i7/BAbUIeFivna2RFqqSs8J4Ej1mZzUVufPoEFdfHus5qCRf/dg0eqMbi17F+1SkdJ22dLruEYpmKKuvf5v8ZeHNbDTumg4HeKKg5SNFxS0Qfxsmn2NnvUaXbtn3aoQVjDu31KhXAWvilN9HcJNP3UAEL4teMgQ7b4VWg=,iv:FD37w5plBr+TCs3gT39HB6uF7ufQ4Tk1VP8k1zA0Jv4=,tag:phas+fuhFbSLZc2XtBobmw==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|s3)$
+  mac_only_encrypted: true
+  version: 3.10.2
