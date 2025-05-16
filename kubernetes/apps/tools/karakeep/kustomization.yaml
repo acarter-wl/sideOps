@@ -15,6 +15,7 @@ configMapGenerator:
 
 resources:
 - namespace.yaml
+- ./config
 - web-deployment.yaml
 - web-service.yaml
 - chrome-deployment.yaml

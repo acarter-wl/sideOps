@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/acarter-wakkalabs/sideOps.git
+    repoURL: https://github.com/acarter-wl/sideOps.git
     targetRevision: HEAD
     path: kubernetes/apps/tools/karakeep
   destination:
