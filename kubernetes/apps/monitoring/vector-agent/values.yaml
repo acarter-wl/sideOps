@@ -6,7 +6,7 @@ customConfig:
   sources:
     splunk_hec:
       type: "splunk_hec"
-      address: "100.119.8.73:8088"
+      address: "0.0.0.0:8088"
 
     nginx_access_logs:
       type: file
