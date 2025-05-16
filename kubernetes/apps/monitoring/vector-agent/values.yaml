@@ -4,10 +4,6 @@ customConfig:
   data_dir: /vector-data-dir
 
   sources:
-    splunk_hec:
-      type: "splunk_hec"
-      address: "0.0.0.0:8088"
-
     nginx_access_logs:
       type: file
       include:
@@ -40,6 +36,31 @@ customConfig:
       type: internal_metrics
 
   transforms:
+    # Log to metrics transforms
+    kubernetes_log_metrics:
+      type: log_to_metric
+      inputs: [kubernetes_logs]
+      metrics:
+        - type: counter
+          name: kubernetes_logs_total
+          field: message
+          tags:
+            namespace: "{{ kubernetes.pod_namespace }}"
+            pod: "{{ kubernetes.pod_name }}"
+            container: "{{ kubernetes.container_name }}"
+
+    nginx_logs_metrics:
+      type: log_to_metric
+      inputs: [nginx_access_parser]
+      metrics:
+        - type: counter
+          name: nginx_requests_total
+          field: status
+          tags:
+            status: "{{ status }}"
+            method: "{{ request_method }}"
+            host: "{{ host }}"
+
     nginx_access_parser:
       type: remap
       inputs:
@@ -177,16 +198,12 @@ customConfig:
       type: prometheus_exporter
       inputs:
         - internal_metrics
+        - kubernetes_log_metrics
+        - nginx_logs_metrics
+        - loki_talos_kernel
+        - loki_talos_service
       address: "0.0.0.0:9598"
 
-    splunk_hec:
-      type: "file"
-      inputs:
-        - "splunk_hec"
-      path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local
-      encoding:
-        codec: "json"
 
 tolerations:
   - operator: Exists
