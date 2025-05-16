@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: karakeep-web-ingress
+  namespace: tools
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+spec:
+  ingressClassName: internal
+  tls:
+  - hosts:
+    - "bookmarks.wakkalabs.com"
+    secretName: karakeep-tls
+  rules:
+  - host: "bookmarks.wakkalabs.com"
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: "web"
+            port:
+              number: 3000

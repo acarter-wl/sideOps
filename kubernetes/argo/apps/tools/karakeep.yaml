@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karakeep
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/acarter-wakkalabs/sideOps.git
+    targetRevision: HEAD
+    path: kubernetes/apps/tools/karakeep
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tools
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

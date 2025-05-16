@@ -1,9 +1,0 @@
----
-# Default values for service monitors
-appName: app
-namespace: default
-port: 8080
-path: /metrics
-interval: 30s
-timeout: 10s
-partOf: infrastructure
