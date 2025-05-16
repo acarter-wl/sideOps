@@ -4,7 +4,6 @@ customConfig:
   data_dir: /vector-data-dir
 
   sources:
-
     nginx_access_logs:
       type: file
       include:
@@ -107,7 +106,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -124,7 +123,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -141,10 +140,7 @@ customConfig:
     loki_talos_kernel:
       type: loki
       inputs: [talos_kernel_transform]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -160,10 +156,7 @@ customConfig:
     loki_talos_service:
       type: loki
       inputs: [talos_service_transform]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local:80
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -181,8 +174,6 @@ customConfig:
       inputs:
         - internal_metrics
       address: "0.0.0.0:9598"
-
-
 
 tolerations:
   - operator: Exists
