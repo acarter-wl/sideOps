@@ -185,7 +185,7 @@ customConfig:
         - "splunk_hec"
       path: "/vector-data-dir/tailscale-%Y-%m-%d.log"
       encoding:
-      codec: "json"
+        codec: "json"
 
 tolerations:
   - operator: Exists
