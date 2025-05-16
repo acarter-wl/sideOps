@@ -52,3 +52,21 @@ spec:
   clusterResourceWhitelist:
   - group: "*"
     kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: applications
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  destinations:
+  - name: "*"
+    namespace: "*"
+    server: "*"
+  sourceRepos:
+  - "*"
+  clusterResourceWhitelist:
+  - group: "*"
+    kind: "*"
