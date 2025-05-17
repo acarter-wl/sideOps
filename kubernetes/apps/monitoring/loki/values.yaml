@@ -5,7 +5,8 @@ loki:
       ring:
         kvstore:
           store: memberlist
-    schemaConfig:
+
+    schema_config:
       configs:
       - from: "2024-04-01"
         store: tsdb
@@ -14,15 +15,16 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-    storageConfig:
+
+    storage_config:
       aws:
         s3:
-          bucketnames: ceph-chunks
+          bucket: ceph-chunks
           region: us-east-1
           endpoint: http://rook-ceph-rgw-ceph-objectstore.monitoring.svc.cluster.local
-          access_key_id: S7RFA0US3ZM69ZVEIKRN
-          secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-          signatureVersion: v4
+          access_key_id: ${AWS_ACCESS_KEY_ID}
+          secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+          signature_version: v4
           s3forcepathstyle: true
           insecure: true
 
@@ -33,6 +35,18 @@ loki:
       volume_enabled: true
 
   deploymentMode: SimpleScalable
+
+extraEnv:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: loki-s3-creds
+        key: access_key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: loki-s3-creds
+        key: secret_key
 
 backend:
   replicas: 3
