@@ -10,17 +10,9 @@ metadata:
 spec:
   project: infrastructure
   source:
-    - repoURL: "https://github.com/acarter-wl/sideops.git"
-      path: kubernetes/apps/monitoring/vector-agent
-      targetRevision: main
-      ref: repo
-    # - repoURL: https://helm.vector.dev
-    #   chart: vector
-    #   targetRevision: 0.42.1
-    #   helm:
-    #     releaseName: vector-agent
-    #     valueFiles:
-    #       - $repo/kubernetes/apps/monitoring/vector-agent/values.yaml
+    repoURL: "https://github.com/acarter-wl/sideops.git"
+    path: kubernetes/apps/monitoring/vector-agent
+    targetRevision: main
   destination:
     name: in-cluster
     namespace: monitoring
@@ -32,3 +24,37 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: vector-agent
+#   namespace: argo-system
+#   annotations:
+#     argocd.argoproj.io/sync-wave: '0'
+#   labels:
+#     argocd.argoproj.io/instance: vector-agent
+# spec:
+#   project: infrastructure
+#   source:
+#     - repoURL: "https://github.com/acarter-wl/sideops.git"
+#       path: kubernetes/apps/monitoring/vector-agent
+#       targetRevision: main
+#       # ref: repo
+#     # - repoURL: https://helm.vector.dev
+#     #   chart: vector
+#     #   targetRevision: 0.42.1
+#     #   helm:
+#     #     releaseName: vector-agent
+#     #     valueFiles:
+#     #       - $repo/kubernetes/apps/monitoring/vector-agent/values.yaml
+#   destination:
+#     name: in-cluster
+#     namespace: monitoring
+#   syncPolicy:
+#     automated:
+#       allowEmpty: true
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
