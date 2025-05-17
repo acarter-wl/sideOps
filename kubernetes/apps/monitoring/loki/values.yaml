@@ -41,7 +41,7 @@ loki:
           working_directory: /data/loki/compactor
         index_queries_cache:
           max_age: 3h
-          max_size_mb: 1024                
+          max_size_mb: 1024
         tsdb_shipper:
           active_index_directory: /data/loki/index
           cache_location: /data/loki/index_cache
