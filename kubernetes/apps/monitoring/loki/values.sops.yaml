@@ -4,7 +4,7 @@ loki:
 
   memberlist:
     join_members:
-      - loki-backend-headless.monitoring.svc.cluster.local
+      - loki-memberlist.monitoring.svc.cluster.local
     bind_port: 7946
     gossip_interval: 200ms
     gossip_nodes: 3
