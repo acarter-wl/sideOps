@@ -106,7 +106,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -124,7 +124,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
       labels:
@@ -144,7 +144,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
@@ -163,7 +163,7 @@ customConfig:
       request:
         headers:
           X-Scope-OrgID: "1"
-      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
         except_fields: [__host]
