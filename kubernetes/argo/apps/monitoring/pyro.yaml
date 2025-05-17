@@ -12,7 +12,7 @@ spec:
       ref: repo
     - repoURL: https://grafana.github.io/helm-charts
       chart: pyroscope
-      targetRevision: 1.13.2
+      targetRevision: 1.13.4
       helm:
         releaseName: pyroscope
         valueFiles:
