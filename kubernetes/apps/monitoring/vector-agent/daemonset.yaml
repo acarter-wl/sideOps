@@ -19,7 +19,7 @@ spec:
         - operator: Exists
       containers:
         - name: vector
-          image: timberio/vector:0.28.1-debian
+          image: timberio/vector:latest-alpine
           imagePullPolicy: IfNotPresent
           env:
             - name: VECTOR_LOG
