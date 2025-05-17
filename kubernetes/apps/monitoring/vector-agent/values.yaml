@@ -1,56 +1,170 @@
-loki:
-  auth_enabled: false
-  pattern_ingester:
-    enabled: false
+role: "Agent"
 
-  commonConfig:
-    path_prefix: /var/loki
-    replication_factor: 1
-    ring:
-      kvstore:
-        store: memberlist
+customConfig:
+  data_dir: /vector-data-dir
 
-  storage:
-    bucketNames:
-      chunks: ceph-chunks
-      ruler: ceph-ruler
-      admin: ceph-admin
-    type: s3
+  sources:
+    kubernetes_logs:
+      type: kubernetes_logs
 
-  config: |
-    auth_enabled: false
-    common:
-      ring:
-        kvstore:
-          store: memberlist
-    limits_config:
-      retention_period: 720h
-      max_query_parallelism: 128
-      max_query_length: 721h
-    ingester:
-      chunk_encoding: snappy
-    querier:
-      query_ingesters_within: 3h
-      max_concurrent: 10
-    storage_config:
-      aws:
-        s3:
-          bucket: ceph-chunks
-          endpoint: http://rook-ceph-rgw-ceph-objectstore.monitoring.svc.cluster.local
-          region: us-east-1
-          access_key_id: ${S3_ACCESS_KEY}
-          secret_access_key: ${S3_SECRET_KEY}
-          insecure: true
-          s3forcepathstyle: true
-      boltdb_shipper:
-        active_index_directory: /data/loki/index
-        cache_location: /data/loki/index_cache
-        shared_store: s3
-      tsdb:
-        dir: /data/loki/tsdb
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 720h
-    compactor:
-      working_directory: /data/loki/compactor
-      shared_store: s3
+    talos_kernel_logs:
+      address: 0.0.0.0:6050
+      type: socket
+      mode: udp
+      max_length: 102400
+      decoding:
+        codec: json
+      host_key: __host
+
+    talos_service_logs:
+      address: 0.0.0.0:6051
+      type: socket
+      mode: udp
+      max_length: 102400
+      decoding:
+        codec: json
+      host_key: __host
+
+    internal_metrics:
+      type: internal_metrics
+
+  transforms:
+    kubernetes_logs_transform:
+      type: remap
+      inputs: [kubernetes_logs]
+      source: |
+        .container = .kubernetes.container_name
+        .pod = .kubernetes.pod_name
+        .namespace = .kubernetes.pod_namespace
+        # This is still ok because get_env_var() can fail
+        .node = get_env_var("HOSTNAME") ?? "unknown"
+        .log_type = "kubernetes"
+        .timestamp = now()
+
+    talos_kernel_transform:
+      type: remap
+      inputs: [talos_kernel_logs]
+      source: |
+        .node = .__host
+        # Use if/else expression for explicit default value assignment
+        .facility = if exists(.facility) && .facility != null { .facility } else { "kernel" }
+        .log_type = "talos_kernel"
+        .timestamp = now()
+
+    talos_service_transform:
+      type: remap
+      inputs: [talos_service_logs]
+      source: |
+        .node = .__host
+        # Use if/else expression for explicit default value assignment
+        .service = if exists(.service) && .service != null { .service } else { "talos-service" }
+        if exists(.msg) {
+          msg = to_string(.msg) ?? ""
+          if contains(msg, "machined") {
+            .service = "machined"
+          } else if contains(msg, "containerd") {
+            .service = "containerd"
+          } else if contains(msg, "kubelet") {
+            .service = "kubelet"
+          } else if contains(msg, "apid") {
+            .service = "apid"
+          } else if contains(msg, "trustd") {
+            .service = "trustd"
+          }
+        }
+        .log_type = "talos_service"
+        .timestamp = now()
+
+  sinks:
+    loki_kubernetes:
+      type: loki
+      inputs: [kubernetes_logs_transform]
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
+      encoding:
+        codec: json
+      labels:
+        pod: "{{ pod }}"
+        namespace: "{{ namespace }}"
+        container: "{{ container }}"
+        node: "{{ node }}"
+        log_type: "kubernetes"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    loki_talos_kernel:
+      type: loki
+      inputs: [talos_kernel_transform]
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
+      encoding:
+        codec: json
+        except_fields: [__host]
+      labels:
+        hostname: "{{ node }}"
+        facility: "{{ facility }}"
+        log_type: "talos_kernel"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    loki_talos_service:
+      type: loki
+      inputs: [talos_service_transform]
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local
+      encoding:
+        codec: json
+        except_fields: [__host]
+      labels:
+        hostname: "{{ node }}"
+        service: "{{ service }}"
+        log_type: "talos_service"
+      batch:
+        max_bytes: 1048576
+        timeout_secs: 5
+      out_of_order_action: rewrite_timestamp
+
+    stdout:
+      type: console
+      inputs:
+        - kubernetes_logs_transform
+        - talos_kernel_transform
+        - talos_service_transform
+      encoding:
+        codec: json
+
+    # Prometheus metrics for Vector itself
+    prometheus:
+      type: prometheus_exporter
+      inputs:
+        - internal_metrics
+      address: "0.0.0.0:9598"
+
+# Tolerations to run on all nodes
+tolerations:
+  - operator: Exists
+
+service:
+  type: LoadBalancer
+  ports:
+    - name: prom-exporter
+      port: 9598
+      targetPort: 9598
+      protocol: TCP
+    - name: talos-kernel
+      port: 6050
+      targetPort: 6050
+      protocol: UDP
+    - name: talos-service
+      port: 6051
+      targetPort: 6051
+      protocol: UDP
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
