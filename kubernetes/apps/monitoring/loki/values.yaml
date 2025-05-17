@@ -2,57 +2,52 @@ deploymentMode: SimpleScalable
 
 loki:
     auth_enabled: false
-    common:
-        # Force a specific tenant ID
+    commonConfig:
         ring:
             kvstore:
                 store: memberlist
-                schemaConfig:
-                    configs:
-                        - from: "2024-04-01"
-                          store: tsdb
-                          object_store: s3
-                          schema: v13
-                          index:
-                            prefix: loki_index_
-                            period: 24h
-                storage:
-                    type: s3
-                    bucketNames:
-                        chunks: ceph-chunks
-                        ruler: ceph-ruler
-                        admin: ceph-admin
-                    s3:
-                        endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-                        region: us-east-1
-                        access_key_id: S7RFA0US3ZM69ZVEIKRN
-                        secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-                        signatureVersion: v2
-                        s3ForcePathStyle: true
-                        insecure: true
-                        http_config: {}
-                limits_config:
-                    # Add retention period
-                    retention_period: 720h
-                    # Consider other limits
-                    max_query_parallelism: 128
-                    max_query_length: 721h
-                    max_streams_per_user: 10000
-                ingester:
-                    chunk_encoding: snappy
-                querier:
-                    query_ingesters_within: 3h
-                    max_concurrent: 10
-            instance_interface_names:
-                - lo
-                - eth.*
-            ingester:
-                instance_limits:
-                    max_global_series_per_user: 1000000
-                    max_global_series_per_metric: 100000
-                ring:
-                    heartbeat_period: 10s
-                    replication_factor: 3
+    limits_config:
+        retention_period: 720h
+        max_query_parallelism: 128
+        max_query_length: 721h
+        max_streams_per_user: 10000
+    ingester:
+        chunk_encoding: snappy
+        instance_limits:
+            max_global_series_per_user: 1000000
+            max_global_series_per_metric: 100000
+    querier:
+        query_ingesters_within: 3h
+        max_concurrent: 10
+    distributor: {}
+    frontend: {}
+    storage_config:
+        aws: # Define aws configuration instead of s3 directly under storage_config
+            s3:
+                bucket: ceph-chunks
+                region: us-east-1
+        boltdb_shipper:
+            active_index_directory: /data/loki/index
+            cache_location: /data/loki/index_cache
+            retention_days: 730
+        index_queries_cache:
+            max_age: 3h
+            max_size_mb: 1024
+        chunks:
+            chunk_target_size: 1536000
+            compactor:
+                working_directory: /data/loki/compactor
+        tsdb_shipper:
+            active_index_directory: /data/loki/index
+            cache_location: /data/loki/index_cache
+            retention_days: 730
+    storage: # Only configure the bucket names here, authentication is handled by the secret
+        bucketNames:
+            chunks: ceph-chunks
+            ruler: ceph-ruler
+            admin: ceph-admin
+        # Remove all sensitive information from here.
+
 compactor:
     persistence:
         enabled: true
@@ -71,14 +66,11 @@ write:
     replicas: 3
 minio:
     enabled: false
-# Grafana datastore
 grafana:
     enabled: false
-# Environment variables for all containers
 extraEnvFrom:
     - secretRef:
-        name: loki-s3-creds
-# Resource requirements
+        name: loki-s3-creds # references the secret
 resources:
     requests:
         cpu: 100m
@@ -86,6 +78,5 @@ resources:
     limits:
         cpu: 500m
         memory: 2Gi
-# Add tolerations
 tolerations:
     - operator: Exists
