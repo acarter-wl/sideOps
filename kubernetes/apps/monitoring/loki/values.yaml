@@ -7,7 +7,7 @@ loki:
             kvstore:
                 store: memberlist
     limits_config:
-        retention_period: 720h
+        retention_period: 17520h
         max_query_parallelism: 128
         max_query_length: 721h
         max_streams_per_user: 10000
@@ -28,21 +28,24 @@ loki:
                 insecure: true
                 s3ForcePathStyle: true
                 http_config: {}
-       boltdb_shipper:
-            active_index_directory: /data/loki/index
-            cache_location: /data/loki/index_cache
-            retention_days: 730
+        boltdb_shipper:
+          active_index_directory: /data/loki/index
+          cache_location: /data/loki/index_cache
+          retention_period: 17520h
         index_queries_cache:
             max_age: 3h
             max_size_mb: 1024
         chunks:
-            chunk_target_size: 1536000
-            compactor:
-                working_directory: /data/loki/compactor
+          chunk_target_size: 1536000
+        compactor:
+          working_directory: /data/loki/compactor
+        index_queries_cache:
+          max_age: 3h
+          max_size_mb: 1024                
         tsdb_shipper:
-            active_index_directory: /data/loki/index
-            cache_location: /data/loki/index_cache
-            retention_days: 730
+          active_index_directory: /data/loki/index
+          cache_location: /data/loki/index_cache
+          retention_period: 17520h
     storage: # Only configure the bucket names here, authentication is handled by the secret
         bucketNames:
             chunks: ceph-chunks
