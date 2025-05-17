@@ -19,12 +19,13 @@ loki:
       ruler: ceph-ruler
       admin: ceph-admin
     s3:
-      s3: http://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local/ceph-chunks
-      # bucket: ceph-chunks
-      # region: us-east-1
-      # endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-      # access_key_id: S7RFA0US3ZM69ZVEIKRN
-      # secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+      # THIS FIELD IS NON-STANDARD AND CONTAINS CREDS IN URL - REMOVE THIS
+      # s3: http://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
+      bucket: ceph-chunks # Default bucket, often defaults to chunks
+      region: us-east-1
+      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
+      access_key_id: S7RFA0US3ZM69ZVEIKRN
+      secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
       signature_version: v4
       s3forcepathstyle: true
       insecure: true
