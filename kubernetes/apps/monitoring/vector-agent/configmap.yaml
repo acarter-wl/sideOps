@@ -10,6 +10,8 @@ data:
     sources:
       kubernetes_logs:
         type: kubernetes_logs
+        self_node_name: ${VECTOR_SELF_NODE_NAME}
+
 
       talos_kernel_logs:
         address: 0.0.0.0:6050
