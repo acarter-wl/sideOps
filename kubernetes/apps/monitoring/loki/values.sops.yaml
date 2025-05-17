@@ -1,4 +1,4 @@
-deploymentMode: SimpleScalable
+deploymentMode: Distributed
 loki:
   auth_enabled: false
   # The main config block
