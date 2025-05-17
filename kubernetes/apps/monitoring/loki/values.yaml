@@ -26,6 +26,11 @@ loki:
             s3:
                 bucket: ceph-chunks
                 region: us-east-1
+                endpoint: http://rook-ceph-rgw-ceph-objectstore.monitoring.svc.cluster.local
+                signatureVersion: v4
+                insecure: true
+                s3ForcePathStyle: true
+                http_config: {}
         boltdb_shipper:
             active_index_directory: /data/loki/index
             cache_location: /data/loki/index_cache
@@ -41,12 +46,20 @@ loki:
             active_index_directory: /data/loki/index
             cache_location: /data/loki/index_cache
             retention_days: 730
-    storage: # Only configure the bucket names here, authentication is handled by the secret
+    storage:
         bucketNames:
             chunks: ceph-chunks
             ruler: ceph-ruler
             admin: ceph-admin
-        # Remove all sensitive information from here.
+    schemaConfig: # Add the schema configuration
+        configs:
+            - from: "2024-04-01" # Use an appropriate date
+              store: tsdb
+              object_store: s3
+              schema: v13
+              index:
+                prefix: loki_index_
+                period: 24h
 
 compactor:
     persistence:
@@ -56,6 +69,7 @@ compactor:
             - ReadWriteOnce
         size: 20Gi
         storageClass: ceph-block
+
 lokiCanary:
     enabled: true
 backend:
@@ -70,7 +84,8 @@ grafana:
     enabled: false
 extraEnvFrom:
     - secretRef:
-        name: loki-s3-creds # references the secret
+        name: loki-s3-creds
+
 resources:
     requests:
         cpu: 100m
@@ -78,5 +93,6 @@ resources:
     limits:
         cpu: 500m
         memory: 2Gi
+
 tolerations:
     - operator: Exists
