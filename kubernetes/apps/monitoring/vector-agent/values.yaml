@@ -47,7 +47,7 @@ customConfig:
         .http_status = to_int!(.status)
         .bytes_sent = to_int!(.body_bytes_sent)
         .host = get_env_var("HOSTNAME") ?? "unknown"
-        .log_type = "nginx_access"
+        .log_type = "nginx_access" # Keep this for transform, but remove from sinks.
 
         if exists(.request_uri) {
           uri_parts = split!(.request_uri, "?", limit: 2)
@@ -64,7 +64,7 @@ customConfig:
         .pod = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
         .node = get_env_var("HOSTNAME") ?? "unknown"
-        .log_type = "kubernetes"
+        .log_type = "kubernetes" # Keep this for transform, but remove from sinks.
         .timestamp = now()
 
     talos_kernel_transform:
@@ -73,7 +73,7 @@ customConfig:
       source: |
         .node = .__host
         .facility = if exists(.facility) && .facility != null { .facility } else { "kernel" }
-        .log_type = "talos_kernel"
+        .log_type = "talos_kernel" # Keep this for transform, but remove from sinks.
         .timestamp = now()
 
     talos_service_transform:
@@ -96,7 +96,7 @@ customConfig:
             .service = "trustd"
           }
         }
-        .log_type = "talos_service"
+        .log_type = "talos_service" # Keep this for transform, but remove from sinks.
         .timestamp = now()
 
   sinks:
@@ -113,10 +113,11 @@ customConfig:
         host: "{{`{{ host }}`}}"
         status: "{{`{{ status }}`}}"
         method: "{{`{{ request_method }}`}}"
-        log_type: "nginx_access"
+        log_type: "nginx_access" # Correct placement; inside 'labels'
       batch:
         max_bytes: 1048576
         timeout_secs: 5
+
     loki_kubernetes:
       type: loki
       inputs: [kubernetes_logs_transform]
@@ -131,7 +132,7 @@ customConfig:
         namespace: "{{`{{ namespace }}`}}"
         container: "{{`{{ container }}`}}"
         node: "{{`{{ node }}`}}"
-        log_type: "kubernetes"
+        log_type: "kubernetes" # Correct placement; inside 'labels'
       batch:
         max_bytes: 1048576
         timeout_secs: 5
@@ -150,7 +151,7 @@ customConfig:
       labels:
         hostname: "{{`{{ node }}`}}"
         facility: "{{`{{ facility }}`}}"
-      log_type: "talos_kernel"
+        log_type: "talos_kernel" # Correct placement; inside 'labels'
       batch:
         max_bytes: 1048576
         timeout_secs: 5
@@ -169,7 +170,7 @@ customConfig:
       labels:
         hostname: "{{`{{ node }}`}}"
         service: "{{`{{ service }}`}}"
-      log_type: "talos_service"
+        log_type: "talos_service" # Correct placement; inside 'labels'
       batch:
         max_bytes: 1048576
         timeout_secs: 5
