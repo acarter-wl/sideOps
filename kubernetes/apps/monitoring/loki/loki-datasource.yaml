@@ -12,7 +12,7 @@ data:
       - name: loki
         access: proxy
         isDefault: false
-        url: http://loki-gateway.monitoring.svc.cluster.local:80
+        url: http://loki-gateway.monitoring.svc:80
         jsonData:
           httpHeaderName1: X-Scope-OrgID
         secureJsonData:
