@@ -13,8 +13,6 @@ loki:
         max_streams_per_user: 10000
     ingester:
         chunk_encoding: snappy
-        max_global_streams_per_user: 1000000
-        max_global_streams_per_metric: 100000
     querier:
         query_ingesters_within: 3h
         max_concurrent: 10
@@ -30,7 +28,7 @@ loki:
                 insecure: true
                 s3ForcePathStyle: true
                 http_config: {}
-        boltdb_shipper:
+       boltdb_shipper:
             active_index_directory: /data/loki/index
             cache_location: /data/loki/index_cache
             retention_days: 730
