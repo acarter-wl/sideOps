@@ -103,9 +103,9 @@ customConfig:
     loki_nginx_access:
       type: loki
       inputs: [nginx_access_parser]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
+      # request:
+      #   headers:
+      #     X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
@@ -121,9 +121,9 @@ customConfig:
     loki_kubernetes:
       type: loki
       inputs: [kubernetes_logs_transform]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
+      # request:
+      #   headers:
+      #     X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
@@ -141,9 +141,9 @@ customConfig:
     loki_talos_kernel:
       type: loki
       inputs: [talos_kernel_transform]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
+      # request:
+      #   headers:
+      #     X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
@@ -160,9 +160,9 @@ customConfig:
     loki_talos_service:
       type: loki
       inputs: [talos_service_transform]
-      request:
-        headers:
-          X-Scope-OrgID: "1"
+      # request:
+      #   headers:
+      #     X-Scope-OrgID: "1"
       endpoint: http://loki-gateway.monitoring.svc.cluster.local
       encoding:
         codec: json
