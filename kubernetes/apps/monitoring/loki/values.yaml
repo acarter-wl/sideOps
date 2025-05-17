@@ -1,6 +1,6 @@
 loki:
   # Add this line to disable the commonConfig section and prevent the error
-  commonConfig: null
+  commonConfig: nullk
   auth_enabled: false
   schemaConfig:
     configs:
@@ -13,17 +13,16 @@ loki:
           period: 24h
   storage_config: # This configures Loki's internal storage settings
     aws:
-      s3: http://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore/ceph-chunks
-      region: us-east-1
-      bucketnames: ceph-chunks # This is a string in storage_config
-      s3forcepathstyle: false
-      # The endpoint, secretAccessKey, accessKeyId, signatureVersion,
-      # s3ForcePathStyle (redundant), and insecure fields are missing here.
-      # They should likely be configured here under aws:
+
+      s3: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
+       bucketnames: ceph-chunks
+        region: us-east-1
+        access_key_id: S7RFA0US3ZM69ZVEIKR
+         secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+         signature_version: v4
       endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local # <-- Add your actual endpoint
       secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J # <-- Add your actual secret key
       accessKeyId: S7RFA0US3ZM69ZVEIKRN
-      signatureVersion: v4
       insecure: true # Use with caution in production
 
   ingester:
