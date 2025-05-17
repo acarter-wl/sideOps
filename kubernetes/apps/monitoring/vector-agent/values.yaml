@@ -1,6 +1,18 @@
 deploymentMode: SimpleScalable
 
 loki:
+  auth_enabled: false
+
+  pattern_ingester:
+    enabled: false  # Add this to prevent template errors
+
+  # Add this specific storage structure the helm chart is looking for
+  storage:
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
+
   config: |
     auth_enabled: false
 
@@ -34,7 +46,7 @@ loki:
     storage_config:
       aws:
         s3:
-          bucketnames: ceph-chunks
+          bucket: ceph-chunks
           endpoint: http://rook-ceph-rgw-ceph-objectstore.monitoring.svc.cluster.local
           region: us-east-1
           access_key_id: ${S3_ACCESS_KEY}
