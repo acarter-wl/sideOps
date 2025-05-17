@@ -1,7 +1,9 @@
 loki:
-  # Add this line to disable the commonConfig section and prevent the error
-  commonConfig: nullk
-  auth_enabled: false
+  deploymentMode: simple-scalable
+
+  commonConfig:
+    auth_enabled: false
+
   schemaConfig:
     configs:
       - from: 2024-04-01
@@ -11,94 +13,93 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  storage_config: # This configures Loki's internal storage settings
+
+  storage_config:
     aws:
-
-      s3: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-       bucketnames: ceph-chunks
+      s3:
+        bucket: ceph-chunks
         region: us-east-1
-        access_key_id: S7RFA0US3ZM69ZVEIKR
-         secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-         signature_version: v4
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local # <-- Add your actual endpoint
-      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J # <-- Add your actual secret key
-      accessKeyId: S7RFA0US3ZM69ZVEIKRN
-      insecure: true # Use with caution in production
+        endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
+        access_key_id: S7RFA0US3ZM69ZVEIKRN
+        secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+        signature_version: v4
+        s3forcepathstyle: true
+        insecure: true
+        http_config: {}
 
-  ingester:
-    chunk_encoding: snappy
-  pattern_ingester:
-      enabled: true
-  limits_config:
-    allow_structured_metadata: true
-    volume_enabled: true
-    retention_period: 672h # 28 days retention
-  querier:
-      max_concurrent: 4
-
-  storage: # This section often configures chart-level storage details and might be passed to components or helpers
+  storage:
     type: s3
-    # The bucketNames here acts configure the chart's understanding,
-    # while storage_config.aws.bucketnames configure Loki itself.
-    # It seems commonStorageConfig was trying to read from this chart-level section.
     bucketNames:
-        chunks: ceph-chunks
-        ruler: ceph-ruler
-        admin: ceph-admin
-    s3: # S3 Access details might also be needed here depending on chart logic
-      # You likely need to duplicate some or all of the storage_config.aws
-      # settings here as well, depending on the chart's design assumptions.
-      # Add endpoint, region, secretAccessKey, accessKeyId, s3ForcePathStyle, insecure etc.
-      # Example:
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local # <-- Add your actual endpoint
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
+    s3:
+      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
       region: us-east-1
-      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J # <-- Add your actual secret key
-      accessKeyId: S7RFA0US3ZM69ZVEIKRN # <-- Add your actual access key ID
+      accessKeyId: S7RFA0US3ZM69ZVEIKRN
+      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
       signatureVersion: v4
       s3ForcePathStyle: true
       insecure: true
-      http_config: {} # This might be needed as an empty map
-
-  deploymentMode: Distributed
-
-  # Disable minio storage
-  minio:
-      enabled: false
+      http_config: {}
 
   ingester:
+    chunk_encoding: snappy
     replicas: 3
     zoneAwareReplication:
       enabled: false
+
+  pattern_ingester:
+    enabled: true
+
+  limits_config:
+    allow_structured_metadata: true
+    volume_enabled: true
+    retention_period: 672h
+
   querier:
+    max_concurrent: 4
     replicas: 3
     maxUnavailable: 2
+
   queryFrontend:
     replicas: 2
     maxUnavailable: 1
+
   queryScheduler:
     replicas: 2
+
   distributor:
     replicas: 3
     maxUnavailable: 2
+
   compactor:
     replicas: 1
+
   indexGateway:
     replicas: 2
     maxUnavailable: 1
 
   bloomPlanner:
     replicas: 0
+
   bloomBuilder:
     replicas: 0
+
   bloomGateway:
     replicas: 0
-
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
   backend:
     replicas: 0
+
   read:
     replicas: 0
-  write: # Enabled by deploymentMode: Distributed and not explicitly disabled with .write.enabled perhaps?
-    replicas: 0 # This sets replica count, not necessarily 'enabled' flag chart might check
+
+  write:
+    replicas: 0
 
   singleBinary:
     replicas: 0
+
+minio:
+  enabled: falsedaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
