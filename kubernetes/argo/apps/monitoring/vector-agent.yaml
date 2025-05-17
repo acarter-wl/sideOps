@@ -9,18 +9,18 @@ metadata:
     argocd.argoproj.io/instance: vector-agent
 spec:
   project: infrastructure
-  sources:
+  source:
     - repoURL: "https://github.com/acarter-wl/sideops.git"
       path: kubernetes/apps/monitoring/vector-agent
       targetRevision: main
       ref: repo
-    - repoURL: https://helm.vector.dev
-      chart: vector
-      targetRevision: 0.42.1
-      helm:
-        releaseName: vector-agent
-        valueFiles:
-          - $repo/kubernetes/apps/monitoring/vector-agent/values.yaml
+    # - repoURL: https://helm.vector.dev
+    #   chart: vector
+    #   targetRevision: 0.42.1
+    #   helm:
+    #     releaseName: vector-agent
+    #     valueFiles:
+    #       - $repo/kubernetes/apps/monitoring/vector-agent/values.yaml
   destination:
     name: in-cluster
     namespace: monitoring

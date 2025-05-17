@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vector-agent
+  namespace: monitoring
+  labels:
+    app: vector-agent
+spec:
+  type: LoadBalancer
+  ports:
+    - name: prom-exporter
+      port: 9598
+      targetPort: 9598
+      protocol: TCP
+    - name: talos-kernel
+      port: 6050
+      targetPort: 6050
+      protocol: UDP
+    - name: talos-service
+      port: 6051
+      targetPort: 6051
+      protocol: UDP
+  selector:
+    app: vector-agent

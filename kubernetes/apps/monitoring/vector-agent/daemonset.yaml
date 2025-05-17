@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vector-agent
+  namespace: monitoring
+  labels:
+    app: vector-agent
+spec:
+  selector:
+    matchLabels:
+      app: vector-agent
+  template:
+    metadata:
+      labels:
+        app: vector-agent
+    spec:
+      serviceAccountName: vector-agent
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: vector
+          image: timberio/vector:0.28.1-debian
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VECTOR_LOG
+              value: "info"
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - name: prom-exporter
+              containerPort: 9598
+              protocol: TCP
+            - name: talos-kernel
+              containerPort: 6050
+              protocol: UDP
+            - name: talos-service
+              containerPort: 6051
+              protocol: UDP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vector
+              readOnly: true
+            - name: data
+              mountPath: /vector-data-dir
+            - name: var-log
+              mountPath: /var/log/
+              readOnly: true
+            - name: var-lib
+              mountPath: /var/lib
+              readOnly: true
+            - name: docker-containers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: vector-config
+        - name: data
+          emptyDir: {}
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: var-lib
+          hostPath:
+            path: /var/lib
+        - name: docker-containers
+          hostPath:
+            path: /var/lib/docker/containers
