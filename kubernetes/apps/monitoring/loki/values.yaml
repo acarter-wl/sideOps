@@ -7,8 +7,13 @@ loki:
     path_prefix: /var/loki
     ring:
       kvstore:
-        store: inmemory
+        store: memberlist
+        replication_factor: 1
 
+  memberlist:
+    join_members:
+    # You can use a headless k8s service for all distributor, ingester and querier components.
+      - loki-gossip-ring.loki.svc.cluster.local:7946 #
   storage:
     bucketNames:
       chunks: ceph-chunks
@@ -40,13 +45,13 @@ loki:
       port: http-metrics
     initialDelaySeconds: 45
     timeoutSeconds: 1
-  
+
   # Ensure local storage is configured
   persistence:
     enabled: true
     size: 10Gi
     storageClassName: ceph-block
-  
+
   # Limit settings
   limits_config:
     ingestion_rate_mb: 20
