@@ -44,8 +44,13 @@ data:
           message_length = length(.message)
           if message_length > 200000 {
             # Keep metadata with condensed message for logs that are too large
-            sliced_message = slice(.message, 0, 200000)
-            .message = string(sliced_message) ?? "" + " ... [truncated, original size: " + to_string(message_length) + " bytes]"
+            sliced_message, err = slice(.message, 0, 200000)
+            if err == null {
+              .message = string(sliced_message) + " ... [truncated, original size: " + to_string(message_length) + " bytes]"
+            } else {
+               #If slicing fails, just use a default truncated message
+              .message =  "... [truncated, original size: " + to_string(message_length) + " bytes]"
+            }
           }
 
       kubernetes_logs_transform:
