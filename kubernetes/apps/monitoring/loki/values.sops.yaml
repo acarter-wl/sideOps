@@ -77,19 +77,43 @@ lokiCanary:
   enabled: true
 backend:
   replicas: 3
-  extraEnvFrom:
-    - secretRef:
-        name: loki-s3-creds
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_SECRET_ACCESS_KEY
 read:
   replicas: 3
-  extraEnvFrom:
-    - secretRef:
-        name: loki-s3-creds
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_SECRET_ACCESS_KEY
 write:
   replicas: 3
-  extraEnvFrom:
-    - secretRef:
-        name: loki-s3-creds
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_SECRET_ACCESS_KEY
 minio:
   enabled: false
 gateway:
