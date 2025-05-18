@@ -101,8 +101,9 @@ data:
       talos_service_transform_remove_host:
         type: remap
         inputs: [talos_service_transform]
-        drop:
-          - "__host"
+        source: |
+          # Remove __host field
+          del(.__host)
 
     sinks:
       loki_kubernetes:
