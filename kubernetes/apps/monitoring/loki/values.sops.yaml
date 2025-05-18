@@ -27,14 +27,11 @@ loki:
     type: s3
     bucketNames:
       chunks: ceph-chunks
-      ruler: ceph-ruler
-      admin: ceph-admin
     s3:
       bucket: ceph-chunks
-      region: us-east-1
       endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
       signature_version: v4
-      s3forcepathstyle: true
+      s3forcepathstyle: false
       insecure: true
       http_config: {}
 
