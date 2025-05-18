@@ -1,23 +1,20 @@
-# Enable basic configuration
 loki:
   structuredConfig:
     common:
       storage:
         s3:
-          endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+          endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
           region: us-east-1
           access_key_id: ${AWS_ACCESS_KEY_ID}
           secret_access_key: ${AWS_SECRET_ACCESS_KEY}
           s3forcepathstyle: true
           insecure: true
 
-    # Compactor configuration
     compactor:
       working_directory: /var/loki/compactor
       shared_store: s3
       retention_enabled: true
 
-    # Schema for large logs
     schema_config:
       configs:
         - from: 2020-05-15
@@ -28,31 +25,18 @@ loki:
             prefix: index_
             period: 24h
 
-    # Limits for log size and queries
-    # limits_config:
-    #   ingestion_rate_mb: 20
-    #   ingestion_burst_size_mb: 30
-    #   max_line_size: 5242880 # 5MB - for large log lines
-    #   max_entries_limit_per_query: 10000
-    #   reject_old_samples: true
-    #   reject_old_samples_max_age: 168h # 1 week
-
-    # Configure memberlist clustering
     memberlist:
       join_members:
         - loki-memberlist
-
 
   persistence:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
 
-  # Service settings
   service:
     port: 3100
 
-  # Pod settings
   resources:
     limits:
       cpu: 1000m
@@ -60,15 +44,3 @@ loki:
     requests:
       cpu: 100m
       memory: 128Mi
-extraEnv:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: loki-s3-creds
-        key: AWS_ACCESS_KEY_ID
-
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: loki-s3-creds
-        key: AWS_SECRET_ACCESS_KEY
