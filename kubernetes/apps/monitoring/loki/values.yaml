@@ -12,7 +12,7 @@ loki:
         ruler: ceph-ruler
         admin: ceph-admin
     s3:
-      s3: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph/ceph-chunks
+      s3:  s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
 
   # Set volume sizes - increasing from default
   ingester:
