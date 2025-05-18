@@ -139,8 +139,15 @@ data:
           facility: "{{ facility }}"
           log_type: "talos_kernel"
         batch:
-          max_bytes: 1048576
+          max_bytes: 512000
           timeout_secs: 5
+          max_events: 100
+        request:
+          retry_attempts: 3
+          retry_initial_backoff_secs: 1
+          retry_max_duration_secs: 10
+          rate_limit_num: 10
+          rate_limit_duration_secs: 1
         out_of_order_action: rewrite_timestamp
 
       loki_talos_service:
@@ -154,8 +161,15 @@ data:
           service: "{{ service }}"
           log_type: "talos_service"
         batch:
-          max_bytes: 1048576
+          max_bytes: 512000
           timeout_secs: 5
+          max_events: 100
+        request:
+          retry_attempts: 3
+          retry_initial_backoff_secs: 1
+          retry_max_duration_secs: 10
+          rate_limit_num: 10
+          rate_limit_duration_secs: 1
         out_of_order_action: rewrite_timestamp
 
       stdout:
