@@ -1,6 +1,27 @@
 loki:
-  auth_enabled: false
-  
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-creds
+          key: AWS_SECRET_ACCESS_KEY
+
+  structuredConfig:
+    common:
+      storage:
+        s3:
+          endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+          region: us-east-1
+          access_key_id: ${AWS_ACCESS_KEY_ID}
+          secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+          bucketnames: ceph-chunks
+          s3forcepathstyle: true
+          insecure: true
   # Storage configuration
   storage:
     type: s3
@@ -8,7 +29,7 @@ loki:
       chunks: ceph-chunks
       ruler: ceph-ruler
       admin: ceph-admin
-  
+
   # Loki schema configuration
   schemaConfig:
     configs:
