@@ -35,6 +35,18 @@ data:
         type: internal_metrics
 
     transforms:
+      kubernetes_logs_size_limiter:
+        type: remap
+        inputs: [kubernetes_logs]
+        source: |
+          # Limit message size to 200KB to stay under Loki's limit
+          if exists(.message) && .message != null {
+            if length(.message) > 200000 {
+              # Keep metadata with condensed message for logs that are too large
+              .message = slice(.message, 0, 200000) + " ... [truncated, original size: " + to_string(length(.message)) + " bytes]"
+            }
+          }
+
       kubernetes_logs_transform:
         type: remap
         inputs: [kubernetes_logs]
@@ -95,8 +107,15 @@ data:
           node: "{{ node }}"
           log_type: "kubernetes"
         batch:
-          max_bytes: 1048576
+          max_bytes: 512000        # Reduced from 1MB to 512KB
           timeout_secs: 5
+          max_events: 100          # Add event count limit
+        request:
+          retry_attempts: 3        # Add retries
+          retry_initial_backoff_secs: 1
+          retry_max_duration_secs: 10
+          rate_limit_num: 10       # Rate limit requests
+          rate_limit_duration_secs: 1
         out_of_order_action: rewrite_timestamp
 
       loki_talos_kernel:
