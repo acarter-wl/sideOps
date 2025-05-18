@@ -54,10 +54,11 @@ data:
           .container = .kubernetes.container_name
           .pod = .kubernetes.pod_name
           .namespace = .kubernetes.pod_namespace
-          # This is still ok because get_env_var() can fail
+          # This is still ok because get_env_var("HOSTNAME") can fail
           .node = get_env_var("HOSTNAME") ?? "unknown"
           .log_type = "kubernetes"
           .timestamp = now()
+
       talos_kernel_transform:
         type: remap
         inputs: [talos_kernel_logs]
