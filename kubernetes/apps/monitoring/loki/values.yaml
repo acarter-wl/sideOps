@@ -1,20 +1,15 @@
 # Enable basic configuration
 loki:
-  auth_enabled: false
-
-  # Storage settings for Talos Linux
   structuredConfig:
     common:
-      path_prefix: /var/loki
       storage:
         s3:
           endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
           region: us-east-1
-          access_key_id: S7RFA0US3ZM69ZVEIKRN
-          secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+          access_key_id: ${AWS_ACCESS_KEY_ID}
+          secret_access_key: ${AWS_SECRET_ACCESS_KEY}
           s3forcepathstyle: true
           insecure: true
-          bucketnames: ceph-chunks
 
     # Compactor configuration
     compactor:
@@ -34,23 +29,19 @@ loki:
             period: 24h
 
     # Limits for log size and queries
-    limits_config:
-      ingestion_rate_mb: 20
-      ingestion_burst_size_mb: 30
-      max_line_size: 5242880 # 5MB - for large log lines
-      max_entries_limit_per_query: 10000
-      reject_old_samples: true
-      reject_old_samples_max_age: 168h # 1 week
+    # limits_config:
+    #   ingestion_rate_mb: 20
+    #   ingestion_burst_size_mb: 30
+    #   max_line_size: 5242880 # 5MB - for large log lines
+    #   max_entries_limit_per_query: 10000
+    #   reject_old_samples: true
+    #   reject_old_samples_max_age: 168h # 1 week
 
     # Configure memberlist clustering
     memberlist:
       join_members:
         - loki-memberlist
 
-  # K8s specific settings
-  image:
-    registry: docker.io
-    repository: grafana/loki
 
   persistence:
     enabled: true
@@ -69,11 +60,15 @@ loki:
     requests:
       cpu: 100m
       memory: 128Mi
+extraEnv:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: loki-s3-creds
+        key: AWS_ACCESS_KEY_ID
 
-  # Health checks
-  readinessProbe:
-    httpGet:
-      path: /ready
-      port: http-metrics
-    initialDelaySeconds: 45
-    timeoutSeconds: 1
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: loki-s3-creds
+        key: AWS_SECRET_ACCESS_KEY
