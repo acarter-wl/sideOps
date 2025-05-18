@@ -1,42 +1,81 @@
 loki:
-  structuredConfig:
-    common:
-      storage:
-        s3:
-          endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
-          region: us-east-1
-          access_key_id: ${AWS_ACCESS_KEY_ID}
-          secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-          s3forcepathstyle: true
-          insecure: true
+  auth_enabled: false
+  
+  # Storage configuration
+  storage:
+    type: s3
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
+  
+  # Loki schema configuration
+  schemaConfig:
+    configs:
+      - from: 2020-05-15
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
 
-    compactor:
-      working_directory: /var/loki/compactor
-      shared_store: s3
-      retention_enabled: true
+  # S3 Storage config
+  storage_config:
+    aws:
+      s3: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
+      region: us-east-1
+      access_key_id: ${AWS_ACCESS_KEY_ID}
+      secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+      s3forcepathstyle: true
+      insecure: true
 
-    schema_config:
-      configs:
-        - from: 2020-05-15
-          store: tsdb
-          object_store: s3
-          schema: v13
-          index:
-            prefix: index_
-            period: 24h
+  # Server configuration
+  server:
+    http_listen_port: 3100
 
-    memberlist:
-      join_members:
-        - loki-memberlist
+  # Common config
+  commonConfig:
+    path_prefix: /var/loki
+    replication_factor: 1
 
+  # Pattern management
+  pattern_ingester:
+    enabled: true
+
+  # Ingester settings
+  ingester:
+    chunk_encoding: snappy
+
+  # Compactor settings
+  compactor:
+    working_directory: /var/loki/compactor
+    shared_store: s3
+    retention_enabled: true
+
+  # Membership configuration
+  memberlistConfig:
+    join_members:
+      - loki-memberlist
+
+  # Limits config
+  limits_config:
+    ingestion_rate_mb: 20
+    ingestion_burst_size_mb: 30
+    max_line_size: 5242880 # 5MB
+    max_entries_limit_per_query: 10000
+
+  # Kubernetes specifics
   persistence:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
 
+  # Service port
   service:
     port: 3100
 
+  # Resource requests/limits
   resources:
     limits:
       cpu: 1000m
@@ -44,3 +83,8 @@ loki:
     requests:
       cpu: 100m
       memory: 128Mi
+
+  # Table management settings
+  tableManager:
+    retention_deletes_enabled: true
+    retention_period: 672h # 28 days
