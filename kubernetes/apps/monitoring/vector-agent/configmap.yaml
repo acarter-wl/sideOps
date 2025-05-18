@@ -5,6 +5,13 @@ metadata:
   namespace: monitoring
 data:
   vector.yaml: |
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: monitoring
+data:
+  vector.yaml: |
     data_dir: /vector-data-dir
 
     sources:
@@ -38,19 +45,9 @@ data:
         type: remap
         inputs: [kubernetes_logs]
         source: |
-          # Limit message size to 200KB to stay under Loki's limit
-          # Safely handle .message as a string, defaulting to empty string if not present or not a string
           .message = string(.message) ?? ""
-          message_length = length(.message)
-          if message_length > 200000 {
-            # Keep metadata with condensed message for logs that are too large
-            sliced_message, err = slice(.message, 0, 200000)
-            if err == null {
-              .message = string(sliced_message) + " ... [truncated, original size: " + to_string(message_length) + " bytes]"
-            } else {
-               #If slicing fails, just use a default truncated message
-              .message =  "... [truncated, original size: " + to_string(message_length) + " bytes]"
-            }
+          if length(.message) > 131072 {
+            .message = slice(.message, 0, 131072) + " ... [truncated]"
           }
 
       kubernetes_logs_transform:
@@ -60,7 +57,6 @@ data:
           .container = .kubernetes.container_name
           .pod = .kubernetes.pod_name
           .namespace = .kubernetes.pod_namespace
-          # This is still ok because get_env_var("HOSTNAME") can fail
           .node = get_env_var("HOSTNAME") ?? "unknown"
           .log_type = "kubernetes"
           .timestamp = now()
@@ -70,48 +66,39 @@ data:
         inputs: [talos_kernel_logs]
         source: |
           .node = .__host
-          # Use if/else expression for explicit default value assignment
-          .facility = if exists(.facility) && .facility != null { .facility } else { "kernel" }
+          .facility = exists(.facility) ? .facility : "kernel"
           .log_type = "talos_kernel"
           .timestamp = now()
 
       talos_kernel_transform_remove_host:
         type: remap
         inputs: [talos_kernel_transform]
-        source: |
-          # Remove __host field
-          del(.__host)
+        source: del(.__host)
 
       talos_service_transform:
         type: remap
         inputs: [talos_service_logs]
         source: |
           .node = .__host
-          # Use if/else expression for explicit default value assignment
-          .service = if exists(.service) && .service != null { .service } else { "talos-service" }
+          .service = exists(.service) ? .service : "talos-service"
+          .log_type = "talos_service"
           if exists(.msg) {
-            msg = to_string(.msg) ?? ""
-            if contains(msg, "machined") {
-              .service = "machined"
-            } else if contains(msg, "containerd") {
-              .service = "containerd"
-            } else if contains(msg, "kubelet") {
-              .service = "kubelet"
-            } else if contains(msg, "apid") {
-              .service = "apid"
-            } else if contains(msg, "trustd") {
-              .service = "trustd"
+            msg = to_string(.msg)
+            .service = match msg {
+              _ if contains(msg, "machined") => "machined",
+              _ if contains(msg, "containerd") => "containerd",
+              _ if contains(msg, "kubelet") => "kubelet",
+              _ if contains(msg, "apid") => "apid",
+              _ if contains(msg, "trustd") => "trustd",
+              _ => .service
             }
           }
-          .log_type = "talos_service"
           .timestamp = now()
 
       talos_service_transform_remove_host:
         type: remap
         inputs: [talos_service_transform]
-        source: |
-          # Remove __host field
-          del(.__host)
+        source: del(.__host)
 
     sinks:
       loki_kubernetes:
@@ -127,15 +114,15 @@ data:
           node: "{{ node }}"
           log_type: "kubernetes"
         batch:
-          max_bytes: 512000        # Reduced from 1MB to 512KB
-          timeout_secs: 5
-          max_events: 100          # Add event count limit
+          max_bytes: 262144
+          timeout_secs: 4
+          max_events: 50
         request:
-          retry_attempts: 3        # Add retries
+          retry_attempts: 2
           retry_initial_backoff_secs: 1
-          retry_max_duration_secs: 10
-          rate_limit_num: 10       # Rate limit requests
-          rate_limit_duration_secs: 1
+          retry_max_duration_secs: 5
+          rate_limit_num: 5
+          rate_limit_duration_secs: 2
         out_of_order_action: rewrite_timestamp
 
       loki_talos_kernel:
@@ -149,15 +136,15 @@ data:
           facility: "{{ facility }}"
           log_type: "talos_kernel"
         batch:
-          max_bytes: 512000
-          timeout_secs: 5
-          max_events: 100
+          max_bytes: 262144
+          timeout_secs: 4
+          max_events: 50
         request:
-          retry_attempts: 3
+          retry_attempts: 2
           retry_initial_backoff_secs: 1
-          retry_max_duration_secs: 10
-          rate_limit_num: 10
-          rate_limit_duration_secs: 1
+          retry_max_duration_secs: 5
+          rate_limit_num: 5
+          rate_limit_duration_secs: 2
         out_of_order_action: rewrite_timestamp
 
       loki_talos_service:
@@ -171,15 +158,15 @@ data:
           service: "{{ service }}"
           log_type: "talos_service"
         batch:
-          max_bytes: 512000
-          timeout_secs: 5
-          max_events: 100
+          max_bytes: 262144
+          timeout_secs: 4
+          max_events: 50
         request:
-          retry_attempts: 3
+          retry_attempts: 2
           retry_initial_backoff_secs: 1
-          retry_max_duration_secs: 10
-          rate_limit_num: 10
-          rate_limit_duration_secs: 1
+          retry_max_duration_secs: 5
+          rate_limit_num: 5
+          rate_limit_duration_secs: 2
         out_of_order_action: rewrite_timestamp
 
       stdout:
@@ -193,6 +180,5 @@ data:
 
       prometheus:
         type: prometheus_exporter
-        inputs:
-          - internal_metrics
+        inputs: [internal_metrics]
         address: "0.0.0.0:9598"
