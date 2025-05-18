@@ -14,8 +14,6 @@ loki:
     s3:
       endpoint: https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
       region: us-east-1
-      accessKeyId: S7RFA0US3ZM69ZVEIKRN
-      secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
       s3ForcePathStyle: true
       insecure: true
 
@@ -37,11 +35,44 @@ loki:
 
 # Keep these minimal
 backend:
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: accessKey
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: secretKey
+
   replicas: 1
 read:
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: accessKey
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: secretKey
   replicas: 1
 write:
   replicas: 1
-
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: accessKey
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: secretKey
 minio:
   enabled: false
