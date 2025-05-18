@@ -70,8 +70,9 @@ data:
       talos_kernel_transform_remove_host:
         type: remap
         inputs: [talos_kernel_transform]
-        drop:
-          - "__host"
+        source: |
+          # Remove __host field
+          del(.__host)
 
       talos_service_transform:
         type: remap
