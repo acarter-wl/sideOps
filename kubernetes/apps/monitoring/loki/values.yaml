@@ -1,10 +1,10 @@
 loki:
   auth_enabled: false
 
-  # Make sure we use /data for writeable storage on Talos
+  # Make sure we use /var/loki for writeable storage on Talos
   commonConfig:
     replication_factor: 1
-    path_prefix: /data
+    path_prefix: /var/loki
     ring:
       kvstore:
         store: inmemory
@@ -57,6 +57,6 @@ loki:
   # Talos-specific settings for working directories
   structuredConfig:
     common:
-      path_prefix: /data
+      path_prefix: /var/loki
     compactor:
-      working_directory: /data/compactor
+      working_directory: /var/loki/compactor
