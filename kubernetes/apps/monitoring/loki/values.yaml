@@ -1,158 +1,33 @@
 loki:
   auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+    path_prefix: /loki
+    ring:
+      kvstore:
+        store: inmemory
+
   storage:
     bucketNames:
       chunks: ceph-chunks
-      ruler: ceph-ruler     # optional, if using `ruler`
-      admin: ceph-admin     # optional
+      ruler: ceph-ruler
+      admin: ceph-admin
 
+  schemaConfig:
+    configs:
+      - from: 2020-05-15
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
 
-server:
-  http_listen_port: 3100
+  storage_config:
+    aws:
+      s3: s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
+      s3forcepathstyle: true
 
-common:
-  ring:
-    instance_addr: 127.0.0.1
-    kvstore:
-      store: inmemory
-  replication_factor: 1
-  path_prefix: /loki
-
-schema_config:
-  configs:
-  - from: 2020-05-15
-    store: tsdb
-    object_store: s3
-    schema: v13
-    index:
-      prefix: index_
-      period: 24h
-
-storage_config:
-  tsdb_shipper:
-    active_index_directory: /loki/index
-    cache_location: /loki/index_cache
-  aws:
-    s3: s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
-    s3forcepathstyle: true
-
-#auth_enabled: false
-# loki:
-#   # Configure storage size limits
-#   commonConfig:
-#     path_prefix: /data
-
-#   # Temporary storage volumes
-#   storage:
-#     type: s3
-#     bucketNames:
-#         chunks: ceph-chunks
-#         ruler: ceph-ruler
-#         admin: ceph-admin
-#     s3:
-#       # s3:  s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
-#       endpoint: "https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc"
-#       access_key_id: "S7RFA0US3ZM69ZVEIKRN"
-#       secret_access_key: "b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J"
-#       insecure: true
-#       s3forcepathstyle: true
-#       http_config: {}
-#   # Set volume sizes - increasing from default
-#   ingester:
-#     persistence:
-#       enabled: true
-#       size: 10Gi
-#       storageClass: ceph-block
-#     chunk_encoding: snappy
-
-#   # Temporary directory size limits
-#   compactor:
-#     shared_store: s3
-#     retention_enabled: true
-#     working_directory:
-#       volume:
-#         sizeLimit: 5Gi
-
-#   # Configure index and object storage
-#   schemaConfig:
-#     configs:
-#       - from: 2024-04-01
-#         store: tsdb
-#         object_store: s3
-#         schema: v13
-#         index:
-#           prefix: loki_index_
-#           period: 24h
-
-#   # AWS S3 configuration
-#   storage_config:
-#     aws:
-#       bucketnames:
-#         chunks: ceph-chunks
-#         ruler: ceph-ruler
-#         admin: ceph-admin
-#       s3:
-#        # s3: s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
-#         endpoint: "https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc"
-#         access_key_id: "S7RFA0US3ZM69ZVEIKRN"
-#         secret_access_key: "b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J"
-#         insecure: true
-#         s3forcepathstyle: true
-#         http_config: {}
-
-#   # Rate and data limits
-#   limits_config:
-#     allow_structured_metadata: true
-#     volume_enabled: true
-#     ingestion_rate_mb: 20
-#     ingestion_burst_size_mb: 30
-#     max_line_size: 5242880 # 5MB
-#     max_entries_limit_per_query: 10000
-#     retention_period: 672h # 28 days retention
-
-#   # Query settings
-#   querier:
-#     max_concurrent: 4
-
-#   # Enable pattern logging
-#   pattern_ingester:
-#     enabled: true
-
-# backend:
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_ACCESS_KEY_ID
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_SECRET_ACCESS_KEY
-
-# read:
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_ACCESS_KEY_ID
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_SECRET_ACCESS_KEY
-
-# write:
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_ACCESS_KEY_ID
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-creds
-#           key: AWS_SECRET_ACCESS_KEY
+  server:
+    http_listen_port: 3100
