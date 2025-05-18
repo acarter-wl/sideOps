@@ -39,16 +39,17 @@ data:
         inputs: [kubernetes_logs]
         source: |
           # Limit message size to 200KB to stay under Loki's limit
-          if exists(.message) && .message != null {
-            if length(.message) > 200000 {
+          if exists(.message) && .message != null && is_string(.message) {
+            message_length = length(.message)
+            if message_length > 200000 {
               # Keep metadata with condensed message for logs that are too large
-              .message = slice(.message, 0, 200000) + " ... [truncated, original size: " + to_string(length(.message)) + " bytes]"
+              .message = slice(.message, 0, 200000) + " ... [truncated, original size: " + to_string(message_length) + " bytes]"
             }
           }
 
       kubernetes_logs_transform:
         type: remap
-        inputs: [kubernetes_logs]
+        inputs: [kubernetes_logs_size_limiter]
         source: |
           .container = .kubernetes.container_name
           .pod = .kubernetes.pod_name
