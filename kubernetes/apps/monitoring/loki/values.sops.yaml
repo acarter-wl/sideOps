@@ -4,9 +4,9 @@ loki:
 
   memberlist:
     join_members:
-      - dns+loki-write-headless.monitoring.svc.cluster.local:7946
-      - dns+loki-backend-headless.monitoring.svc.cluster.local:7946
-      - dns+loki-read-headless.monitoring.svc.cluster.local:7946
+      - dns+loki-write-headless.monitoring.svc:7946
+      - dns+loki-backend-headless.monitoring.svc:7946
+      - dns+loki-read-headless.monitoring.svc:7946
     bind_port: 7946
     gossip_interval: 200ms
     gossip_nodes: 3
@@ -56,6 +56,7 @@ loki:
     retention_enabled: true
     retention_delete_delay: 2h
     delete_request_store: s3
+    delete_request_cancel_period: 24h
   query_scheduler:
     max_outstanding_requests_per_tenant: 4096
   table_manager:
