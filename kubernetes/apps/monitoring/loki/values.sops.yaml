@@ -4,9 +4,7 @@ loki:
 
   memberlist:
     join_members:
-      - dns+loki-write-headless.monitoring.svc:7946
-      - dns+loki-backend-headless.monitoring.svc:7946
-      - dns+loki-read-headless.monitoring.svc:7946
+      - dns+loki-memberlist.monitoring.svc:7946
     bind_port: 7946
     gossip_interval: 200ms
     gossip_nodes: 3
@@ -45,7 +43,9 @@ loki:
     max_query_parallelism: 128
     max_query_length: 721h
     max_streams_per_user: 10000
-    per_stream_rate_limit: 5MB
+    ingestion_rate_mb: 15
+    ingestion_burst_size_mb: 30
+    max_line_size: 5MB
   ingester:
     chunk_encoding: snappy
   querier:
