@@ -17,6 +17,13 @@ loki:
       s3ForcePathStyle: true
       insecure: true
 
+  limits_config:
+    ingestion_rate_mb: 20
+    ingestion_burst_size_mb: 30
+    max_line_size: 5242880  # 5MB
+    max_entries_limit_per_query: 10000
+    reject_old_samples: false
+    max_query_length: 721h
 
   schemaConfig:
     configs:
@@ -28,7 +35,6 @@ loki:
           prefix: loki_index_
           period: 24h
 
-  # Keep only essential configs
   commonConfig:
     path_prefix: /var/loki
     replication_factor: 1
