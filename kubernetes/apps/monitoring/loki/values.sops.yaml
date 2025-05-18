@@ -26,11 +26,11 @@ loki:
     bucketNames:
       chunks: ceph-chunks
     s3:
-      bucket: ENC[AES256_GCM,data:Nn5Wwg0NTprndrs=,iv:QHmfXxjyv+wJ+XRL1vBBDk98Zf1ucpFhGw9rR7BGd0s=,tag:5YhVwaPlH7yGb1pZ7QynCA==,type:str]
-      endpoint: ENC[AES256_GCM,data:qNOFvcyDh1qZfVNuveG1GgAXY3KnLf2YtJGXVmmTdBd1pLN3sJJ4GIcnmQ/LoPgZOxrhij1m4bX/xL2oCYDnWQE=,iv:x9DZoRRju1Jqf0MulMH6glWyjbdMrAn0HJ6cvyAcJ9Q=,tag:ESYFcnMAuh2CC98f9zKDAA==,type:str]
-      signature_version: ENC[AES256_GCM,data:2rk=,iv:nlf8TTnbelHrbwzNjWSKcWrv5NIrzvkhHn3wMW8iyO0=,tag:kWqOdM9gTlC8KNHV1Flfug==,type:str]
-      s3forcepathstyle: ENC[AES256_GCM,data:MKO01g==,iv:3l93P5Fgn35f3aCJpM2+zaTmQgXtEtVvf5I6wcGBhxs=,tag:t0nSvjM5Xq3TaweDXBGs5g==,type:bool]
-      insecure: ENC[AES256_GCM,data:jPtIZg==,iv:HuGUFQ2UJv9XfHQqQRwyfe8VHfhuLXOzKqo/qLqjIqo=,tag:Fi6/0ZG2LkffqJYGSeL14Q==,type:bool]
+      bucket: ENC[AES256_GCM,data:t94Fwq8ZO4GzpDA=,iv:M/5dlaH87lOAsZw0XtOnzBoDDgChDPubtTkK5f8dA/U=,tag:WG7es2LQPHRJNv4a8qyBJQ==,type:str]
+      endpoint: ENC[AES256_GCM,data:1MYQ/kDKXR8QR48ixVXyY3vFFS8IKHB6UaA8KDWA8JssPmECR0Vui1fcMmjJ/A7ZtZCa+CAeLhgSPSUun9CJzzvI,iv:g6gnhoWY98atM3dthPnG/pmKl/ZPFnx0dxJvWYmJCJM=,tag:my2gV40o+inHfnv7J2U/3A==,type:str]
+      signature_version: ENC[AES256_GCM,data:PmY=,iv:nzEZQpNLnGkFYBBlSf6ofv+rf0mqgKV6Vx6Lefr+yAI=,tag:G3MvgFQOs16Do2I+k1mF5w==,type:str]
+      s3forcepathstyle: ENC[AES256_GCM,data:ReX8jQ==,iv:qUpmljicblRXse379HTd6soAeTFn8AnMA85DAG0rXwM=,tag:2jmQUNmNh/1lUbCwJ+aHJg==,type:bool]
+      insecure: ENC[AES256_GCM,data:HZHmavE=,iv:3SQjlSPK+Zstz2H/yi1R1ZoU2ZP3FsQ0Xuwz/j65L+Q=,tag:xxwqhHC9x/dCHIKk6bjhmQ==,type:bool]
       http_config: {}
   limits_config:
     retention_period: 720h
@@ -67,7 +67,7 @@ compactor:
     enabled: true
     mountPath: /var/loki/compactor
     accessModes:
-      - ENC[AES256_GCM,data:jP6lMppRrch1v6GDKQ==,iv:3qAHdNVbbygjbTGAts1wRdKhMkoWz0VKBED2YHoJ1kM=,tag:zAHVEgDZD2BxmVhkpy3PkQ==,type:str]
+      - ENC[AES256_GCM,data:t4BO6md2Qk56Ntowyg==,iv:2ZZdqvd5iBhHUSyq1W0wntxy/CQA+H7zcM9RGNMPXRE=,tag:AtakVPm6FJ2mgnxicQD5mQ==,type:str]
     size: 20Gi
     storageClass: ceph-block
 backend:
@@ -76,39 +76,39 @@ backend:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:KdjYd90Zq/b8toqcsg==,iv:NWHouDCCzODmQbDy0bJdZ890zF4Z60GanrnCNtaH3yo=,tag:1SSwo74hZ6D3oVnlDBYKyg==,type:str]
-          key: ENC[AES256_GCM,data:MVg812p8Owsbel1jsYg6n28=,iv:MpOZ5mXImtVKHjw0Pa9bR3szgLOAUMk3yGMeoUMVdkg=,tag:08TXFqerU0PXg22zBFGP7w==,type:str]
+          name: ENC[AES256_GCM,data:ZxW1/W4j0dTeXtFTRg==,iv:Ef7xRqqscks540AARqZ+HjrJL7V1BkhHJLKPuglShFQ=,tag:cLiZNGXU+4OagoPJl5XNHg==,type:str]
+          key: ENC[AES256_GCM,data:qSBaboU/lWsvaPq6NKkPMik=,iv:upgYKTRw+xk3DzuXNKQDgbbk6a5IwK2P3jjZRQz7cMA=,tag:rCpCvouh9cs0UESmedID1Q==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:31XD8CSI8Bw5F/f2Jw==,iv:I7PBRCB/NWC1K1zI89Jbbe+T718K20wldmuSowoEhRM=,tag:Od5ADh29M4ENOrmE1AN4iA==,type:str]
-          key: ENC[AES256_GCM,data:8XtOxIgvYoCi8lWYRz4cKttJT+cn,iv:dYuinKaxYW8moaTW9ug4YJVg8nYR6hFjH7mdlAcdbbY=,tag:UHrEemPd92t9jjpRiqxaBg==,type:str]
+          name: ENC[AES256_GCM,data:7dD9qZzp3JgzaGDikQ==,iv:EUpmSCn+HgNrLo2z6Gyy7dZhBAW1a81993UgOIMySVQ=,tag:Qm0Kf4R9oPPHc1pH3golFw==,type:str]
+          key: ENC[AES256_GCM,data:7ctiNANItacQX3ox8L8a/+Robqxv,iv:774p35da6exjPwd5beorv3RjMsNLOhRnEFNSQvV+rMM=,tag:MceR++RjR9StoSr+Qt+PiQ==,type:str]
 read:
   replicas: 3
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:XcFe9q8qr7NZNu6cyA==,iv:w3jwrDdFERAdxv3Z2b0NJqMr/QEO6AknD10fgFD2/CQ=,tag:+tvEI5xWbmYsT6XH1I89Yg==,type:str]
-          key: ENC[AES256_GCM,data:IolO8n2fbN/FHjtHnNiUtSw=,iv:aXaMHJX6NepLI9dbWSRfTCiFUFlTNqdPuxoIQylXbLM=,tag:z3cDW82MzMwQkebvRrRdBQ==,type:str]
+          name: ENC[AES256_GCM,data:qoiXkT3VPv33n6UPMQ==,iv:Owjh1+ytBgPg6z3Qf7zdf0kgzW9bw/a/xHFU2M8qRUE=,tag:lkqgvBZb9WN3LJaSoYDnOw==,type:str]
+          key: ENC[AES256_GCM,data:lYgc/KJym0+RO5yCfJuMep8=,iv:4gjQ5fqZeCObJS183FbLG55rWothoHi5F495fb1ayRI=,tag:lNHI38FpzwE+FbHYOn000A==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:thxX/xmom7Kb5gnlyg==,iv:U1PIGgnfzstxM57knp5jeJoug0oCO0Uu0B3juP9sGcc=,tag:yROk4wOypL0qSWrvgNViuQ==,type:str]
-          key: ENC[AES256_GCM,data:PGDA7fjRZUQzouEVbAnvDwPaZ3l+,iv:205Sw1/UyDSpb4wyj0lOYIFIqcf/UfEielULriVNtE4=,tag:cK1zhVBi0aMjXa9UfRLcDA==,type:str]
+          name: ENC[AES256_GCM,data:U4w87o3fAZHkSlRH6g==,iv:huSYRYsPfG+G1Y6DRkmjErh6VxgFJaysvRgkO8dkVNE=,tag:3GOpd99oIQUn7teFfCfmPQ==,type:str]
+          key: ENC[AES256_GCM,data:nqUfekMFZSrjGPWX2uRIAl8fOvVt,iv:JPyVh7y9fWUHqXksxEYzQG1UPEB0iyc21Vb1nMGOTgA=,tag:+V92rHeRXAVMFvUFy5dXBQ==,type:str]
 write:
   replicas: 3
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:BqzQjp32E0Ns2gheRg==,iv:inMCV42IQHeNtacViOi67LPhnBGOJ5Ex2yF3SzL6EwY=,tag:13xBqS5XB3sbNSND28bjYA==,type:str]
-          key: ENC[AES256_GCM,data:0BX0nefnUbT2cdwz3PDmT8s=,iv:l2a5ikK/Wfd67g6RlZz4t37CWezPhwFo9dBu2q7AYLw=,tag:fcMHFetoHVv7/Wfzs+gaQg==,type:str]
+          name: ENC[AES256_GCM,data:gEDZHw7oySmsmcxH3A==,iv:ktg+a8X7XA4Z/jHwqbcGYCxXGyd5Ma93Beg9ccVlim8=,tag:cR9n8ce+c/vURwFmQDtgng==,type:str]
+          key: ENC[AES256_GCM,data:NOgfh5HDtkpggZik1MIlcRw=,iv:6fN/MlypeoxcWN0/lrYnPtYmRVGmZOPt+HPB1N0hMqE=,tag:2laX9cGJVx+uLW+yh+xI+g==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: ENC[AES256_GCM,data:+NUwvJ5js2HFtLQOAw==,iv:OzIPCEXk/6uVWlPbfAmXDaT5dXznlauRKnYmA6nEzU4=,tag:H4NjzXvdkkpt+jmbxOAbkA==,type:str]
-          key: ENC[AES256_GCM,data:1/nsPmK0yekFf4jDdHNyOu7YOTru,iv:NaIeeVFg6X4aQetgZkMXPnIvfR9SuizTX+28YuL9APU=,tag:ejond8L8q2604G9hnfTO1A==,type:str]
+          name: ENC[AES256_GCM,data:ePPVAkbG7vdBSDydig==,iv:ZOUKZYVKjS3Gh1fl4lXAL3ZU+diKoZ7m5bQBtAYLL7U=,tag:O76u0fdAOfy4FNuK8w8beQ==,type:str]
+          key: ENC[AES256_GCM,data:XA8LgZPL8OOAmRzJXV4kM9Wh+VuB,iv:eM4rZeUuWF5zjK9A/IxOaIA3oSqshio1YxQbkdGhgxI=,tag:ZNhWwdLrBwvFMAISuVZy6A==,type:str]
 gateway:
   auth:
     enabled: false
@@ -125,14 +125,14 @@ sops:
     - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBhbnN1Wm9hNjZpYys0WDZ4
-        MERuNTdldTJKVlNXVkdMNno3aHlGMW5ObGhNCnNkazV2WnJtYUFsYjJXZ2ZGdDU0
-        RmpZeDV0MnE4UGtwSE1iQkpxUkFxSHcKLS0tIE1tN2VXLy9qQ1BwME9xRzBnc3Ir
-        QWZiblcxanZSTVVMczIxOUZyeE5kN1UKE1YH+9ztfIM5FGU+u5uAZ3CvnawogBWh
-        wdaHGE4DcJKRQej1aofxfc9ltae/saY9sHdUaYAHX6x1xZoSluCNFA==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4eGxaaHdlaG5kUm4zZWF1
+        K1lVdGRIMXhPNjNkNlViakZ4UU9WRFhEUngwCkNkb2hQTEFjb1NsQmk0OUtMVzgv
+        S3pTMjNxTkZtOHhsVUszUGozU29STmcKLS0tIEpmelVEaFJuSW1YaWtxSm1ISktI
+        ZFF6dFR3TjVZckdKaFIxb2RxdEdNN2sKzsYFht9HYZylXxaWEqT5wsDueUwDQCRn
+        RJetF1rJu7+cgpRuEoeqY4PP6ZYrALii6r/O9Ik8569E9x8OuYmO4Q==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-05-18T01:54:22Z"
-  mac: ENC[AES256_GCM,data:MKBZ/AJCGItvLBtgPQ8BBUYExh95FWLv39wQu61oMxtawYRkTNYamWJjpirQVVbu2hbPNBRmBNIr47AzFSZXmZIKjnshEpvlNBxLd3ANsOOhkWRalYDFyp1DQdJpxDq+CMwyjpuqrz87uXaG969HtrGb8agkCI6dq3nQaKpGSsE=,iv:tG6aoQ2ZO/WCeUWkHgO08CfqnnMpIKaSS0qYvjiXNNs=,tag:ZgF0yWu+AJ8dkefZaCJY3A==,type:str]
+  lastmodified: "2025-05-18T02:06:57Z"
+  mac: ENC[AES256_GCM,data:V2rFxSvkYixv/uH/WXHfreKzd/Jimf/REJrJMfHd7Fjim9pCI4zE6Y2DNW6Dwt/dQB3cS8zAWmyJUWtxCymtjZY5dT5/IsKJe/2ZClmFAL1OOfwx4ViJ7N5OrsO14niUDjT5E/O+mOKlCCYShvh9yegcMULsrhfQGF8CWEWkIvQ=,iv:Emf15AIrxQtRknyrMWY1gn/vqrZ3ub7kdaA2eksmA8c=,tag:eI1qSJXhwVxYgRVba0dU9w==,type:str]
   encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|.*access.*|s3.*)$
   mac_only_encrypted: true
   version: 3.10.2
