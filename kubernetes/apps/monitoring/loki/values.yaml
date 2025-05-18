@@ -1,4 +1,11 @@
-auth_enabled: false
+loki:
+  auth_enabled: false
+  storage:
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler     # optional, if using `ruler`
+      admin: ceph-admin     # optional
+
 
 server:
   http_listen_port: 3100
