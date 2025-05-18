@@ -1,5 +1,6 @@
+# Example configuration for Loki with S3 storage
+auth_enabled: false
 loki:
-  auth_enabled: false
   schemaConfig:
     configs:
       - from: 2024-04-01
@@ -24,6 +25,7 @@ loki:
     retention_period: 672h # 28 days retention
   querier:
       max_concurrent: 4
+
   storage:
     type: s3
     bucketNames:
@@ -32,19 +34,19 @@ loki:
         admin: ceph-admin
     s3:
       # s3 URL can be used to specify the endpoint, access key, secret key, and bucket name this works well for S3 compatible storage or if you are hosting Loki on-premises and want to use S3 as the storage backend. Either use the s3 URL or the individual fields below (AWS endpoint, region, secret).
-      s3: s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph/ceph-chunks
+      s3:  s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph/ceph-chunks
       # AWS endpoint URL
-      # endpoint: https://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+      # endpoint: <your-endpoint>
       # # AWS region where the S3 bucket is located
-      # region: us-east-1
+      # region: <your-region>
       # # AWS secret access key
-      # secretAccessKey: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+      # secretAccessKey: <your-secret-access-key>
       # # AWS access key ID
-      # accessKeyId: S7RFA0US3ZM69ZVEIKRN
+      # accessKeyId: <your-access-key-id>
       # # AWS signature version (e.g., v2 or v4)
-      # signatureVersion: v4
+      # signatureVersion: <your-signature-version>
       # # Forces the path style for S3 (true/false)
-      # s3ForcePathStyle: true
+      # s3ForcePathStyle: false
       # # Allows insecure (HTTP) connections (true/false)
       # insecure: false
       # # HTTP configuration settings
@@ -93,187 +95,3 @@ loki:
 
   singleBinary:
     replicas: 0
-
-# loki:
-#   auth_enabled: false
-#   storage:
-#     type: s3
-#     bucketNames:
-#       chunks: ceph-chunks
-#       ruler: ceph-ruler
-#       admin: ceph-admin
-#     s3:
-#       endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
-#       region: us-east-1
-#       s3ForcePathStyle: true
-#       insecure: true
-
-#   schemaConfig:
-#     configs:
-#       - from: "2024-04-01"
-#         store: tsdb
-#         object_store: s3
-#         schema: v13
-#         index:
-#           prefix: loki_index_
-#           period: 24h
-
-#   commonConfig:
-#     path_prefix: /var/loki
-#     replication_factor: 1
-
-#   limits_config:
-#     ingestion_rate_mb: 20
-#     ingestion_burst_size_mb: 30
-#     max_line_size: 5242880
-#     max_entries_limit_per_query: 10000
-#     max_query_length: 721h
-#     reject_old_samples: false
-
-# gateway:
-#   replicas: 1
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-
-# read:
-#   replicas: 1
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-
-# write:
-#   replicas: 1
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-
-# backend:
-#   replicas: 1
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-
-# canary:
-#   enabled: true
-#   frequency: 60s
-#   query:
-#     logLevel: error
-# global:
-#   clusterDomain: cluster.local
-
-# deploymentMode: Scalable
-
-# loki:
-#   auth_enabled: false
-#   storage:
-#     bucketNames:
-#       chunks: ceph-chunks
-#       ruler: ceph-ruler
-#       admin: ceph-admin
-#     type: s3
-#     s3:
-#       endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
-#       region: us-east-1
-#       access_key_id: S7RFA0US3ZM69ZVEIKRN
-#       secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
-#       s3ForcePathStyle: true
-#       insecure: true
-
-#   limits_config:
-#     ingestion_rate_mb: 20
-#     ingestion_burst_size_mb: 30
-#     max_line_size: 5242880  # 5MB
-#     max_entries_limit_per_query: 10000
-#     reject_old_samples: false
-#     max_query_length: 721h
-
-#   schemaConfig:
-#     configs:
-#       - from: "2024-04-01"
-#         store: tsdb
-#         object_store: s3
-#         schema: v13
-#         index:
-#           prefix: loki_index_
-#           period: 24h
-
-#   commonConfig:
-#     path_prefix: /var/loki
-#     replication_factor: 1
-
-# # Keep these minimal
-# backend:
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-
-#   replicas: 1
-# read:
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-#   replicas: 1
-# write:
-#   replicas: 1
-#   extraEnv:
-#     - name: AWS_ACCESS_KEY_ID
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: accessKey
-#     - name: AWS_SECRET_ACCESS_KEY
-#       valueFrom:
-#         secretKeyRef:
-#           name: loki-s3-secret
-#           key: secretKey
-# minio:
-#   enabled: false
