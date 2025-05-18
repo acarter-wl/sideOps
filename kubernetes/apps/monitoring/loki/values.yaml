@@ -1,102 +1,120 @@
-deploymentMode: Scalable
-
 loki:
   auth_enabled: false
-  storage:
-    type: s3
-    bucketNames:
-      chunks: ceph-chunks
-      ruler: ceph-ruler
-      admin: ceph-admin
-    s3:
-      endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
-      region: us-east-1
-      s3ForcePathStyle: true
-      insecure: true
+  ingester_client:
+    remote_timeout: 10s
+  config:
+    server:
+      http_server_read_timeout: 600s
+      http_server_write_timeout: 600s
+      grpc_server_max_recv_msg_size: 8388608
+      grpc_server_max_send_msg_size: 8388608
+      ingestion_rate_mb: 15
+      ingestion_burst_size_mb: 30
+      per_stream_rate_limit: 10MB
+      per_stream_rate_limit_burst: 20MB
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      retention_period: 744h
+      max_query_length: 0h
+# deploymentMode: Scalable
 
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
+# loki:
+#   auth_enabled: false
+#   storage:
+#     type: s3
+#     bucketNames:
+#       chunks: ceph-chunks
+#       ruler: ceph-ruler
+#       admin: ceph-admin
+#     s3:
+#       endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+#       region: us-east-1
+#       s3ForcePathStyle: true
+#       insecure: true
 
-  commonConfig:
-    path_prefix: /var/loki
-    replication_factor: 1
+#   schemaConfig:
+#     configs:
+#       - from: "2024-04-01"
+#         store: tsdb
+#         object_store: s3
+#         schema: v13
+#         index:
+#           prefix: loki_index_
+#           period: 24h
 
-  limits_config:
-    ingestion_rate_mb: 20
-    ingestion_burst_size_mb: 30
-    max_line_size: 5242880
-    max_entries_limit_per_query: 10000
-    max_query_length: 721h
-    reject_old_samples: false
+#   commonConfig:
+#     path_prefix: /var/loki
+#     replication_factor: 1
 
-gateway:
-  replicas: 1
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: accessKey
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: secretKey
+#   limits_config:
+#     ingestion_rate_mb: 20
+#     ingestion_burst_size_mb: 30
+#     max_line_size: 5242880
+#     max_entries_limit_per_query: 10000
+#     max_query_length: 721h
+#     reject_old_samples: false
 
-read:
-  replicas: 1
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: accessKey
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: secretKey
+# gateway:
+#   replicas: 1
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
 
-write:
-  replicas: 1
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: accessKey
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: secretKey
+# read:
+#   replicas: 1
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
 
-backend:
-  replicas: 1
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: accessKey
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: loki-s3-secret
-          key: secretKey
+# write:
+#   replicas: 1
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
 
-canary:
-  enabled: true
-  frequency: 60s
-  query:
-    logLevel: error
+# backend:
+#   replicas: 1
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
+
+# canary:
+#   enabled: true
+#   frequency: 60s
+#   query:
+#     logLevel: error
 # global:
 #   clusterDomain: cluster.local
 
