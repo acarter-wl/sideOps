@@ -1,11 +1,8 @@
 global:
   clusterDomain: cluster.local
-
 deploymentMode: SimpleScalable
-
 loki:
   auth_enabled: false
-
   memberlist:
     join_members:
       - dns+loki-memberlist.monitoring.svc:7946
@@ -13,10 +10,8 @@ loki:
     gossip_interval: 200ms
     gossip_nodes: 3
     gossip_to_the_dead_time: 30s
-
   server:
     log_level: debug
-
   schemaConfig:
     configs:
       - from: "2024-04-01"
@@ -26,19 +21,17 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-
   storage:
     type: s3
     bucketNames:
       chunks: ceph-chunks
     s3:
-      bucket: ceph-chunks
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-      signature_version: v4
-      s3forcepathstyle: true
-      insecure: true
+      bucket: ENC[AES256_GCM,data:Nn5Wwg0NTprndrs=,iv:QHmfXxjyv+wJ+XRL1vBBDk98Zf1ucpFhGw9rR7BGd0s=,tag:5YhVwaPlH7yGb1pZ7QynCA==,type:str]
+      endpoint: ENC[AES256_GCM,data:qNOFvcyDh1qZfVNuveG1GgAXY3KnLf2YtJGXVmmTdBd1pLN3sJJ4GIcnmQ/LoPgZOxrhij1m4bX/xL2oCYDnWQE=,iv:x9DZoRRju1Jqf0MulMH6glWyjbdMrAn0HJ6cvyAcJ9Q=,tag:ESYFcnMAuh2CC98f9zKDAA==,type:str]
+      signature_version: ENC[AES256_GCM,data:2rk=,iv:nlf8TTnbelHrbwzNjWSKcWrv5NIrzvkhHn3wMW8iyO0=,tag:kWqOdM9gTlC8KNHV1Flfug==,type:str]
+      s3forcepathstyle: ENC[AES256_GCM,data:MKO01g==,iv:3l93P5Fgn35f3aCJpM2+zaTmQgXtEtVvf5I6wcGBhxs=,tag:t0nSvjM5Xq3TaweDXBGs5g==,type:bool]
+      insecure: ENC[AES256_GCM,data:jPtIZg==,iv:HuGUFQ2UJv9XfHQqQRwyfe8VHfhuLXOzKqo/qLqjIqo=,tag:Fi6/0ZG2LkffqJYGSeL14Q==,type:bool]
       http_config: {}
-
   limits_config:
     retention_period: 720h
     max_query_parallelism: 128
@@ -46,14 +39,12 @@ loki:
     max_streams_per_user: 10000
     ingestion_rate_mb: 15
     ingestion_burst_size_mb: 30
-    max_line_size: 5242880  # 5 MiB
-
+    # 5 MiB
+    max_line_size: 5242880
   ingester:
     chunk_encoding: snappy
-
   querier:
     max_concurrent: 4
-
   compactor:
     working_directory: /var/loki/compactor
     compaction_interval: 10m
@@ -61,82 +52,87 @@ loki:
     retention_delete_delay: 2h
     delete_request_store: s3
     delete_request_cancel_period: 24h
-
   query_scheduler:
     max_outstanding_requests_per_tenant: 4096
-
   table_manager:
     poll_interval: 2m
     creation_grace_period: 10m
     cache_table_names: true
-
 ingester:
   lifecycler:
     ring:
       replication_factor: 3
-
 compactor:
   persistence:
     enabled: true
     mountPath: /var/loki/compactor
     accessModes:
-      - ReadWriteOnce
+      - ENC[AES256_GCM,data:jP6lMppRrch1v6GDKQ==,iv:3qAHdNVbbygjbTGAts1wRdKhMkoWz0VKBED2YHoJ1kM=,tag:zAHVEgDZD2BxmVhkpy3PkQ==,type:str]
     size: 20Gi
     storageClass: ceph-block
-
 backend:
   replicas: 3
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_ACCESS_KEY_ID
+          name: ENC[AES256_GCM,data:KdjYd90Zq/b8toqcsg==,iv:NWHouDCCzODmQbDy0bJdZ890zF4Z60GanrnCNtaH3yo=,tag:1SSwo74hZ6D3oVnlDBYKyg==,type:str]
+          key: ENC[AES256_GCM,data:MVg812p8Owsbel1jsYg6n28=,iv:MpOZ5mXImtVKHjw0Pa9bR3szgLOAUMk3yGMeoUMVdkg=,tag:08TXFqerU0PXg22zBFGP7w==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_SECRET_ACCESS_KEY
-
+          name: ENC[AES256_GCM,data:31XD8CSI8Bw5F/f2Jw==,iv:I7PBRCB/NWC1K1zI89Jbbe+T718K20wldmuSowoEhRM=,tag:Od5ADh29M4ENOrmE1AN4iA==,type:str]
+          key: ENC[AES256_GCM,data:8XtOxIgvYoCi8lWYRz4cKttJT+cn,iv:dYuinKaxYW8moaTW9ug4YJVg8nYR6hFjH7mdlAcdbbY=,tag:UHrEemPd92t9jjpRiqxaBg==,type:str]
 read:
   replicas: 3
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_ACCESS_KEY_ID
+          name: ENC[AES256_GCM,data:XcFe9q8qr7NZNu6cyA==,iv:w3jwrDdFERAdxv3Z2b0NJqMr/QEO6AknD10fgFD2/CQ=,tag:+tvEI5xWbmYsT6XH1I89Yg==,type:str]
+          key: ENC[AES256_GCM,data:IolO8n2fbN/FHjtHnNiUtSw=,iv:aXaMHJX6NepLI9dbWSRfTCiFUFlTNqdPuxoIQylXbLM=,tag:z3cDW82MzMwQkebvRrRdBQ==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_SECRET_ACCESS_KEY
-
+          name: ENC[AES256_GCM,data:thxX/xmom7Kb5gnlyg==,iv:U1PIGgnfzstxM57knp5jeJoug0oCO0Uu0B3juP9sGcc=,tag:yROk4wOypL0qSWrvgNViuQ==,type:str]
+          key: ENC[AES256_GCM,data:PGDA7fjRZUQzouEVbAnvDwPaZ3l+,iv:205Sw1/UyDSpb4wyj0lOYIFIqcf/UfEielULriVNtE4=,tag:cK1zhVBi0aMjXa9UfRLcDA==,type:str]
 write:
   replicas: 3
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_ACCESS_KEY_ID
+          name: ENC[AES256_GCM,data:BqzQjp32E0Ns2gheRg==,iv:inMCV42IQHeNtacViOi67LPhnBGOJ5Ex2yF3SzL6EwY=,tag:13xBqS5XB3sbNSND28bjYA==,type:str]
+          key: ENC[AES256_GCM,data:0BX0nefnUbT2cdwz3PDmT8s=,iv:l2a5ikK/Wfd67g6RlZz4t37CWezPhwFo9dBu2q7AYLw=,tag:fcMHFetoHVv7/Wfzs+gaQg==,type:str]
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
-          name: loki-s3-creds
-          key: AWS_SECRET_ACCESS_KEY
-
+          name: ENC[AES256_GCM,data:+NUwvJ5js2HFtLQOAw==,iv:OzIPCEXk/6uVWlPbfAmXDaT5dXznlauRKnYmA6nEzU4=,tag:H4NjzXvdkkpt+jmbxOAbkA==,type:str]
+          key: ENC[AES256_GCM,data:1/nsPmK0yekFf4jDdHNyOu7YOTru,iv:NaIeeVFg6X4aQetgZkMXPnIvfR9SuizTX+28YuL9APU=,tag:ejond8L8q2604G9hnfTO1A==,type:str]
 gateway:
   auth:
     enabled: false
   service:
     type: LoadBalancer
-
 lokiCanary:
   enabled: true
-
 minio:
   enabled: false
-
 tracing:
   enabled: true
+sops:
+  age:
+    - recipient: age18ynkp4xzwas6la23fvs5zhxazvqf7p3qw4vv26a346e8340gegfqh9c87h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBhbnN1Wm9hNjZpYys0WDZ4
+        MERuNTdldTJKVlNXVkdMNno3aHlGMW5ObGhNCnNkazV2WnJtYUFsYjJXZ2ZGdDU0
+        RmpZeDV0MnE4UGtwSE1iQkpxUkFxSHcKLS0tIE1tN2VXLy9qQ1BwME9xRzBnc3Ir
+        QWZiblcxanZSTVVMczIxOUZyeE5kN1UKE1YH+9ztfIM5FGU+u5uAZ3CvnawogBWh
+        wdaHGE4DcJKRQej1aofxfc9ltae/saY9sHdUaYAHX6x1xZoSluCNFA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-05-18T01:54:22Z"
+  mac: ENC[AES256_GCM,data:MKBZ/AJCGItvLBtgPQ8BBUYExh95FWLv39wQu61oMxtawYRkTNYamWJjpirQVVbu2hbPNBRmBNIr47AzFSZXmZIKjnshEpvlNBxLd3ANsOOhkWRalYDFyp1DQdJpxDq+CMwyjpuqrz87uXaG969HtrGb8agkCI6dq3nQaKpGSsE=,iv:tG6aoQ2ZO/WCeUWkHgO08CfqnnMpIKaSS0qYvjiXNNs=,tag:ZgF0yWu+AJ8dkefZaCJY3A==,type:str]
+  encrypted_regex: ^(data|stringData|.*[Ss]ecret.*|.*[Kk]ey.*|.*[Pp]assword.*|.*[Tt]oken.*|.*access.*|s3.*)$
+  mac_only_encrypted: true
+  version: 3.10.2
