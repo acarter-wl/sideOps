@@ -1,67 +1,79 @@
+# Enable basic configuration
 loki:
   auth_enabled: false
 
-  # Make sure we use /var/loki for writeable storage on Talos
-  commonConfig:
-    replication_factor: 1
-    path_prefix: /var/loki
-    ring:
-      kvstore:
-        store: memberlist
-        #replication_factor: 1
+  # Storage settings for Talos Linux
+  structuredConfig:
+    common:
+      path_prefix: /var/loki
+      storage:
+        s3:
+          endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+          region: us-east-1
+          access_key_id: S7RFA0US3ZM69ZVEIKRN
+          secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+          s3forcepathstyle: true
+          insecure: true
+          bucketnames: ceph-chunks
 
-  memberlist:
-    join_members:
-    # You can use a headless k8s service for all distributor, ingester and querier components.
-      - loki-gossip-ring.loki.svc.cluster.local:7946 #
-  storage:
-    bucketNames:
-      chunks: ceph-chunks
-      ruler: ceph-ruler
-      admin: ceph-admin
+    # Compactor configuration
+    compactor:
+      working_directory: /var/loki/compactor
+      shared_store: s3
+      retention_enabled: true
 
-  schemaConfig:
-    configs:
-      - from: 2020-05-15
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: index_
-          period: 24h
+    # Schema for large logs
+    schema_config:
+      configs:
+        - from: 2020-05-15
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
 
-  storage_config:
-    aws:
-      s3: s3://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/ceph-chunks
-      s3forcepathstyle: true
+    # Limits for log size and queries
+    limits_config:
+      ingestion_rate_mb: 20
+      ingestion_burst_size_mb: 30
+      max_line_size: 5242880 # 5MB - for large log lines
+      max_entries_limit_per_query: 10000
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h # 1 week
 
-  server:
-    http_listen_port: 3100
+    # Configure memberlist clustering
+    memberlist:
+      join_members:
+        - loki-memberlist
 
-  # Configure proper volumes
+  # K8s specific settings
+  image:
+    registry: docker.io
+    repository: grafana/loki
+
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClassName: ceph-block
+
+  # Service settings
+  service:
+    port: 3100
+
+  # Pod settings
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # Health checks
   readinessProbe:
     httpGet:
       path: /ready
       port: http-metrics
     initialDelaySeconds: 45
     timeoutSeconds: 1
-
-  # Ensure local storage is configured
-  persistence:
-    enabled: true
-    size: 10Gi
-    storageClassName: ceph-block
-
-  # Limit settings
-  limits_config:
-    ingestion_rate_mb: 20
-    ingestion_burst_size_mb: 30
-    max_line_size: 5242880 # 5MB
-    max_entries_limit_per_query: 10000
-
-  # Talos-specific settings for working directories
-  structuredConfig:
-    common:
-      path_prefix: /var/loki
-    compactor:
-      working_directory: /var/loki/compactor
