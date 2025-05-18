@@ -50,5 +50,6 @@ minio:
     storageClassName: ceph-block  # Use your storage class
 
 gateway:
+  auth_enabled: false
   service:
     type: LoadBalancer
