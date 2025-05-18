@@ -1,9 +1,10 @@
 loki:
   auth_enabled: false
 
+  # Make sure we use /data for writeable storage on Talos
   commonConfig:
     replication_factor: 1
-    path_prefix: /loki
+    path_prefix: /data
     ring:
       kvstore:
         store: inmemory
@@ -31,3 +32,31 @@ loki:
 
   server:
     http_listen_port: 3100
+
+  # Configure proper volumes
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+    timeoutSeconds: 1
+  
+  # Ensure local storage is configured
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: ceph-block
+  
+  # Limit settings
+  limits_config:
+    ingestion_rate_mb: 20
+    ingestion_burst_size_mb: 30
+    max_line_size: 5242880 # 5MB
+    max_entries_limit_per_query: 10000
+
+  # Talos-specific settings for working directories
+  structuredConfig:
+    common:
+      path_prefix: /data
+    compactor:
+      working_directory: /data/compactor
