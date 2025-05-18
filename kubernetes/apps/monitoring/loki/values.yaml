@@ -5,6 +5,11 @@ deploymentMode: SimpleScalable
 
 loki:
   auth_enabled: false
+  storage:
+    bucketNames:
+      chunks: ceph-chunks
+      ruler: ceph-ruler
+      admin: ceph-admin
   ingester:
     lifecycler:
       ring:
