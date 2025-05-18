@@ -1,3 +1,5 @@
+global:
+  clusterDomain: cluster.local
 deploymentMode: SimpleScalable
 loki:
   auth_enabled: false
