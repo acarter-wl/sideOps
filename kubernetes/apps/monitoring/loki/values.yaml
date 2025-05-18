@@ -50,7 +50,6 @@ loki:
   # Compactor settings
   compactor:
     working_directory: /var/loki/compactor
-    shared_store: s3
     retention_enabled: true
 
   # Membership configuration
