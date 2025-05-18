@@ -12,7 +12,6 @@ data:
         type: kubernetes_logs
         self_node_name: ${VECTOR_SELF_NODE_NAME}
 
-
       talos_kernel_logs:
         address: 0.0.0.0:6050
         type: socket
@@ -58,7 +57,6 @@ data:
           .node = get_env_var("HOSTNAME") ?? "unknown"
           .log_type = "kubernetes"
           .timestamp = now()
-
       talos_kernel_transform:
         type: remap
         inputs: [talos_kernel_logs]
@@ -68,6 +66,12 @@ data:
           .facility = if exists(.facility) && .facility != null { .facility } else { "kernel" }
           .log_type = "talos_kernel"
           .timestamp = now()
+
+      talos_kernel_transform_remove_host:
+        type: remap
+        inputs: [talos_kernel_transform]
+        drop:
+          - "__host"
 
       talos_service_transform:
         type: remap
@@ -93,11 +97,17 @@ data:
           .log_type = "talos_service"
           .timestamp = now()
 
+      talos_service_transform_remove_host:
+        type: remap
+        inputs: [talos_service_transform]
+        drop:
+          - "__host"
+
     sinks:
       loki_kubernetes:
         type: loki
         inputs: [kubernetes_logs_transform]
-        endpoint: http://loki-gateway.monitoring.svc
+        endpoint: http://loki-gateway.monitoring.svc/loki/api/v1/push
         encoding:
           codec: json
         labels:
@@ -120,9 +130,10 @@ data:
 
       loki_talos_kernel:
         type: loki
-        inputs: [talos_kernel_transform]
-        endpoint: http://loki-gateway.monitoring.svc
-          except_fields: [__host]
+        inputs: [talos_kernel_transform_remove_host]
+        endpoint: http://loki-gateway.monitoring.svc/loki/api/v1/push
+        encoding:
+          codec: json
         labels:
           hostname: "{{ node }}"
           facility: "{{ facility }}"
@@ -134,11 +145,10 @@ data:
 
       loki_talos_service:
         type: loki
-        inputs: [talos_service_transform]
-        endpoint: http://loki-gateway.monitoring.svc
+        inputs: [talos_service_transform_remove_host]
+        endpoint: http://loki-gateway.monitoring.svc/loki/api/v1/push
         encoding:
           codec: json
-          except_fields: [__host]
         labels:
           hostname: "{{ node }}"
           service: "{{ service }}"
@@ -152,8 +162,8 @@ data:
         type: console
         inputs:
           - kubernetes_logs_transform
-          - talos_kernel_transform
-          - talos_service_transform
+          - talos_kernel_transform_remove_host
+          - talos_service_transform_remove_host
         encoding:
           codec: json
 
