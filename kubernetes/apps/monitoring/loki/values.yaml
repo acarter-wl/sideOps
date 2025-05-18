@@ -1,29 +1,18 @@
-global:
-  clusterDomain: cluster.local
-
-deploymentMode: SimpleScalable
+deploymentMode: Scalable
 
 loki:
   auth_enabled: false
   storage:
+    type: s3
     bucketNames:
       chunks: ceph-chunks
       ruler: ceph-ruler
       admin: ceph-admin
-    type: s3
     s3:
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+      endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
       region: us-east-1
       s3ForcePathStyle: true
       insecure: true
-
-  limits_config:
-    ingestion_rate_mb: 20
-    ingestion_burst_size_mb: 30
-    max_line_size: 5242880  # 5MB
-    max_entries_limit_per_query: 10000
-    reject_old_samples: false
-    max_query_length: 721h
 
   schemaConfig:
     configs:
@@ -39,8 +28,16 @@ loki:
     path_prefix: /var/loki
     replication_factor: 1
 
-# Keep these minimal
-backend:
+  limits_config:
+    ingestion_rate_mb: 20
+    ingestion_burst_size_mb: 30
+    max_line_size: 5242880
+    max_entries_limit_per_query: 10000
+    max_query_length: 721h
+    reject_old_samples: false
+
+gateway:
+  replicas: 1
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -53,8 +50,8 @@ backend:
           name: loki-s3-secret
           key: secretKey
 
-  replicas: 1
 read:
+  replicas: 1
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -66,7 +63,7 @@ read:
         secretKeyRef:
           name: loki-s3-secret
           key: secretKey
-  replicas: 1
+
 write:
   replicas: 1
   extraEnv:
@@ -80,5 +77,109 @@ write:
         secretKeyRef:
           name: loki-s3-secret
           key: secretKey
-minio:
-  enabled: false
+
+backend:
+  replicas: 1
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: accessKey
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: loki-s3-secret
+          key: secretKey
+
+canary:
+  enabled: true
+  frequency: 60s
+  query:
+    logLevel: error
+# global:
+#   clusterDomain: cluster.local
+
+# deploymentMode: Scalable
+
+# loki:
+#   auth_enabled: false
+#   storage:
+#     bucketNames:
+#       chunks: ceph-chunks
+#       ruler: ceph-ruler
+#       admin: ceph-admin
+#     type: s3
+#     s3:
+#       endpoint: s3://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+#       region: us-east-1
+#       access_key_id: S7RFA0US3ZM69ZVEIKRN
+#       secret_access_key: b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J
+#       s3ForcePathStyle: true
+#       insecure: true
+
+#   limits_config:
+#     ingestion_rate_mb: 20
+#     ingestion_burst_size_mb: 30
+#     max_line_size: 5242880  # 5MB
+#     max_entries_limit_per_query: 10000
+#     reject_old_samples: false
+#     max_query_length: 721h
+
+#   schemaConfig:
+#     configs:
+#       - from: "2024-04-01"
+#         store: tsdb
+#         object_store: s3
+#         schema: v13
+#         index:
+#           prefix: loki_index_
+#           period: 24h
+
+#   commonConfig:
+#     path_prefix: /var/loki
+#     replication_factor: 1
+
+# # Keep these minimal
+# backend:
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
+
+#   replicas: 1
+# read:
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
+#   replicas: 1
+# write:
+#   replicas: 1
+#   extraEnv:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: accessKey
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: loki-s3-secret
+#           key: secretKey
+# minio:
+#   enabled: false
