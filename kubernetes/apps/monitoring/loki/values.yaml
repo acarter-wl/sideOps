@@ -5,14 +5,17 @@ deploymentMode: SimpleScalable
 
 loki:
   auth_enabled: false
+  structuredConfig:
+    frontend:
+      scheduler_address: ''
+    frontend_worker:
+      scheduler_address: ''
+    query_scheduler:
+      use_scheduler_ring: true
+      scheduler_ring:
+        kvstore:
+          store: memberlist
 
-  memberlist:
-    join_members:
-      - dns+loki-memberlist.monitoring.svc:7946
-    bind_port: 7946
-    gossip_interval: 200ms
-    gossip_nodes: 3
-    gossip_to_the_dead_time: 30s
 
   server:
     log_level: debug
