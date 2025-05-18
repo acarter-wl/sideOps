@@ -30,7 +30,7 @@ loki:
     s3:
       bucket: ceph-chunks
       region: us-east-1
-      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc
+      endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
       signature_version: v4
       s3forcepathstyle: true
       insecure: true
