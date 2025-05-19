@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: vector-agent
   namespace: monitoring
+  annotations:
+    io.cilium/lb-ipam-ips: "192.168.101.7"
   labels:
     app: vector-agent
 spec:

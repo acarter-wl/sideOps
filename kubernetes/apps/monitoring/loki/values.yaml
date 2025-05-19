@@ -138,6 +138,8 @@ gateway:
   auth_enabled: false
   service:
     type: LoadBalancer
+    annotations:
+      io.cilium/lb-ipam-ips: "192.168.101.8"
   extraEnv:
     - name: ACCESS_KEY
       valueFrom:
