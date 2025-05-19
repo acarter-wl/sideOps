@@ -39,9 +39,8 @@ data:
         inputs: [kubernetes_logs]
         source: |
           .message = string(.message) ?? ""
-          if length(.message) > 131072 {
-            .message = slice(.message, 0, 131072) + " ... [truncated]"
-          }
+          # Corrected: Handle fallible slice operation
+          .message, err = slice(.message, 0, 131072) + " ... [truncated]"
 
       kubernetes_logs_transform:
         type: remap
@@ -59,8 +58,11 @@ data:
         inputs: [talos_kernel_logs]
         source: |
           .node = .__host
-          # Corrected: Use if/else expression
-          .facility = if exists(.facility) { .facility } else { "kernel" }
+          if exists(.facility) {
+            .facility = .facility
+          } else {
+            .facility = "kernel"
+          }
           .log_type = "talos_kernel"
           .timestamp = now()
 
@@ -74,20 +76,24 @@ data:
         inputs: [talos_service_logs]
         source: |
           .node = .__host
-          # Corrected: Use if/else expression
-          .service = if exists(.service) { .service } else { "talos-service" }
-          .log_type = "talos_service"
+          # Corrected: Use if/else if/else instead of match for service assignment
+          .service = "talos-service" # Default value
           if exists(.msg) {
             msg = to_string(.msg)
-            .service = match msg {
-              _ if contains(msg, "machined") => "machined",
-              _ if contains(msg, "containerd") => "containerd",
-              _ if contains(msg, "kubelet") => "kubelet",
-              _ if contains(msg, "apid") => "apid",
-              _ if contains(msg, "trustd") => "trustd",
-              _ => .service
+            if contains(msg, "machined") {
+              .service = "machined"
+            } else if contains(msg, "containerd") {
+              .service = "containerd"
+            } else if contains(msg, "kubelet") {
+              .service = "kubelet"
+            } else if contains(msg, "apid") {
+              .service = "apid"
+            } else if contains(msg, "trustd") {
+              .service = "trustd"
             }
+            # If no specific match, .service remains the default
           }
+          .log_type = "talos_service"
           .timestamp = now()
 
       talos_service_transform_remove_host:
