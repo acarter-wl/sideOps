@@ -5,13 +5,6 @@ metadata:
   namespace: monitoring
 data:
   vector.yaml: |
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: vector-config
-  namespace: monitoring
-data:
-  vector.yaml: |
     data_dir: /vector-data-dir
 
     sources:

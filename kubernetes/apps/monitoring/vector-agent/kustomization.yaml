@@ -4,4 +4,4 @@ resources:
 - configmap.yaml
 - daemonset.yaml
 - service-loadbalancer.yaml
-- serviceaaccount.yaml
+#- serviceaaccount.yaml
