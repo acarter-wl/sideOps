@@ -13,10 +13,10 @@ data:
         access: proxy
         isDefault: false
         url: http://loki-gateway.monitoring.svc:80
-        jsonData:
-          httpHeaderName1: X-Scope-OrgID
-        secureJsonData:
-           httpHeaderValue1: "1"
+        # jsonData:
+        #   httpHeaderName1: X-Scope-OrgID
+        # secureJsonData:
+        #    httpHeaderValue1: "1"
         type: loki
         # derivedFields:
         #   - datasourceName: Tempo
