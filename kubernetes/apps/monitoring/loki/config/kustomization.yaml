@@ -4,5 +4,6 @@ resources:
   - ./minio-service-ref.yaml
   - ./loki-minio-alias.yaml
   - ./minio-bucket-creator.yaml
+  - ./hosts-patch-cm.yaml
 generators:
   - ./secret-generator.yaml
