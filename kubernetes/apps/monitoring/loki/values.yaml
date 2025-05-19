@@ -49,7 +49,7 @@ loki:
       admin: loki
     type: s3
     s3:
-      endpoint: "http://minio.storage.svc.cluster.local:9000"
+      endpoint: "http://10.43.173.94:9000"
       region: us-east-1
       insecure: true
       s3forcepathstyle: true
@@ -82,6 +82,19 @@ backend:
         secretKeyRef:
           name: minio-credentials
           key: secret_key
+  command:
+    - /bin/sh
+    - -c
+    - /etc/loki/hosts-patch.sh /usr/bin/loki -config.file=/etc/loki/config/config.yaml -target=backend
+  extraVolumeMounts:
+    - name: hosts-patch
+      mountPath: /etc/loki/hosts-patch.sh
+      subPath: hosts-patch.sh
+  extraVolumes:
+    - name: hosts-patch
+      configMap:
+        name: loki-minio-hosts-patch
+        defaultMode: 0755
 
 read:
   replicas: 2
@@ -118,6 +131,19 @@ write:
         secretKeyRef:
           name: minio-credentials
           key: secret_key
+  command:
+    - /bin/sh
+    - -c
+    - /etc/loki/hosts-patch.sh /usr/bin/loki -config.file=/etc/loki/config/config.yaml -target=write
+  extraVolumeMounts:
+    - name: hosts-patch
+      mountPath: /etc/loki/hosts-patch.sh
+      subPath: hosts-patch.sh
+  extraVolumes:
+    - name: hosts-patch
+      configMap:
+        name: loki-minio-hosts-patch
+        defaultMode: 0755
 
 scheduler:
   enabled: true
