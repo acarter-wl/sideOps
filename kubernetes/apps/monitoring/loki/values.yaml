@@ -32,16 +32,39 @@ loki:
       kvstore:
         store: memberlist
 
+    # S3 storage configuration - corrected variable names
+    storage:
+      s3:
+        s3: null
+        endpoint: minio.storage.svc.cluster.local
+        bucketnames: ceph-chunks
+        access_key_id: ${ACCESS_KEY}
+        secret_access_key: ${SECRET_KEY}
+        s3forcepathstyle: true
+        insecure: true
+
   memberlist:
     join_members:
       - loki-backend-headless.monitoring.svc.cluster.local
 
+# Component configurations with corrected environment variable names
 backend:
   replicas: 2
   persistence:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
+  extraEnv:
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: access_key
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: secret_key
 
 read:
   replicas: 2
@@ -49,6 +72,17 @@ read:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
+  extraEnv:
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: access_key
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: secret_key
 
 write:
   replicas: 3
@@ -56,6 +90,17 @@ write:
     enabled: true
     size: 50Gi
     storageClassName: ceph-block
+  extraEnv:
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: access_key
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: secret_key
 
 scheduler:
   enabled: true
@@ -67,36 +112,38 @@ scheduler:
     limits:
       cpu: 250m
       memory: 256Mi
+  extraEnv:
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: access_key
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: secret_key
 
+# Disable built-in Minio
 minio:
-  enabled: true
-  buckets:
-    - name: loki
-      policy: none
-  persistence:
-    enabled: true
-    storageClass: ceph-block
-    size: 100Gi
-
-  mode: standalone
-  rootUser: minioadmin
-  rootPassword: minioadmin
-  service:
-    type: ClusterIP
-
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
-    limits:
-      memory: 512Mi
-      cpu: 250m
+  enabled: false
 
 gateway:
   enabled: true
   auth_enabled: false
   service:
     type: LoadBalancer
+  extraEnv:
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: access_key
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: secret_key
 
 monitoring:
   dashboards:
