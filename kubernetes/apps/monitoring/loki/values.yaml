@@ -49,7 +49,7 @@ loki:
       admin: loki
     type: s3
     s3:
-      endpoint: "minio.storage.svc.cluster.local"
+      endpoint: "minio.storage.svc.cluster.local:9000"
       region: us-east-1
       insecure: true
       s3forcepathstyle: true
