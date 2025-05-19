@@ -37,9 +37,9 @@ loki:
   memberlist:
     join_members:
       # Use default Helm-generated service names
-      - loki-memberlist.monitoring.svc.cluster.local
+      - "loki-memberlist.monitoring.svc.cluster.local"
       # Add backend headless service as fallback
-      - loki-backend-headless.monitoring.svc.cluster.local
+      - "loki-backend-headless.monitoring.svc.cluster.local"
 
   # S3 storage configuration
   storage:
@@ -49,7 +49,7 @@ loki:
       admin: loki
     type: s3
     s3:
-      endpoint: minio.storage.svc.cluster.local
+      endpoint: "minio.storage.svc.cluster.local"
       region: us-east-1
       insecure: true
       s3forcepathstyle: true
