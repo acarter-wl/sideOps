@@ -15,7 +15,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          mc alias set myminio http://minio.storage.svc.cluster.local:9000 "$ACCESS_KEY" "$SECRET_KEY"
+          mc alias set myminio http://minio.storage.svc.cluster.local:9000 nDHdq3UjrbAw0R6k rjAu8hYf24ra3kzsEApzhsjfqUG00LPt
           # Check if loki bucket exists, create if not
           if ! mc ls myminio/loki > /dev/null 2>&1; then
             echo "Creating loki bucket"
@@ -23,14 +23,3 @@ spec:
           else
             echo "Loki bucket already exists"
           fi
-        env:
-        - name: ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: access_key
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: secret_key
