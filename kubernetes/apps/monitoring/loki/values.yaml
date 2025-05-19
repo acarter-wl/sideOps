@@ -46,8 +46,7 @@ loki:
     named_stores:
       aws:
         minio:
-          s3: "http://S7RFA0US3ZM69ZVEIKRN:b5JsiA2vyY7UHAf2XqRTpo08soE2g0cBWvXiOh6J@rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local:80"
-          #s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
+          s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
           s3forcepathstyle: true
   chunk_store_config:
     max_look_back_period: 0s
