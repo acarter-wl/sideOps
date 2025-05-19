@@ -3,7 +3,6 @@ deploymentMode: SimpleScalable
 loki:
   auth_enabled: false
 
-  # Add back the schema configuration
   schemaConfig:
     configs:
       - from: "2024-04-01"
@@ -14,48 +13,59 @@ loki:
           prefix: loki_index_
           period: 24h
 
-  # Keep the ingester configuration
   ingester:
     chunk_encoding: snappy
 
-  # Keep the querier configuration
   querier:
     max_concurrent: 4
 
-  # Keep the pattern_ingester configuration
   pattern_ingester:
     enabled: true
 
-  # Keep the limits_config
   limits_config:
     allow_structured_metadata: true
     volume_enabled: true
 
-  # Keep the commonConfig
+  # Fix memberlist configuration to use proper service names
   commonConfig:
     replication_factor: 3
     ring:
       kvstore:
         store: memberlist
 
-  # Keep the memberlist configuration
+  # Update memberlist configuration
   memberlist:
     join_members:
+      # Use default Helm-generated service names
+      - loki-memberlist.monitoring.svc.cluster.local
+      # Add backend headless service as fallback
       - loki-backend-headless.monitoring.svc.cluster.local
 
   # S3 storage configuration
   storage:
     bucketNames:
-      chunks: ceph-chunks
-      ruler: loki-ruler
-      admin: loki-admin
+      chunks: loki
+      ruler: loki
+      admin: loki
     type: s3
     s3:
       s3: null
       endpoint: minio.storage.svc.cluster.local
-      region: us-east-1  # Required field
+      region: us-east-1
       insecure: true
       s3forcepathstyle: true
+      # Add HTTP protocol explicitly
+      http_config:
+        insecure_skip_verify: true
+      # Add these lines for more verbose debugging
+      debug_logging: true
+      trace_logging: true
+
+# Add service configuration for memberlist
+service:
+  memberlist:
+    # Ensure memberlist service is created
+    enabled: true
 
 backend:
   replicas: 2
@@ -63,7 +73,6 @@ backend:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
-  # Use standard AWS environment variable names
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
