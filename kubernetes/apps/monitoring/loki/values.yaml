@@ -7,7 +7,7 @@ loki:
     configs:
       - from: "2024-04-01"
         store: tsdb
-        object_store: s3
+        object_store: filesystem
         schema: v13
         index:
           prefix: loki_index_
@@ -41,25 +41,11 @@ loki:
       # Add backend headless service as fallback
       - "loki-backend-headless.monitoring.svc.cluster.local"
 
-  # S3 storage configuration
+  # Using filesystem storage instead of S3
   storage:
-    bucketNames:
-      chunks: loki
-      ruler: loki
-      admin: loki
-    type: s3
-    s3:
-      endpoint: "http://loki-minio.monitoring.svc.cluster.local:9000"
-      region: us-east-1
-      insecure: true
-      s3forcepathstyle: true
-      bucketnames: ""  # Empty out bucket prefix to prevent hostname construction issues
-      # Add HTTP protocol explicitly
-      http_config:
-        insecure_skip_verify: true
-      # Add these lines for more verbose debugging
-      debug_logging: true
-      trace_logging: true
+    type: filesystem
+    filesystem:
+      directory: /var/loki/chunks
 
 # Add service configuration for memberlist
 service:
@@ -71,19 +57,8 @@ backend:
   replicas: 2
   persistence:
     enabled: true
-    size: 20Gi
+    size: 100Gi
     storageClassName: ceph-block
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: access_key
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: secret_key
 
 read:
   replicas: 2
@@ -91,35 +66,13 @@ read:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: access_key
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: secret_key
 
 write:
   replicas: 3
   persistence:
     enabled: true
-    size: 50Gi
+    size: 200Gi
     storageClassName: ceph-block
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: access_key
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: secret_key
 
 scheduler:
   enabled: true
@@ -131,17 +84,6 @@ scheduler:
     limits:
       cpu: 250m
       memory: 256Mi
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: access_key
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: secret_key
 
 # Disable built-in Minio
 minio:
@@ -152,17 +94,6 @@ gateway:
   auth_enabled: false
   service:
     type: LoadBalancer
-  extraEnv:
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: access_key
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-credentials
-          key: secret_key
 
 monitoring:
   dashboards:
