@@ -9,6 +9,10 @@ persistence:
   storageClass: "ceph-block"
   accessMode: ReadWriteOnce
 
+# Deployment Strategy for RWO volumes
+deploymentStrategy:
+  type: Recreate
+
 # Resource allocation
 resources:
   requests:
@@ -30,32 +34,12 @@ mcImage:
 # Ingress Configuration for MinIO API
 ingress:
   enabled: false
-  ingressClassName: internal
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-  host: minio.wakkalabs.com
-  path: /
-  tls:
-    - secretName: minio-tls
-      hosts:
-        - minio.wakkalabs.com
+
 
 # Console Configuration with separate Ingress
 consoleIngress:
   enabled: false
-  ingressClassName: internal
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
-  host: console.wakkalabs.com
-  path: /
-  tls:
-    - secretName: console-tls
-      hosts:
-        - console.wakkalabs.com
+
 
 # Service configuration
 service:
