@@ -3,7 +3,7 @@ deploymentMode: SimpleScalable
 loki:
   auth_enabled: false
 
-  # Move storage configuration to the correct location
+  # Updated S3 storage configuration
   storage:
     bucketNames:
       chunks: loki
@@ -13,45 +13,11 @@ loki:
     s3:
       s3: null
       endpoint: minio.storage.svc.cluster.local
-      region: us-east-1  # Required field even if not used
-      bucketnames: loki
-      s3forcepathstyle: true
+      region: us-east-1  # Required field
       insecure: true
-      access_key_id: ${ACCESS_KEY}
-      secret_access_key: ${SECRET_KEY}
-
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
-
-  ingester:
-    chunk_encoding: snappy
-
-  querier:
-    max_concurrent: 4
-
-  pattern_ingester:
-    enabled: true
-
-  limits_config:
-    allow_structured_metadata: true
-    volume_enabled: true
-
-  commonConfig:
-    replication_factor: 3
-    ring:
-      kvstore:
-        store: memberlist
-
-  memberlist:
-    join_members:
-      - loki-backend-headless.monitoring.svc.cluster.local
+      s3forcepathstyle: true
+      # Don't use ${var} syntax here - let environment variables be detected automatically
+      # access_key_id and secret_access_key will be picked up from env vars
 
 backend:
   replicas: 2
@@ -59,13 +25,14 @@ backend:
     enabled: true
     size: 20Gi
     storageClassName: ceph-block
+  # Use standard AWS environment variable names
   extraEnv:
-    - name: ACCESS_KEY
+    - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: minio-credentials
           key: access_key
-    - name: SECRET_KEY
+    - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: minio-credentials
@@ -78,12 +45,12 @@ read:
     size: 20Gi
     storageClassName: ceph-block
   extraEnv:
-    - name: ACCESS_KEY
+    - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: minio-credentials
           key: access_key
-    - name: SECRET_KEY
+    - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: minio-credentials
@@ -96,12 +63,12 @@ write:
     size: 50Gi
     storageClassName: ceph-block
   extraEnv:
-    - name: ACCESS_KEY
+    - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: minio-credentials
           key: access_key
-    - name: SECRET_KEY
+    - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: minio-credentials
@@ -118,12 +85,12 @@ scheduler:
       cpu: 250m
       memory: 256Mi
   extraEnv:
-    - name: ACCESS_KEY
+    - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: minio-credentials
           key: access_key
-    - name: SECRET_KEY
+    - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: minio-credentials
@@ -138,15 +105,13 @@ gateway:
   auth_enabled: false
   service:
     type: LoadBalancer
-    annotations:
-      io.cilium/lb-ipam-ips: "192.168.101.8"
   extraEnv:
-    - name: ACCESS_KEY
+    - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: minio-credentials
           key: access_key
-    - name: SECRET_KEY
+    - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: minio-credentials
