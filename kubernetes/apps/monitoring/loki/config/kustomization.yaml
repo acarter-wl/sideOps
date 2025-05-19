@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - ./minio-service-ref.yaml
   - ./loki-minio-alias.yaml
-  - ./loki-runtime-config.yaml
-  - ./loki-configmap.yaml
+  - ./minio-bucket-creator.yaml
 generators:
   - ./secret-generator.yaml

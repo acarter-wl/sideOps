@@ -42,9 +42,6 @@ data:
       ring:
         kvstore:
           store: memberlist
-      storage:
-        filesystem:
-          directory: /var/loki/chunks
     frontend:
       scheduler_address: ""
       tail_proxy_url: ""
@@ -86,9 +83,9 @@ data:
             update_interval: 1m
     ruler:
       storage:
-        filesystem:
+        local:
           directory: /var/loki/ruler
-        type: filesystem
+        type: local
       wal:
         dir: /var/loki/ruler-wal
     runtime_config:
