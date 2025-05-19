@@ -3,6 +3,23 @@ deploymentMode: SimpleScalable
 loki:
   auth_enabled: false
 
+  # Move storage configuration to the correct location
+  storage:
+    bucketNames:
+      chunks: loki
+      ruler: loki
+      admin: loki
+    type: s3
+    s3:
+      s3: null
+      endpoint: minio.storage.svc.cluster.local
+      region: us-east-1  # Required field even if not used
+      bucketnames: loki
+      s3forcepathstyle: true
+      insecure: true
+      access_key_id: ${ACCESS_KEY}
+      secret_access_key: ${SECRET_KEY}
+
   schemaConfig:
     configs:
       - from: "2024-04-01"
@@ -32,22 +49,10 @@ loki:
       kvstore:
         store: memberlist
 
-    # S3 storage configuration - corrected variable names
-    storage:
-      s3:
-        s3: null
-        endpoint: minio.storage.svc.cluster.local
-        bucketnames: ceph-chunks
-        access_key_id: ${ACCESS_KEY}
-        secret_access_key: ${SECRET_KEY}
-        s3forcepathstyle: true
-        insecure: true
-
   memberlist:
     join_members:
       - loki-backend-headless.monitoring.svc.cluster.local
 
-# Component configurations with corrected environment variable names
 backend:
   replicas: 2
   persistence:
