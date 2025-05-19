@@ -1,53 +1,57 @@
-deploymentMode: SimpleScalable
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
 
-loki:
-  auth_enabled: false
+common:
+  instance_interface: 127.0.0.1
+  # Change this to point to your S3 compatible storage setup
+  storage_backend: s3
+  path_prefix: /var/loki
+  replication_factor: 1 # Adjust based on desired redundancy (usually 1 in simple deployments)
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: memberlist
 
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
+# Configuration for Index and Chunk storage in S3
+storage_config:
+  aws:
+    s3:
+      minio:
+        s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000/loki"
+        s3forcepathstyle: true
 
-  ingester:
-    chunk_encoding: snappy
 
-  querier:
-    max_concurrent: 4
+schema_config:
+  configs:
+    - from: 2020-10-27 # Starting date for this schema version
+      store: boltdb-shipper # Index store
+      object_store: s3       # Chunk store
+      schema: v11          # Schema version
+      index:
+        prefix: index_
+        period: 24h
 
-  pattern_ingester:
-    enabled: true
-
-  limits_config:
-    allow_structured_metadata: true
-    volume_enabled: true
-
-  # Fix memberlist configuration to use proper service names
-  commonConfig:
-    replication_factor: 3
-    ring:
-      kvstore:
-        store: memberlist
-
-  # Update memberlist configuration
-  memberlist:
-    join_members:
-      - "loki-memberlist.monitoring.svc.cluster.local:7946"
-
+chunk_store_config:
+  max_look_back_period: 0s
 
   # S3 storage configuration using named_stores pattern from the github issue
-  storage_config:
-    named_stores:
-      aws:
-        minio:
-          s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000/loki"
-          s3forcepathstyle: true
-  chunk_store_config:
-    max_look_back_period: 0s
+compactor:
+  working_directory: /var/loki/compactor
+  shared_store: s3 # compacted chunks go to S3
+
+ingester:
+  wal:
+    enabled: true # Recommended for persistence
+    dir: /var/loki/wal
+
+limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h # 7 days example retention - ADJUST THIS!
+  # Other limits like ingestion rate, query limits, etc. can be set here.
+
+
 
 # Add service configuration for memberlist
 service:
