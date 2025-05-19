@@ -49,7 +49,6 @@ loki:
       admin: loki
     type: s3
     s3:
-      s3: null
       endpoint: minio.storage.svc.cluster.local
       region: us-east-1
       insecure: true
