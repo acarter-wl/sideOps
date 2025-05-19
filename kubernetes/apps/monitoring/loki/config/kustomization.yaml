@@ -2,5 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./minio-bucket-creator.yaml
+  - ./minio-service-ref.yaml
 generators:
   - ./secret-generator.yaml
