@@ -46,12 +46,12 @@ loki:
       - "loki-backend-headless.monitoring.svc.cluster.local"
 
   # S3 storage configuration using named_stores pattern from the github issue
-  storage_config:
-    named_stores:
-      aws:
-        minio:
-          s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
-          s3ForcePathStyle: true
+storage_config:
+  named_stores:
+    aws:
+      minio:
+        s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
+        s3forcepathstyle: true
   chunk_store_config:
     max_look_back_period: 0s
 
