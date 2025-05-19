@@ -53,6 +53,7 @@ loki:
       region: us-east-1
       insecure: true
       s3forcepathstyle: true
+      bucketnames: ""  # Fix for incorrect bucket hostname resolution
       # Add HTTP protocol explicitly
       http_config:
         insecure_skip_verify: true
