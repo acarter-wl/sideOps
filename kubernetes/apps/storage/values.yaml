@@ -1,0 +1,103 @@
+
+mode: standalone
+existingSecret: "minio-credentials"
+
+# Storage Configuration
+persistence:
+  enabled: true
+  size: 100Gi
+  storageClass: "ceph-block"
+  accessMode: ReadWriteOnce
+
+# Resource allocation
+resources:
+  requests:
+    memory: 1Gi
+    cpu: 250m
+  limits:
+    memory: 2Gi
+    cpu: 500m
+
+# Images and versions
+image:
+  repository: minio/minio
+  tag: RELEASE.2023-06-23T20-26-00Z
+  pullPolicy: IfNotPresent
+
+mcImage:
+  repository: minio/mc
+  tag: RELEASE.2023-06-19T19-31-19Z
+  pullPolicy: IfNotPresent
+
+# Ingress Configuration for MinIO API
+ingress:
+  enabled: true
+  ingressClassName: internal
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+  host: minio.wakkalabs.com
+  path: /
+  tls:
+    - secretName: minio-tls
+      hosts:
+        - minio.wakkalabs.com
+
+# Console Configuration with separate Ingress
+consoleIngress:
+  enabled: true
+  ingressClassName: internal
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+  host: console.wakkalabs.com
+  path: /
+  tls:
+    - secretName: console-tls
+      hosts:
+        - console.wakkalabs.com
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 9000
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/path: '/minio/v2/metrics/cluster'
+    prometheus.io/port: '9000'
+
+# Create Loki buckets after MinIO install
+defaultBucket:
+  enabled: true
+  name: loki-chunks
+  policy: none
+  purge: false
+
+# Additional buckets
+buckets:
+  - name: loki-ruler
+    policy: none
+    purge: false
+  - name: loki-admin
+    policy: none
+    purge: false
+
+# MinIO configuration
+minioConfig:
+  region: "us-east-1"
+  browser: "on"
+  compression:
+    enable: true
+    extensions: [".txt", ".log", ".csv", ".json"]
+    mime-types: ["text/plain", "text/csv", "application/json"]
+
+# Health checks
+readinessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 5
+
+livenessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 10

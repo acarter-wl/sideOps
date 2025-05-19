@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-loki-buckets
+  namespace: storage
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'  # Run after MinIO is deployed
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: mc
+        image: minio/mc:latest
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: rootUser  # Make sure this matches your secret key
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: rootPassword  # Make sure this matches your secret key
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mc alias set myminio http://minio.storage.svc.cluster.local:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
+          mc mb --ignore-existing myminio/loki-chunks
+          mc mb --ignore-existing myminio/loki-ruler
+          mc mb --ignore-existing myminio/loki-admin
+      restartPolicy: OnFailure
