@@ -3,12 +3,52 @@ deploymentMode: SimpleScalable
 loki:
   auth_enabled: false
 
-  # Updated S3 storage configuration
+  # Add back the schema configuration
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  # Keep the ingester configuration
+  ingester:
+    chunk_encoding: snappy
+
+  # Keep the querier configuration
+  querier:
+    max_concurrent: 4
+
+  # Keep the pattern_ingester configuration
+  pattern_ingester:
+    enabled: true
+
+  # Keep the limits_config
+  limits_config:
+    allow_structured_metadata: true
+    volume_enabled: true
+
+  # Keep the commonConfig
+  commonConfig:
+    replication_factor: 3
+    ring:
+      kvstore:
+        store: memberlist
+
+  # Keep the memberlist configuration
+  memberlist:
+    join_members:
+      - loki-backend-headless.monitoring.svc.cluster.local
+
+  # S3 storage configuration
   storage:
     bucketNames:
-      chunks: loki
-      ruler: loki
-      admin: loki
+      chunks: ceph-chunks
+      ruler: loki-ruler
+      admin: loki-admin
     type: s3
     s3:
       s3: null
@@ -16,8 +56,6 @@ loki:
       region: us-east-1  # Required field
       insecure: true
       s3forcepathstyle: true
-      # Don't use ${var} syntax here - let environment variables be detected automatically
-      # access_key_id and secret_access_key will be picked up from env vars
 
 backend:
   replicas: 2
