@@ -1,63 +1,9 @@
 deploymentMode: SimpleScalable
 
+# Using custom Loki config
 loki:
+  existingConfigMap: loki-custom-config
   auth_enabled: false
-
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: s3
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
-
-  ingester:
-    chunk_encoding: snappy
-
-  querier:
-    max_concurrent: 4
-
-  pattern_ingester:
-    enabled: true
-
-  limits_config:
-    allow_structured_metadata: true
-    volume_enabled: true
-
-  # Fix memberlist configuration to use proper service names
-  commonConfig:
-    replication_factor: 3
-    ring:
-      kvstore:
-        store: memberlist
-
-  # Update memberlist configuration
-  memberlist:
-    join_members:
-      # Use default Helm-generated service names
-      - "loki-memberlist.monitoring.svc.cluster.local"
-      # Add backend headless service as fallback
-      - "loki-backend-headless.monitoring.svc.cluster.local"
-
-  # S3 storage configuration
-  storage:
-    bucketNames:
-      chunks: loki
-      ruler: loki
-      admin: loki
-    type: s3
-    s3:
-      endpoint: "http://10.43.173.94:9000"
-      region: us-east-1
-      insecure: true
-      s3forcepathstyle: true
-      # Add HTTP protocol explicitly
-      http_config:
-        insecure_skip_verify: true
-      # For debugging
-      debug_logging: true
 
 # Add service configuration for memberlist
 service:
