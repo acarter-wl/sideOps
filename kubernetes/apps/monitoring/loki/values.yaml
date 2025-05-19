@@ -49,10 +49,11 @@ loki:
       admin: loki
     type: s3
     s3:
-      endpoint: "http://minio-service-ref.monitoring.svc.cluster.local:9000"
+      endpoint: "http://loki-minio.monitoring.svc.cluster.local:9000"
       region: us-east-1
       insecure: true
       s3forcepathstyle: true
+      bucketnames: ""  # Empty out bucket prefix to prevent hostname construction issues
       # Add HTTP protocol explicitly
       http_config:
         insecure_skip_verify: true
