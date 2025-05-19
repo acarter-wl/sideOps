@@ -18,35 +18,39 @@ loki:
       admin: loki #Your S3 bucket name for admin if needed (recommended separate)
 
 # Configuration for Index and Chunk storage in S3
-storage_config:
-  aws:
-    s3:
-      minio:
-        s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000/loki"
-        s3forcepathstyle: true
 
-
+    aws:
+      region: "us-east-1"
+      accessKeyId: "nDHdq3UjrbAw0R6k"
+      secretAccessKey: "rjAu8hYf24ra3kzsEApzhsjfqUG00LPt"
+      endpoint: "http://minio.storage.svc.cluster.local:9000"
+      s3ForcePathStyle: true
   schemaConfig:
     configs:
-      - from: 2020-10-27 # Start date for this schema config
-        store: boltdb-shipper # Index store (can be boltdb-shipper for S3)
-        object_store: s3 # Chunk store
-        schema: v11 # Schema version
+      - from: 2020-10-27 # Start date for this schema config - Use a date before you started logging
+        store: boltdb-shipper # Index store type when using S3
+        object_store: s3 # Chunk store type
+        schema: v11 # Recommended schema version
         index:
-          prefix: index_ # Prefix for index objects in S3
+          prefix: index_ # Prefix for index objects in S3 bucket
           period: 24h # How often to create new index files
 
   limits_config:
     enforce_metric_name: false
     reject_old_samples: true
-    reject_old_samples_max_age: 168h # 7 days example retention - AD
+    reject_old_samples_max_age: 168h # 7 d # 7 days example retention - AD
 
   # S3 storage configuration using named_stores pattern from the github issue
   boltdbShipper:
     sharedStore: s3 # Boltdb-shipper stores index files in S3
-    activeindexdirectory: /var/loki/index
-  compactor:
-    workingDirectory: /var/loki/compactor # Local working directory
-    sharedStore: s3
 
-replicaCount: 1
+replicaCount: 1 # Adjust replica count
+
+# REQUIRED for boltdb-shipper and compactor working directories
+persistence:
+  enabled: true
+  size: 20Gi # Adjust size based on expected local storage needs
+  storageClass: ceph-block # Or your default/preferred storage class
+  accessModes: [ReadWriteOnce]
+
+
