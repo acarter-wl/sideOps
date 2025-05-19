@@ -4,4 +4,3 @@ kind: Kustomization
 resources:
   - ./config
   - ingress.yaml
-  - loki-buckets.yaml
