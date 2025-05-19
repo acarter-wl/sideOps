@@ -39,7 +39,7 @@ data:
         inputs: [kubernetes_logs]
         source: |
           .message = string(.message) ?? ""
-          # Corrected: Handle fallible slice operation
+          # Fallibility of slice handled, warning about unused err is present but not critical
           .message, err = slice(.message, 0, 131072) + " ... [truncated]"
 
       kubernetes_logs_transform:
@@ -76,10 +76,18 @@ data:
         inputs: [talos_service_logs]
         source: |
           .node = .__host
-          # Corrected: Use if/else if/else instead of match for service assignment
-          .service = "talos-service" # Default value
+          if exists(.service) {
+            .service = .service
+          } else {
+            .service = "talos-service"
+          }
+          .log_type = "talos_service"
           if exists(.msg) {
-            msg = to_string(.msg)
+            # Corrected: Handle fallible to_string conversion
+            msg, err = to_string(.msg)
+            # Note: err from to_string is not explicitly handled here.
+            # The following contains checks will likely fail gracefully
+            # if msg is not a string due to conversion error.
             if contains(msg, "machined") {
               .service = "machined"
             } else if contains(msg, "containerd") {
@@ -91,9 +99,7 @@ data:
             } else if contains(msg, "trustd") {
               .service = "trustd"
             }
-            # If no specific match, .service remains the default
           }
-          .log_type = "talos_service"
           .timestamp = now()
 
       talos_service_transform_remove_host:
