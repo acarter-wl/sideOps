@@ -41,25 +41,15 @@ loki:
       # Add backend headless service as fallback
       - "loki-backend-headless.monitoring.svc.cluster.local"
 
-  # S3 storage configuration
-  storage:
-    bucketNames:
-      chunks: loki
-      ruler: loki
-      admin: loki
-    type: s3
-    s3:
-      endpoint: "http://minio.storage.svc.cluster.local:9000"
-      region: us-east-1
-      insecure: true
-      s3ForcePathStyle: true # camelCase fixed here!
-      accessKey: "nDHdq3UjrbAw0R6k"
-      secretKey: "rjAu8hYf24ra3kzsEApzhsjfqUG00LPt"
-      # Add HTTP protocol explicitly
-      http_config:
-        insecure_skip_verify: true
-      # For debugging
-      debug_logging: true
+  # S3 storage configuration using named_stores pattern from the github issue
+  storage_config:
+    named_stores:
+      aws:
+        minio:
+          s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
+          s3forcepathstyle: true
+  chunk_store_config:
+    max_look_back_period: 0s
 
 # Add service configuration for memberlist
 service:
