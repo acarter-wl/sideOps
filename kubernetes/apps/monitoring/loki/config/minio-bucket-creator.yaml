@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: loki-minio-bucket-creator
+  namespace: monitoring
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: mc
+        image: minio/mc
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mc alias set myminio http://minio.storage.svc.cluster.local:9000 "$ACCESS_KEY" "$SECRET_KEY"
+          # Check if loki bucket exists, create if not
+          if ! mc ls myminio/loki > /dev/null 2>&1; then
+            echo "Creating loki bucket"
+            mc mb myminio/loki
+          else
+            echo "Loki bucket already exists"
+          fi
+        env:
+        - name: ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: access_key
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: secret_key
