@@ -32,7 +32,11 @@ loki:
     ring:
       kvstore:
         store: memberlist
-
+  storage:
+    bucketNames:
+      chunks: loki
+      ruler: loki
+      admin: loki
   # Update memberlist configuration
   memberlist:
     join_members:
@@ -47,7 +51,7 @@ loki:
       aws:
         minio:
           s3: "http://nDHdq3UjrbAw0R6k:rjAu8hYf24ra3kzsEApzhsjfqUG00LPt@minio.storage.svc.cluster.local:9000"
-          s3forcepathstyle: true
+          s3ForcePathStyle: true
   chunk_store_config:
     max_look_back_period: 0s
 
