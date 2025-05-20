@@ -111,7 +111,7 @@ data:
       loki_kubernetes:
         type: loki
         inputs: [kubernetes_logs_transform]
-        endpoint: http://loki-gateway.monitoring.svc
+        endpoint: http://loki.monitoring.svc:3100
         encoding:
           codec: json
         labels:
@@ -135,7 +135,7 @@ data:
       loki_talos_kernel:
         type: loki
         inputs: [talos_kernel_transform_remove_host]
-        endpoint: http://loki-gateway.monitoring.svc
+        endpoint: http://loki.monitoring.svc:3100
         encoding:
           codec: json
         labels:
@@ -157,7 +157,7 @@ data:
       loki_talos_service:
         type: loki
         inputs: [talos_service_transform_remove_host]
-        endpoint: http://loki-gateway.monitoring.svc
+        endpoint: http://loki.monitoring.svc:3100
         encoding:
           codec: json
         labels:
