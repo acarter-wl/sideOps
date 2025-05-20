@@ -1,5 +1,30 @@
+# kubernetes/apps/monitoring/loki/values.yaml
 loki:
   auth_enabled: false
+  config: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    schema_config:
+      configs:
+        - from: 2021-05-12
+          store: boltdb-shipper
+          object_store: s3
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+    storage_config:
+      aws:
+        s3: s3://minio.storage:9000/loki
+        s3forcepathstyle: true
+        bucketnames: loki
+        region: us-east-1
+        insecure: false
+        sse_encryption: false
+      boltdb_shipper:
+        shared_store: s3
+        cache_ttl: 24h
   image:
     tag: 2.9.3
   env:
@@ -13,28 +38,3 @@ loki:
         secretKeyRef:
           name: iam-loki-s3
           key: AWS_SECRET_ACCESS_KEY
-  server:
-    http_listen_port: 3100
-  config:
-    schema_config:
-      configs:
-        - from: 2021-05-12
-          store: boltdb-shipper
-          object_store: s3
-          schema: v11
-          index:
-            prefix: loki_index_
-            period: 24h
-          chunks:
-            period: 24h
-    storage_config:
-      aws:
-        s3: s3://minio.storage:9000/loki
-        s3forcepathstyle: true
-        bucketnames: loki
-        region: us-east-1
-        insecure: false
-        sse_encryption: false
-      boltdb_shipper:
-        shared_store: s3
-        cache_ttl: 24h
