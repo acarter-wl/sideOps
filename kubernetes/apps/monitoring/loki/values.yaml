@@ -8,6 +8,14 @@ loki:
   extraEnvFrom:
     - configMapRef:
         name: loki-runtime
+  
+  # Query frontend and scheduler configuration  
+  read:
+    configuration:
+      query_scheduler:
+        use_scheduler_ring: true
+  
+  # Base config file  
   config: |
     auth_enabled: false
     server:
@@ -32,6 +40,10 @@ loki:
       ring:
         kvstore:
           store: inmemory
+          
+    # Query scheduler config
+    query_scheduler:
+      use_scheduler_ring: true
 
     # General memberlist configuration (can be minimal for inmemory store)
     memberlist:
