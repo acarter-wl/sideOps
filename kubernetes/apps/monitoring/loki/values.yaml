@@ -1,6 +1,10 @@
 loki:
   auth_enabled: false
-  useTestSchema: true  # This enables the test schema
+  useTestSchema: true
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: standard
   config: |
     auth_enabled: false
     server:
@@ -28,6 +32,9 @@ loki:
         insecure: true
       boltdb_shipper:
         shared_store: s3
+        active_index_directory: /var/loki/boltdb-shipper-active
+        cache_location: /var/loki/boltdb-shipper-cache
+        cache_ttl: 24h
   image:
     tag: 2.9.3
   env:
