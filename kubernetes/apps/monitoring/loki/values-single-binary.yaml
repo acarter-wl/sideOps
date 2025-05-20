@@ -20,26 +20,52 @@ loki:
           object_store: s3
           schema: v12
           index:
-            prefix: loki_index_
             period: 24h
+            prefix: loki_index_
     storage_config:
       aws:
+        access_key_id: "eVpT4jOcgK2mkOGA"
         bucketnames: loki-chunks
         endpoint: minio.storage.svc.cluster.local:9000
-        access_key_id: admin
-        secret_access_key: admin123
-        s3forcepathstyle: true
         insecure: true
+        s3forcepathstyle: true
+        secret_access_key: "8vaeCrnvc6hCZ3ApKyh5534zBNMp0qC7"
       tsdb_shipper:
         active_index_directory: /var/loki/tsdb-index
         cache_location: /var/loki/tsdb-cache
         shared_store: s3
-    storage:
-      bucketNames:
-        chunks: "loki-chunks"
+    # storage:
+    #   bucketNames:
+    #     chunks: "loki-chunks"
 # Use single binary mode
-deploymentMode: SingleBinary
+# gateway:
+#   enabled: false # Disable gateway and Ingress
+#   ingress:
+#     annotations:
+#       cert-manager.io/cluster-issuer: "letsencrypt-production"
+#     enabled: false # Ingress is not used when gateway is disabled
+#     hosts:
+#       - host: loki.wakkalabs.com
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#     ingressClassName: "internal" # Common practice for specifying ingress class
+#     tls:
+#       - hosts:
+#           - loki.wakkalabs.com
+#         secretName: loki-tls
 
+# This service block configures the main Loki service (for singleBinary pods).
+# If using Ingress via the gateway, this service typically can be ClusterIP.
+# Exposing it as LoadBalancer on port 443 (to HTTP 3100) is redundant if Ingress is used
+# and might be misconfigured for TLS if the LB doesn't terminate.
+# Consider changing to ClusterIP or adjusting ports if LB is truly desired alongside Ingress.
+# service:
+#   port: 3100       # Expose Loki's HTTP port internally
+#   targetPort: 3100
+#   type: ClusterIP # Changed from LoadBalancer assuming Ingress is primary
+
+deploymentMode: SingleBinary
 # Disable other components
 backend:
   replicas: 0
