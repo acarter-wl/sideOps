@@ -5,8 +5,17 @@ loki:
     enabled: true
     size: 50Gi
     storageClassName: rook-ceph
-  extraArgs:
-    - "-config.expand-env=true"
+  commonArgs:
+    - -config.expand-env=true
+  backend:
+    extraArgs:
+      - -config.expand-env=true
+  read:
+    extraArgs:
+      - -config.expand-env=true
+  write:
+    extraArgs:
+      - -config.expand-env=true
   config: |
     auth_enabled: false
     server:
