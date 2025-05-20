@@ -1,56 +1,40 @@
 loki:
-  # Global settings
-  auth_enabled: false # Set to false if not using Loki authentication
-
-  # Service Type (ClusterIP is common for internal access, e.g., from Grafana in the same cluster)
-  service:
-    type: ClusterIP
-    ports:
-      http: 3100
-      grpc: 9095
-
-  # Storage Configuration (S3 Backend)
-  storage:
-    type: s3 # Specify S3 as the storage backend
-    bucketNames:
-      chunks: loki
-      ruler: loki #ur S3 bucket name for ruler if enabled (recommended separate)
-      admin: loki #Your S3 bucket name for admin if needed (recommended separate)
-
-# Configuration for Index and Chunk storage in S3
-
-    aws:
-      region: "us-east-1"
-      accessKeyId: "nDHdq3UjrbAw0R6k"
-      secretAccessKey: "rjAu8hYf24ra3kzsEApzhsjfqUG00LPt"
-      endpoint: "http://minio.storage.svc.cluster.local:9000"
-      s3ForcePathStyle: true
-  schemaConfig:
-    configs:
-      - from: 2020-10-27 # Start date for this schema config - Use a date before you started logging
-        store: boltdb-shipper # Index store type when using S3
-        object_store: s3 # Chunk store type
-        schema: v11 # Recommended schema version
-        index:
-          prefix: index_ # Prefix for index objects in S3 bucket
-          period: 24h # How often to create new index files
-
-  limits_config:
-    enforce_metric_name: false
-    reject_old_samples: true
-    reject_old_samples_max_age: 168h # 7 d # 7 days example retention - AD
-
-  # S3 storage configuration using named_stores pattern from the github issue
-  boltdbShipper:
-    sharedStore: s3 # Boltdb-shipper stores index files in S3
-
-replicaCount: 1 # Adjust replica count
-
-# REQUIRED for boltdb-shipper and compactor working directories
-persistence:
-  enabled: true
-  size: 20Gi # Adjust size based on expected local storage needs
-  storageClass: ceph-block # Or your default/preferred storage class
-  accessModes: [ReadWriteOnce]
-
-
+  auth_enabled: false
+  image:
+    tag: 2.9.3
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: iam-loki-s3
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: iam-loki-s3
+          key: AWS_SECRET_ACCESS_KEY
+  server:
+    http_listen_port: 3100
+  config:
+    schema_config:
+      configs:
+        - from: 2021-05-12
+          store: boltdb-shipper
+          object_store: s3
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+          chunks:
+            period: 24h
+    storage_config:
+      aws:
+        s3: s3://minio.storage:9000/loki
+        s3forcepathstyle: true
+        bucketnames: loki
+        region: us-east-1
+        insecure: false
+        sse_encryption: false
+      boltdb_shipper:
+        shared_store: s3
+        cache_ttl: 24h
