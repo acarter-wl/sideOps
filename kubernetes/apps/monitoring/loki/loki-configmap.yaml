@@ -1,6 +1,16 @@
-loki:
-  auth_enabled: false
-  structuredConfig:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/version: 3.4.2
+    helm.sh/chart: loki-6.29.0
+data:
+  config.yaml: |
+    auth_enabled: false
     common:
       path_prefix: /var/loki
       replication_factor: 1
@@ -10,7 +20,7 @@ loki:
     
     schema_config:
       configs:
-        - from: 2022-01-01
+        - from: "2022-01-01"
           store: tsdb
           object_store: s3
           schema: v12
@@ -51,36 +61,7 @@ loki:
       working_directory: /var/loki/compactor
       shared_store: s3
       compaction_interval: 5m
-
-# Use single binary mode
-deploymentMode: SingleBinary
-singleBinary:
-  replicas: 1
-
-# Explicitly disable other deployment modes
-backend:
-  replicas: 0
-read:
-  replicas: 0
-write:
-  replicas: 0
-minio:
-  enabled: false  # Use external MinIO
-ingester:
-  replicas: 0
-querier:
-  replicas: 0
-queryFrontend:
-  replicas: 0
-queryScheduler:
-  replicas: 0
-distributor:
-  replicas: 0
-compactor:
-  replicas: 0
-indexGateway:
-  replicas: 0
-bloomCompactor:
-  replicas: 0
-bloomGateway:
-  replicas: 0
+    
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9095
