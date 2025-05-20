@@ -5,6 +5,8 @@ loki:
     enabled: true
     size: 50Gi
     storageClassName: rook-ceph
+  extraArgs:
+    - "-config.expand-env=true"
   config: |
     auth_enabled: false
     server:
@@ -29,12 +31,10 @@ loki:
       ring:
         kvstore:
           store: inmemory
-          
-    # Ring configuration for query scheduler
+    
+    # Scheduler configuration without ring field      
     query_scheduler:
-      ring:
-        kvstore:
-          store: inmemory
+      scheduler_address: ${POD_IP}:9095
 
     # General memberlist configuration (can be minimal for inmemory store)
     memberlist:
