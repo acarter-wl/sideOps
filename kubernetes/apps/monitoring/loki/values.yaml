@@ -1,5 +1,6 @@
 loki:
   auth_enabled: false
+  useTestSchema: true  # This enables the test schema
   config: |
     auth_enabled: false
     server:
