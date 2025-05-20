@@ -3,8 +3,8 @@ loki:
   useTestSchema: true
   persistence:
     enabled: true
-    size: 10Gi
-    storageClassName: standard
+    size: 50Gi
+    storageClassName: rook-ceph
   config: |
     auth_enabled: false
     server:
@@ -14,6 +14,7 @@ loki:
         s3:
           s3: s3://minio.storage:9000/loki
           s3forcepathstyle: true
+      path_prefix: /var/loki
     schema_config:
       configs:
         - from: 2020-10-24
@@ -37,6 +38,13 @@ loki:
         cache_ttl: 24h
   image:
     tag: 2.9.3
+  extraVolumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: loki-storage
+  extraVolumeMounts:
+    - name: storage
+      mountPath: /var/loki
   env:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
