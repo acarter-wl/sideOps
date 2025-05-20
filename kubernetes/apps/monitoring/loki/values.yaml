@@ -1,13 +1,17 @@
-# kubernetes/apps/monitoring/loki/values.yaml
 loki:
   auth_enabled: false
   config: |
     auth_enabled: false
     server:
       http_listen_port: 3100
+    common:
+      storage:
+        s3:
+          s3: s3://minio.storage:9000/loki
+          s3forcepathstyle: true
     schema_config:
       configs:
-        - from: 2021-05-12
+        - from: 2020-10-24
           store: boltdb-shipper
           object_store: s3
           schema: v11
@@ -20,11 +24,9 @@ loki:
         s3forcepathstyle: true
         bucketnames: loki
         region: us-east-1
-        insecure: false
-        sse_encryption: false
+        insecure: true
       boltdb_shipper:
         shared_store: s3
-        cache_ttl: 24h
   image:
     tag: 2.9.3
   env:
