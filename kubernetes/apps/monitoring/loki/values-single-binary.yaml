@@ -34,7 +34,9 @@ loki:
         active_index_directory: /var/loki/tsdb-index
         cache_location: /var/loki/tsdb-cache
         shared_store: s3
-
+    storage:
+      bucketNames:
+        chunks: "loki-chunks"
 # Use single binary mode
 deploymentMode: SingleBinary
 
