@@ -15,9 +15,34 @@ loki:
           s3: s3://minio.storage:9000/loki
           s3forcepathstyle: true
       path_prefix: /var/loki
+    
+    # Ring configuration for ingester
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+    
+    # Ring configuration for distributor
+    distributor:
+      ring:
+        kvstore:
+          store: inmemory
+          
+    # Ring configuration for query scheduler
+    query_scheduler:
+      ring:
+        kvstore:
+          store: inmemory
+
+    # General memberlist configuration (can be minimal for inmemory store)
+    memberlist:
+      join_members: [] 
+
     schema_config:
       configs:
-        - from: 2020-10-24
+        - from: 2020-10-24 
           store: boltdb-shipper
           object_store: s3
           schema: v11
@@ -36,6 +61,7 @@ loki:
         active_index_directory: /var/loki/boltdb-shipper-active
         cache_location: /var/loki/boltdb-shipper-cache
         cache_ttl: 24h
+
   image:
     tag: 2.9.3
   extraVolumes:
