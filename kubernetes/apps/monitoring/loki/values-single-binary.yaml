@@ -1,0 +1,49 @@
+singleBinary:
+  replicas: 1
+
+loki:
+  auth_enabled: false
+  structuredConfig:
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    common:
+      path_prefix: /var/loki
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+    schema_config:
+      configs:
+        - from: "2022-01-01"
+          store: tsdb
+          object_store: s3
+          schema: v12
+          index:
+            prefix: loki_index_
+            period: 24h
+    storage_config:
+      aws:
+        bucketnames: loki-chunks
+        endpoint: minio.storage.svc.cluster.local:9000
+        access_key_id: admin
+        secret_access_key: admin123
+        s3forcepathstyle: true
+        insecure: true
+      tsdb_shipper:
+        active_index_directory: /var/loki/tsdb-index
+        cache_location: /var/loki/tsdb-cache
+        shared_store: s3
+
+# Use single binary mode
+deploymentMode: SingleBinary
+
+# Disable other components
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+minio:
+  enabled: false
