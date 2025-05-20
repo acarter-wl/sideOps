@@ -5,15 +5,20 @@ loki:
     enabled: true
     size: 50Gi
     storageClassName: rook-ceph
-  extraEnvFrom:
-    - configMapRef:
-        name: loki-runtime
   
-  # Query frontend and scheduler configuration  
+  # Single binary mode for simpler deployment
+  singleBinary:
+    replicas: 1
+    extraArgs:
+      - "-config.expand-env=true"
+  
+  # Disable other components in favor of single binary mode
+  backend:
+    enabled: false
   read:
-    configuration:
-      query_scheduler:
-        use_scheduler_ring: true
+    enabled: false 
+  write:
+    enabled: false
   
   # Base config file  
   config: |
@@ -40,10 +45,6 @@ loki:
       ring:
         kvstore:
           store: inmemory
-          
-    # Query scheduler config
-    query_scheduler:
-      use_scheduler_ring: true
 
     # General memberlist configuration (can be minimal for inmemory store)
     memberlist:
