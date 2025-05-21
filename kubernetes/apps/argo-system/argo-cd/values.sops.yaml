@@ -2,9 +2,6 @@ crds:
     install: true
 global:
     domain: argo.wakkalabs.com
-    annotations:
-        link.argocd.argoproj.io/external-link: https://grafana.wakkalabs.com/public-dashboards/01947f154d534e55896492b383a76c4d?var-datasource=default&var-cluster=&var-job=&var-namespace=&var-kubernetes_cluster=&var-project=
-configs:
     params:
         server.insecure: true
     cm:
@@ -173,8 +170,8 @@ sops:
             ejVpd3JnMmwrQ3k0QlExWmdzbVk3YmcKOqV2kluOhfERAUiHD2A8U7wcE76X8XeB
             qooQeywk++vx7GrhRNGIITolGmsfsE/USg0R9x8ZCprXEan5AV7naw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-05-04T22:44:48Z"
-    mac: ENC[AES256_GCM,data:tR03BIQAjpNJqGd7qbxzr2Nemlx36/6yTsP/WVf7+O/9OXJMDcEF4pkeK49EGBnVJ3fHloeCz/lEFCsh6TluY7EYlDHqa09D1O/bcesY1Z9R2xBXEnmTsAaXS+Pk68R0FxYm+fEYM/2rEw0j1HeufjAjiqpD/F5aoDql8FI1AFQ=,iv:rsV9qwyxXDUwBOaBdLnOPAIOwjIDXzqWZJKensviE+M=,tag:oRzMZNvWVDvML2+mE7ZPLA==,type:str]
+    lastmodified: "2025-05-21T06:34:38Z"
+    mac: ENC[AES256_GCM,data:+HkkKudY61A0rnrChQnpCBworqtsxcdYHNsKS8Nl+y/GHuESQjOH9KovV5tnQn5V/kqi1vxJFIb7H8K9rT3eMOEtVy0m2vUmQdEazI8+KkfUNUnyc9F+L6DR8XGihKb3HQcfktGgyHpNBaquFgVqHXH9NnRFAMHqXb+r7se2kbI=,iv:Oyypy2eoWqQ4po+yVmWutIs8tyjrC2nbeIz1I5ADYh0=,tag:VoXorX2X538hc28UqPoFLA==,type:str]
     encrypted_regex: ^(data|stringData)$
     mac_only_encrypted: true
     version: 3.10.2

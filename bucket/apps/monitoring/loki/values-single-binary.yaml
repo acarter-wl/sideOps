@@ -1,12 +1,6 @@
-singleBinary:
-  replicas: 1
-
 loki:
   auth_enabled: false
-  structuredConfig:
-    auth_enabled: false
-    server:
-      http_listen_port: 3100
+  config: 
     common:
       path_prefix: /var/loki
       replication_factor: 1
@@ -22,6 +16,8 @@ loki:
           index:
             period: 24h
             prefix: loki_index_
+    server:
+      http_listen_port: 3100
     storage_config:
       aws:
         access_key_id: "eVpT4jOcgK2mkOGA"
@@ -34,10 +30,24 @@ loki:
         active_index_directory: /var/loki/tsdb-index
         cache_location: /var/loki/tsdb-cache
         shared_store: s3
-    # storage:
-    #   bucketNames:
-    #     chunks: "loki-chunks"
-# Use single binary mode
+  storage:
+    bucketNames:
+      chunks: "loki-chunks"
+      # ruler: "loki-ruler" # Uncomment and set if you use ruler with S3
+      # admin: "loki-admin" # Uncomment and set if you use admin with S3
+    type: s3
+  # storage:
+  #   bucketNames:
+  #     chunks: "loki-chunks"
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+
+backend:
+  replicas: 0
+
 # gateway:
 #   enabled: false # Disable gateway and Ingress
 #   ingress:
@@ -55,23 +65,21 @@ loki:
 #           - loki.wakkalabs.com
 #         secretName: loki-tls
 
+minio:
+  enabled: false
+
+read:
+  replicas: 0
+
 # This service block configures the main Loki service (for singleBinary pods).
 # If using Ingress via the gateway, this service typically can be ClusterIP.
 # Exposing it as LoadBalancer on port 443 (to HTTP 3100) is redundant if Ingress is used
 # and might be misconfigured for TLS if the LB doesn't terminate.
 # Consider changing to ClusterIP or adjusting ports if LB is truly desired alongside Ingress.
-# service:
-#   port: 3100       # Expose Loki's HTTP port internally
-#   targetPort: 3100
-#   type: ClusterIP # Changed from LoadBalancer assuming Ingress is primary
+service:
+  port: 3100       # Expose Loki's HTTP port internally
+  targetPort: 3100
+  type: ClusterIP # Changed from LoadBalancer assuming Ingress is primary
 
-deploymentMode: SingleBinary
-# Disable other components
-backend:
-  replicas: 0
-read:
-  replicas: 0
 write:
   replicas: 0
-minio:
-  enabled: false

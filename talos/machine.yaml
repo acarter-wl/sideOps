@@ -1,0 +1,90 @@
+apiVersion: machineconfiguration.talos.dev/v1alpha1
+kind: MachineConfig
+metadata:
+  name: default
+machine:
+  type: controlplane
+  token: <YOUR-TOKEN-HERE>
+  install:
+    disk: /dev/sda
+    image: factory.talos.dev/installer/ed8f512419f9237e2ee8a61b0323774dd935fdd41d51f33acf41f2df68517432:v1.10.1
+    wipe: false
+    extraKernelArgs:
+      - talos.autogrowroot=true
+  network:
+    hostname: n1
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: bc:24:11:8a:d7:a6
+        addresses:
+          - 192.168.101.120/23
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.100.1
+        mtu: 9000
+        dhcp: false
+        vip:
+          ip: 192.168.101.130
+    nameservers:
+      - 192.168.100.2
+    disableSearchDomain: true
+  time:
+    disabled: false
+    servers:
+      - 162.159.200.1
+      - 162.159.200.123
+  sysctls:
+    fs.inotify.max_user_instances: "8192"
+    fs.inotify.max_user_watches: "1048576"
+    net.core.rmem_max: "7500000"
+    net.core.wmem_max: "7500000"
+  files:
+    - path: /etc/cri/conf.d/20-customization.part
+      op: create
+      permissions: 0o644
+      content: |
+        [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+  kubelet:
+    image: ghcr.io/siderolabs/kubelet:v1.33.0
+    extraConfig:
+      serializeImagePulls: false
+    nodeIP:
+      validSubnets:
+        - 192.168.100.0/23
+    disableManifestsDirectory: true
+    defaultRuntimeSeccompProfileEnabled: true
+  logging:
+    destinations:
+      - endpoint: udp://192.168.101.7:6051/
+        format: json_lines
+      - endpoint: udp://192.168.101.7:6050/
+        format: json_lines
+  features:
+    rbac: true
+    stableHostname: true
+    apidCheckExtKeyUsage: true
+    diskQuotaSupport: true
+    kubePrism:
+      enabled: true
+      port: 7445
+    hostDNS:
+      enabled: true
+      forwardKubeDNSToHost: true
+  nodeLabels:
+    node.kubernetes.io/exclude-from-external-load-balancers: ""
+cluster:
+  controlPlane:
+    endpoint: https://192.168.101.130:6443
+  id: px57Na969iBximR3UDjwL5R9De0Qe6NRbNG_j6yvAgg=
+  secret: tpmKMgYfiJK9MQGGzHhzGPIa7DBiCrPGCE/Z2aLYU8Q=
+  clusterName: kubernetes
+  network:
+    dnsDomain: cluster.local
+    podSubnets:
+      - 10.42.0.0/16
+    serviceSubnets:
+      - 10.43.0.0/16
+    cni:
+      name: none
+  allowSchedulingOnControlPlanes: true
